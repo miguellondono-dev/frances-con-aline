@@ -1,0 +1,36 @@
+# Configuracion para alojamiento Apache, como el de Hostinger.
+# Vercel y Netlify ignoran este archivo, asi que no estorba en ningun lado.
+
+# La pagina de error del sitio, no la generica del alojamiento.
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # El sitio genera los enlaces sin barra final. Sin esta regla Apache
+  # responde con una redireccion en cada visita a una pagina interna: se ve
+  # la barra aparecer en la URL y se paga un viaje de ida y vuelta de mas.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.+?)/?$ /$1/index.html [L]
+</IfModule>
+
+# Las fuentes y las imagenes llevan huella en el nombre: cuando cambian,
+# cambia la URL. Por eso se pueden guardar un año sin riesgo.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+
+  # El HTML no: tiene que poder cambiar en cuanto se sube algo nuevo.
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml text/plain
+</IfModule>
