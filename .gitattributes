@@ -1,0 +1,11 @@
+# Los saltos de linea se guardan en LF y se sacan segun el sistema. Sin esto,
+# al clonar en Windows todo el repositorio aparece modificado.
+* text=auto eol=lf
+
+# Binarios: que git no los toque.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.avif binary
+*.woff2 binary

@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceLanding from '../components/ServiceLanding.astro';
+import { FAQ_GRUPO } from '../data/faq-servicios';
+import { faqSchema } from '../data/faq';
+import { BONOS, CTA } from '../data/site';
+import { breadcrumb, service } from '../lib/schema';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Clases en grupo', path: '/clases-en-grupo' },
+];
+
+const schema = [
+  service({
+    name: 'Clases de francés en grupo en línea',
+    description:
+      'Clases de francés en línea en grupos abiertos de dos a cinco personas. Te apuntas por tu cuenta y Aline forma el grupo por nivel.',
+    path: '/clases-en-grupo',
+    precio: 20,
+    unidad: '20 € la hora por persona',
+    site: Astro.site,
+  }),
+  breadcrumb(migas, Astro.site),
+  faqSchema(FAQ_GRUPO),
+];
+---
+
+<BaseLayout
+  title="Clases de francés en grupo, en línea"
+  description="Clases de francés en grupo de dos a cinco personas, a 20 € la hora. Te apuntas por tu cuenta y yo formo el grupo por nivel. Primera clase gratis."
+  path="/clases-en-grupo"
+  schema={schema}
+>
+  <ServiceLanding
+    label="Clase en grupo · 20 € la hora por persona"
+    titulo="Practica con más voces"
+    intro="Te apuntas por tu cuenta y yo formo el grupo con gente de tu nivel, entre dos y cinco personas. Hablas con más gente que conmigo, y eso cambia cómo suena tu francés."
+    apertura={{
+      alt: 'Varias personas en una clase de francés en línea',
+      todo: 'Grupo pequeño en clase',
+    }}
+    paraQuienSi={[
+      'Te apuntas por tu cuenta y te apetece aprender con gente nueva.',
+      'Quieres practicar conversación con más gente y no solo conmigo.',
+      'Te sueltas más cuando no eres la única persona que se equivoca.',
+      'Aprender acompañado te sostiene mejor que estudiar por tu cuenta.',
+      'Buscas un precio por hora más bajo sin caer en un grupo de veinte.',
+      'Puedes reservar la misma hora cada semana.',
+    ]}
+    paraQuienNo={[
+      'Necesitas vocabulario muy específico de tu oficio o de un trámite concreto.',
+      'Tienes una fecha muy justa y necesitas ir a tu ritmo desde el primer día.',
+      'Tu horario cambia cada semana y no puedes fijar una hora estable.',
+      'Prefieres equivocarte sin que nadie más lo oiga.',
+    ]}
+    incluye={[
+      {
+        titulo: 'Yo formo el grupo',
+        texto:
+          'Te escucho en la clase gratis y te coloco con personas que están más o menos donde estás tú.',
+      },
+      {
+        titulo: 'Conversación entre ustedes, no solo conmigo',
+        texto:
+          'Buena parte de la clase son diálogos entre los estudiantes, con la corrección en el momento en que aparece el error.',
+      },
+      {
+        titulo: 'Escuchar los errores de los demás',
+        texto:
+          'Se aprende tanto oyendo cómo corrijo a otra persona como cuando me toca corregirte a ti.',
+      },
+      {
+        titulo: 'Material común y turnos repartidos',
+        texto:
+          'Preparo el material para el grupo y reparto los turnos, así que a nadie le toca escuchar la hora entera.',
+      },
+      {
+        titulo: 'Explicaciones en español cuando hacen falta',
+        texto:
+          'Si alguien se pierde, cambio de idioma, lo explico y seguimos, sin que se quede callado para no frenar al resto.',
+      },
+      {
+        titulo: 'Cada persona se conecta desde donde esté',
+        texto:
+          'No hace falta que estén en la misma ciudad ni en el mismo país, solo que les cuadre la misma hora.',
+      },
+    ]}
+    pasos={[
+      {
+        titulo: 'La clase gratis',
+        texto:
+          'Media hora conmigo, tú solo, para escucharte y saber con qué grupo encajas.',
+      },
+      {
+        titulo: 'Te busco grupo',
+        texto:
+          'Te coloco con gente de tu nivel y arrancamos en cuanto seamos al menos dos.',
+      },
+      {
+        titulo: 'Las clases',
+        texto:
+          'Una hora por semana o dos, siempre a la misma hora, a 20 € por persona.',
+      },
+    ]}
+    precio={{
+      valor: '20 €',
+      unidad: 'la hora, por persona',
+      nota: 'Cada persona paga 20 €, no 20 € entre todos. Mínimo dos, máximo cinco.',
+    }}
+    bonos={{
+      titulo: 'Bono en grupo',
+      confirmado: BONOS.confirmado,
+      lista: BONOS.grupo,
+    }}
+    faq={FAQ_GRUPO}
+    cierre={{
+      titulo: 'Apúntate y yo me encargo del grupo',
+      texto:
+        'Media hora conmigo para escucharte, y de ahí sale con qué gente vas a aprender mejor.',
+    }}
+    breadcrumb={migas}
+    ctaHero={CTA.heroGrupo}
+    ctaCierre={CTA.cierreGrupo}
+  />
+</BaseLayout>

@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Cta from '../components/Cta.astro';
+import Aperture from '../components/Aperture.astro';
+import { breadcrumb } from '../lib/schema';
+import { CTA } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Cómo es una clase', path: '/como-es-una-clase' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+/**
+ * Esta pagina sustituye a los testimonios. Mientras no haya ninguno, la
+ * credibilidad tiene que venir de describir el proceso con tanto detalle que
+ * se pueda verificar. Nada de adjetivos: pasos, tiempos y decisiones.
+ */
+const PASOS = [
+  {
+    titulo: 'Diagnóstico',
+    cuando: 'La primera media hora, gratis',
+    texto:
+      'Te escucho hablar. Te hago preguntas normales y voy viendo qué reconoces, qué evitas y qué construyes mal sin darte cuenta. No es un test con nota: es que yo entienda tu punto de partida real, que casi nunca coincide con el que la gente cree que tiene.',
+    concreto:
+      'Salimos de ahí con tu nivel estimado dicho en voz alta, y con las dos o tres cosas que te están frenando más.',
+  },
+  {
+    titulo: 'Plan según tu objetivo',
+    cuando: 'Antes de la segunda clase',
+    texto:
+      'Mudarte no es lo mismo que viajar, y ninguna de las dos es preparar un examen. El plan sale de para qué necesitas el francés y de cuándo lo necesitas. Si tienes una fecha, el plan se construye hacia atrás desde esa fecha.',
+    concreto:
+      'Te digo qué vamos a cubrir mes a mes y cuántas clases por semana hacen falta para eso. Si no da, lo digo antes y no después.',
+  },
+  {
+    titulo: 'Material cultural real',
+    cuando: 'En cada clase',
+    texto:
+      'Trabajamos con prensa, canciones, menús, formularios, carteles y escenas de película. Elegidos para ti: si te mudas a Lyon con dos hijos, el material habla de colegios y de médicos, no de un viaje de turismo.',
+    concreto:
+      'Yo lo preparo y te lo mando antes de cada clase. No tienes que comprar ningún libro.',
+  },
+  {
+    titulo: 'Tarea corta',
+    cuando: 'Entre una clase y otra',
+    texto:
+      'Poca y concreta. Prefiero un ejercicio que hagas a cinco que abandones. La tarea no está para controlarte, está para que entre clase y clase pase algo y no llegues a la siguiente desde cero.',
+    concreto:
+      'Si semana tras semana no llega, no te riño: recorto la tarea, porque significa que la puse demasiado larga.',
+  },
+  {
+    titulo: 'Revisión conjunta',
+    cuando: 'Al empezar la clase siguiente',
+    texto:
+      'La clase empieza mirando tu tarea juntos. No te la devuelvo corregida por escrito. La corregimos en voz alta, tú explicando por qué lo escribiste así, porque el error casi siempre viene de una regla que aplicaste bien a un caso equivocado.',
+    concreto:
+      'Es la parte que más gente se salta cuando estudia sola, y es donde de verdad se aprende.',
+  },
+  {
+    titulo: 'Ajuste de horario',
+    cuando: 'Cuando tu semana cambia',
+    texto:
+      'Los horarios se mueven, sobre todo en plena mudanza. Se reprograma y el plan se recalcula. No pierdes el hilo por haber cambiado de día, y no arrastras una clase perdida como si fuera una deuda.',
+    concreto: 'PENDIENTE: falta definir el plazo de aviso para mover una clase.',
+    pendiente: true,
+  },
+];
+
+const NO_HAGO = [
+  'No te doy una nota ni un certificado. Enseño y preparo, no evalúo oficialmente.',
+  'No sigo un libro de principio a fin. Si quieres exactamente eso, hay cursos que lo hacen mejor que yo.',
+  'No prometo un nivel para una fecha. Puedo decirte qué vamos a cubrir; cuánto se te queda depende también de ti.',
+  'No hablo solo en francés desde el minuto uno. Es una técnica válida y no es la mía.',
+  'No doy clase a niños. Trabajo con adultos.',
+];
+---
+
+<BaseLayout
+  title="Cómo es una clase de francés conmigo, paso a paso"
+  description="Los seis pasos de una clase conmigo: diagnóstico, plan según tu objetivo, material cultural real, tarea corta, revisión conjunta y ajuste de horario."
+  path="/como-es-una-clase"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit" data-reveal>El método, paso a paso</p>
+      <h1 class="mt-5 max-w-[24ch] text-display-xl text-encre" data-reveal>
+        Cómo es una clase conmigo
+      </h1>
+      <p class="measure mt-7 text-body text-nuit" data-reveal>
+        Todavía no tengo testimonios que mostrarte, así que en su lugar te
+        cuento el proceso completo con suficiente detalle para que puedas
+        juzgarlo tú. Son seis pasos y son siempre los mismos.
+      </p>
+    </div>
+  </section>
+
+  <!-- Los seis pasos, en detalle -->
+  <section class="bg-papier" aria-labelledby="pasos">
+    <h2 id="pasos" class="sr-only">Los seis pasos</h2>
+    <ol class="shell py-section">
+      {
+        PASOS.map((paso, i) => (
+          <li
+            class="grid gap-6 border-t border-encre/20 py-10 first:border-t-0 first:pt-0 lg:grid-cols-12 lg:gap-8"
+            data-reveal
+          >
+            <div class="lg:col-span-4">
+              <span class="numerals text-display-m text-corail" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="mt-2 text-display-m text-encre">{paso.titulo}</h3>
+              <p class="mt-2 text-body-s text-nuit">{paso.cuando}</p>
+            </div>
+
+            <div class="lg:col-span-7 lg:col-start-6">
+              <p class="measure text-body text-encre">{paso.texto}</p>
+
+              {paso.pendiente ? (
+                /* TODO [PENDIENTE] Plazo de aviso para mover una clase. */
+                <p class="measure mt-5 rounded-panel border border-corail/40 bg-blanc px-5 py-4 text-body">
+                  <span class="label mb-1 block text-lie">Pendiente</span>
+                  {paso.concreto.replace(/^PENDIENTE:\s*/, '')}
+                </p>
+              ) : (
+                <p class="measure mt-5 border-l-2 border-bleu pl-5 text-body text-nuit">
+                  {paso.concreto}
+                </p>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- Que NO hago. Es la otra mitad de la credibilidad. -->
+  <section class="bg-blanc" aria-labelledby="no-hago">
+    <div
+      class="pad-shell-left grid items-center gap-12 py-section lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+    >
+      <div class="pad-shell-right lg:pr-0">
+        <p class="label text-nuit" data-reveal>Los límites</p>
+        <h2 id="no-hago" class="mt-6 max-w-[20ch] text-display-l text-encre" data-reveal>
+          Lo que no hago
+        </h2>
+        <ul class="mt-10 flex flex-col">
+          {
+            NO_HAGO.map((item) => (
+              <li
+                class="measure border-t border-pierre py-5 text-body text-nuit first:border-t-0 first:pt-0"
+                data-reveal
+              >
+                {item}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="pad-shell-right lg:pr-0" data-reveal="fade">
+        {/* TODO [PENDIENTE: foto real] Aline en un momento casual de clase. */}
+        <Aperture
+          alt="Aline durante una clase, tomando notas"
+          todo="Aline en clase, foto casual"
+          ratio="aspect-[4/5]"
+          parallax
+          class="mx-auto w-full max-w-[24rem]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark" aria-labelledby="cierre">
+    <div class="shell flex flex-col items-start py-section">
+      <h2 id="cierre" class="max-w-[22ch] text-display-l text-blanc" data-reveal>
+        El paso uno es gratis y dura media hora
+      </h2>
+      <p class="measure mt-7 text-body text-ciel" data-reveal>
+        Media hora en línea para escucharte y saber de dónde partimos.
+      </p>
+      <div class="mt-10" data-reveal>
+        <Cta href="/agenda">{CTA.metodo}</Cta>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,136 @@
+---
+/**
+ * LA APERTURA — elemento firma del sitio.
+ *
+ * El ojo del logo convertido en sistema. Recorta cada imagen principal con una
+ * mascara en forma de almendra, de modo que las fotos se ven "a traves" del ojo.
+ *
+ * Los parpados (opcional, `lids`) se separan al cargar. Se anima UNICAMENTE
+ * transform: nunca clip-path, nunca el atributo d de un path. La forma curva del
+ * parpado sale de un border-radius eliptico, que es estatico y no cuesta nada.
+ *
+ * Degradado limpio:
+ *  - sin JS, los parpados estan abiertos (la regla de cierre exige .js).
+ *  - con prefers-reduced-motion, aparecen abiertos y sin transicion.
+ *
+ * Mientras no haya fotos reales, renderiza un hueco marcado y legible. El bloque
+ * esta disenado para no romperse sin imagen: si se cae sin foto, esta mal hecho.
+ */
+interface Props {
+  /** Alt descriptivo, ya redactado. Obligatorio: toda apertura lleva contenido. */
+  alt: string;
+  /** Que foto va aqui. Se muestra en el hueco y queda como TODO en el codigo. */
+  todo: string;
+  /** Proporcion del hueco, en clase Tailwind. */
+  ratio?: string;
+  /** Ruta de la imagen real cuando exista. */
+  src?: string;
+  /** Parpados que se abren al cargar. Solo el hero y el cierre. */
+  lids?: boolean;
+  /** Color del parpado: debe ser el del fondo de la seccion. */
+  lidColor?: 'blanc' | 'papier' | 'encre' | 'nuit' | 'chair';
+  /** Parallax suave. Recorrido maximo 40px. Si se nota, es demasiado. */
+  parallax?: boolean;
+  /** Carga prioritaria. Solo la del hero. */
+  eager?: boolean;
+  class?: string;
+}
+
+const {
+  alt,
+  todo,
+  ratio = 'aspect-[4/5]',
+  src,
+  lids = false,
+  lidColor = 'blanc',
+  parallax = false,
+  eager = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<figure class={`relative ${ratio} ${className}`} data-parallax={parallax ? '' : undefined}>
+  <div class="aperture absolute inset-0" data-lids={lids ? 'closed' : undefined}>
+    {
+      src ? (
+        <img
+          src={src}
+          alt={alt}
+          class="h-full w-full object-cover"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding={eager ? 'sync' : 'async'}
+          fetchpriority={eager ? 'high' : undefined}
+        />
+      ) : (
+        /* TODO [PENDIENTE: foto real] {todo} */
+        <div
+          class="flex h-full w-full flex-col items-center justify-center gap-3 bg-linear-to-b from-ciel to-azur px-8 text-center"
+          role="img"
+          aria-label={alt}
+        >
+          <span class="label text-encre/70">Pendiente</span>
+          <p class="max-w-[26ch] text-body-s font-medium text-encre">{todo}</p>
+        </div>
+      )
+    }
+
+    {
+      lids && (
+        <>
+          <div class="aperture-lid aperture-lid--top" style={`background-color: var(--color-${lidColor})`} />
+          <div class="aperture-lid aperture-lid--bottom" style={`background-color: var(--color-${lidColor})`} />
+        </>
+      )
+    }
+  </div>
+</figure>
+
+<style>
+  .aperture {
+    clip-path: url(#aperture-clip);
+    overflow: hidden;
+  }
+
+  .aperture-lid {
+    position: absolute;
+    left: -2%;
+    width: 104%;
+    height: 58%;
+    pointer-events: none;
+    will-change: transform;
+    transition: transform 1.1s var(--ease-smooth);
+  }
+
+  /* La curva del parpado sale del radio eliptico. Es forma, no animacion. */
+  .aperture-lid--top {
+    top: 0;
+    border-radius: 0 0 50% 50% / 0 0 45% 45%;
+    transform: translateY(-104%);
+  }
+
+  .aperture-lid--bottom {
+    bottom: 0;
+    border-radius: 50% 50% 0 0 / 45% 45% 0 0;
+    transform: translateY(104%);
+    transition-delay: 60ms;
+  }
+
+  /* El ojo solo empieza cerrado si hay JS que lo pueda abrir. */
+  :global(.js) .aperture[data-lids='closed'] .aperture-lid--top,
+  :global(.js) .aperture[data-lids='closed'] .aperture-lid--bottom {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* El ojo aparece abierto y estatico. */
+    .aperture-lid {
+      transition: none !important;
+    }
+    :global(.js) .aperture[data-lids='closed'] .aperture-lid--top {
+      transform: translateY(-104%) !important;
+    }
+    :global(.js) .aperture[data-lids='closed'] .aperture-lid--bottom {
+      transform: translateY(104%) !important;
+    }
+  }
+</style>

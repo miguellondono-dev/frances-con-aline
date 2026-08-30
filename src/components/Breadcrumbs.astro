@@ -1,0 +1,38 @@
+---
+/**
+ * Migas. El ultimo elemento no es enlace y se marca con aria-current.
+ * El JSON-LD de BreadcrumbList se genera aparte, desde la propia pagina, con
+ * los mismos datos.
+ */
+interface Props {
+  items: { name: string; path: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Migas de pan" class="text-body-s text-nuit" data-reveal>
+  <ol class="flex flex-wrap items-center gap-2">
+    {
+      items.map((item, i) => (
+        <li class="flex items-center gap-2">
+          {i > 0 && (
+            <span aria-hidden="true" class="text-pierre">
+              /
+            </span>
+          )}
+          {i === items.length - 1 ? (
+            <span aria-current="page">{item.name}</span>
+          ) : (
+            <a
+              href={item.path}
+              class="underline underline-offset-4 hover:no-underline"
+            >
+              {item.name}
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

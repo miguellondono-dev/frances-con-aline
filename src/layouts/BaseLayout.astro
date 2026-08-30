@@ -1,0 +1,127 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ApertureDefs from '../components/ApertureDefs.astro';
+import { SITE_NAME, SITE_DESCRIPTION } from '../data/site';
+
+interface Props {
+  /** 50 a 60 caracteres. Sin el nombre del sitio: se anade aqui. */
+  title: string;
+  /** 140 a 155 caracteres. */
+  description?: string;
+  /** Ruta canonica, sin dominio. Ej: /clases-privadas */
+  path?: string;
+  /** Bloques JSON-LD de la pagina. */
+  schema?: unknown[];
+  noindex?: boolean;
+  /** El home lleva su propio titulo completo, sin sufijo. */
+  rawTitle?: boolean;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  path = Astro.url.pathname,
+  schema = [],
+  noindex = false,
+  rawTitle = false,
+} = Astro.props;
+
+const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
+const canonical = new URL(path, Astro.site ?? 'https://PENDIENTE-DOMINIO.example').href;
+
+// TODO [PENDIENTE: imagen de compartir en redes] 1200x630, se genera aparte.
+const ogImage = new URL('/og.png', Astro.site ?? 'https://PENDIENTE-DOMINIO.example').href;
+
+const lastUpdated = new Date().toISOString().slice(0, 10);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta name="author" content="Aline" />
+    {/* Unico hex literal del proyecto: una meta no puede leer una variable CSS.
+        Es --blanc. Si cambia el token, hay que cambiarlo aqui tambien. */}
+    <meta name="theme-color" content="#FFFDFB" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/* Preparado para /en con hreflang. El ingles todavia no se construye. */}
+    <link rel="alternate" hreflang="es" href={canonical} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
+
+    <link
+      rel="preload"
+      href="/fonts/Satoshi-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/CabinetGrotesk-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      schema.map((block) => (
+        <script type="application/ld+json" set:html={JSON.stringify(block)} is:inline />
+      ))
+    }
+
+    {/* Antes del primer pintado, para que el estado inicial del motion no parpadee. */}
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-panel focus:bg-encre focus:px-5 focus:py-3 focus:text-blanc"
+    >
+      Saltar al contenido
+    </a>
+
+    <ApertureDefs />
+
+    <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-20 w-px"></div>
+
+    <Header />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <Footer lastUpdated={lastUpdated} />
+
+    <script>
+      import '../scripts/motion.ts';
+      import '../scripts/forms.ts';
+    </script>
+  </body>
+</html>

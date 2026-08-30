@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { breadcrumb } from '../lib/schema';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Términos', path: '/terminos' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+const actualizado = new Date().toISOString().slice(0, 10);
+
+/**
+ * Mismo criterio que en privacidad: se describe lo que ya esta decidido y
+ * verificable, y lo que falta se marca. No se inventa una politica de
+ * cancelacion ni un metodo de pago que nadie ha decidido todavia.
+ */
+const PENDIENTES = [
+  {
+    titulo: 'Política de cancelación y reprogramación',
+    texto:
+      'Con cuánta antelación se puede mover una clase, qué pasa si se avisa tarde y qué pasa si la persona no aparece.',
+  },
+  {
+    titulo: 'Métodos de pago y momento del cobro',
+    texto:
+      'Qué medios se aceptan y si se paga antes o después de cada clase o bono.',
+  },
+  {
+    titulo: 'Condiciones de los bonos',
+    texto:
+      'Precio final, vencimiento y qué ocurre con las clases no usadas al vencer.',
+  },
+  {
+    titulo: 'Devoluciones',
+    texto: 'En qué casos se devuelve dinero de un bono ya pagado y en cuáles no.',
+  },
+  {
+    titulo: 'Identidad legal y jurisdicción',
+    texto:
+      'Nombre completo o razón social, país de establecimiento y ley aplicable.',
+  },
+];
+---
+
+<BaseLayout
+  title="Términos y condiciones"
+  description="Las condiciones de las clases: qué incluye cada formato, cómo se agenda y qué está todavía por definir antes de publicar."
+  path="/terminos"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <h1 class="mt-8 max-w-[20ch] text-display-xl text-encre">
+        Términos y condiciones
+      </h1>
+      <p class="mt-6 text-body-s text-nuit">
+        Última actualización: <time datetime={actualizado}>{actualizado}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-papier">
+    <div class="shell py-section">
+      <div class="mx-auto max-w-3xl">
+        <h2 class="text-display-m text-encre">Lo que ya está decidido</h2>
+
+        <dl class="mt-8 flex flex-col">
+          <div class="border-t border-encre/20 py-6 first:border-t-0 first:pt-0">
+            <dt class="text-title text-encre">Qué se contrata</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              Clases de francés en línea, de una hora, impartidas por Aline. La
+              primera clase, de 30 minutos, es gratuita y no obliga a nada.
+            </dd>
+          </div>
+          <div class="border-t border-encre/20 py-6">
+            <dt class="text-title text-encre">Precios</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              35 € la hora en clase individual y 20 € la hora por persona en
+              clase en grupo, de dos a cinco personas. Todos los precios están en
+              euros.
+            </dd>
+          </div>
+          <div class="border-t border-encre/20 py-6">
+            <dt class="text-title text-encre">El sitio no cobra</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              Esta web solo sirve para agendar. No hay pasarela de pago y no se
+              introducen aquí datos bancarios ni de tarjeta. El pago se acuerda
+              directamente con Aline, fuera de la web.
+            </dd>
+          </div>
+          <div class="border-t border-encre/20 py-6">
+            <dt class="text-title text-encre">Qué no incluye</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              No se expiden certificados ni títulos oficiales. La preparación del
+              DELF es preparación y simulacros: la evaluación oficial la realiza
+              un centro examinador acreditado, no Aline.
+            </dd>
+          </div>
+          <div class="border-t border-encre/20 py-6">
+            <dt class="text-title text-encre">Talleres y tours</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              Están en construcción. Apuntarse a la lista de espera no reserva
+              plaza ni obliga a comprar nada.
+            </dd>
+          </div>
+        </dl>
+
+        <h2 class="mt-16 text-display-m text-encre">Lo que falta por definir</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Estos puntos no se pueden inventar y hay que cerrarlos antes de
+          publicar el sitio.
+        </p>
+
+        {/* TODO [PENDIENTE] Cada uno de estos puntos necesita una decision de
+            Miguel y de Aline antes de que el sitio se publique. */}
+        <ul class="mt-8 flex flex-col gap-4">
+          {
+            PENDIENTES.map((item) => (
+              <li class="rounded-panel border border-corail/40 bg-blanc p-6">
+                <span class="label mb-2 block text-lie">Pendiente</span>
+                <p class="text-title text-encre">{item.titulo}</p>
+                <p class="measure mt-2 text-body text-nuit">{item.texto}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

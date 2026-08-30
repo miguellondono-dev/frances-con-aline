@@ -1,0 +1,61 @@
+---
+/**
+ * El boton del sitio. Dice lo que hace, nunca "Empezar".
+ *
+ * Variantes:
+ *  - grenat: el CTA principal sobre fondo claro o sobre --encre.
+ *  - lie:    el mismo CTA sobre superficies calidas (--papier, --chair), donde
+ *            --grenat se queda en 4.5:1 justo al limite. --lie lo resuelve.
+ *  - encre:  el del header. Va en tinta y no en rojo a proposito: al repetirse
+ *            en todas las pantallas, un header rojo le quita fuerza al rojo de
+ *            dentro de la pagina, que es donde se decide. Contraste 18.9:1.
+ *  - ghost:  accion secundaria. Nunca compite con el principal.
+ */
+interface Props {
+  href?: string;
+  variant?: 'grenat' | 'lie' | 'encre' | 'ghost';
+  class?: string;
+  type?: 'button' | 'submit';
+  id?: string;
+  /** Cualquier otro atributo (data-*, aria-*) se pasa tal cual al elemento. */
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  variant = 'grenat',
+  class: className = '',
+  type = 'button',
+  id,
+  ...rest
+} = Astro.props;
+
+/**
+ * El boton se levanta un pelo al pasar por encima y se hunde al pulsar. Es el
+ * unico feedback tactil del sitio y va en transform, asi que no cuesta nada.
+ */
+const base =
+  'group/cta inline-flex items-center justify-center gap-2.5 rounded-pill px-7 py-4 text-center font-display text-[1.0625rem] font-medium tracking-[-0.01em] min-h-[52px] transition-[transform,background-color,border-color,box-shadow] duration-fast ease-smooth hover:-translate-y-0.5 hover:shadow-lift active:translate-y-0 active:shadow-none motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0';
+
+const variants = {
+  grenat: 'bg-grenat text-blanc hover:bg-lie',
+  lie: 'bg-lie text-blanc hover:bg-encre',
+  encre: 'bg-encre text-blanc hover:bg-nuit',
+  ghost:
+    'border border-current bg-transparent text-current hover:bg-encre hover:text-blanc hover:border-encre',
+};
+
+const classes = `${base} ${variants[variant]} ${className}`;
+---
+
+{
+  href ? (
+    <a href={href} class={classes} id={id} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} id={id} {...rest}>
+      <slot />
+    </button>
+  )
+}

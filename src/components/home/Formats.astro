@@ -1,0 +1,489 @@
+---
+/**
+ * LA OFERTA.
+ *
+ * La tarjeta solo lleva lo necesario para decidir: qué es, cuánto cuesta, qué
+ * incluye y por dónde se entra. Para explicar está la página de cada formato.
+ *
+ * Al pasar por encima entra un degradado entre los dos azules oscuros de la
+ * paleta, más oscuro arriba y más claro abajo. El degradado vive en un
+ * pseudoelemento y lo que se anima es su opacidad: un degradado no se puede
+ * interpolar, y hacerlo a lo bruto produce justo el salto tosco que había.
+ */
+const FORMAS = [
+  {
+    titulo: 'Clases 1:1',
+    precio: '35 €',
+    unidad: '/ hora',
+    incluye: [
+      '100% de la sesión contigo',
+      'Objetivos y contenido personalizados',
+      'Correcciones y feedback en directo',
+    ],
+    accion: 'Reservar una clase',
+    href: '/clases-privadas',
+  },
+  {
+    titulo: 'Grupos reducidos',
+    precio: '20 €',
+    unidad: '/ hora por persona',
+    incluye: [
+      'De 2 a 5 personas',
+      'Grupos organizados por nivel',
+      'Conversación y participación constante',
+    ],
+    accion: 'Unirme a un grupo',
+    href: '/clases-en-grupo',
+  },
+  {
+    titulo: 'Preparación DELF',
+    prefijo: 'Desde',
+    precio: '20 €',
+    unidad: '/ hora',
+    incluye: [
+      'Simulacros con formato DELF',
+      'Práctica con tiempos reales',
+      'Feedback sobre cada prueba',
+    ],
+    accion: 'Preparar mi DELF',
+    href: '/preparacion-delf',
+  },
+];
+---
+
+<section class="formas-seccion" aria-labelledby="formas-titulo">
+  <div class="shell py-14">
+    <div class="flex flex-col items-center text-center">
+      {/* data-repite: la entrada se rehace cada vez que la sección vuelve a
+          pantalla, no solo la primera. */}
+      <h2 id="formas-titulo" class="formas-titulo" data-palabras data-repite>
+        Formas de aprender <em class="destacado">francés</em> conmigo
+      </h2>
+    </div>
+
+    <ul class="formas-lista">
+      {
+        FORMAS.map((forma) => (
+          <li data-reveal data-repite>
+            <article class="forma">
+              <h3 class="forma__titulo">{forma.titulo}</h3>
+
+              <ul class="forma__lista">
+                {forma.incluye.map((item) => (
+                  <li>
+                    <svg
+                      class="forma__check"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M2.5 8.6 6.1 12.2 13.5 4"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* El precio va al final, justo encima del botón, y en voz baja:
+                  tiene que estar, pero no es lo que decide. */}
+              <p class="forma__bloque-precio">
+                {forma.prefijo && <span class="forma__unidad">{forma.prefijo}</span>}
+                <span class="forma__precio">{forma.precio}</span>
+                <span class="forma__unidad">{forma.unidad}</span>
+              </p>
+
+              <a href={forma.href} class="forma__accion">
+                {forma.accion}
+                <span class="forma__flecha" aria-hidden="true">
+                  <svg viewBox="0 0 24 16" class="h-3.5 w-5" fill="none">
+                    <path d="M0 8h22M15 1l7 7-7 7" stroke="currentColor" stroke-width="1.8" />
+                  </svg>
+                </span>
+              </a>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="formas-paris" data-reveal data-repite>
+      <p>
+        Pronto abriré calendario para mis talleres y estarán disponibles los
+        tours en español por París.
+      </p>
+      <a href="/talleres" class="boton-expandido">Avísame cuando esté disponible</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /**
+   * El fondo aguanta el tono cálido hasta bien pasadas las tarjetas y solo
+   * entonces se abre al blanco, así que por debajo de ellas todavía se
+   * percibe el color antes de desaparecer. Y arranca más claro que antes.
+   */
+  .formas-seccion {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-papier) 72%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--color-papier) 72%, var(--color-blanc)) 58%,
+      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 78%,
+      color-mix(in srgb, var(--color-papier) 14%, var(--color-blanc)) 91%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .formas-titulo {
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 17ch;
+    text-wrap: balance;
+  }
+
+  .destacado {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-weight: 600;
+    color: var(--color-lie);
+    letter-spacing: -0.01em;
+  }
+
+  /* Más angostas y centradas: a todo el ancho del contenedor quedaban
+     desparramadas. */
+  .formas-lista {
+    display: grid;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 61rem;
+    margin: 2.75rem auto 0;
+  }
+
+  @media (width >= 48rem) {
+    .formas-lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Entrada de las tarjetas: recorrido más largo y salida exponencial. La
+     anterior era corta y con freno brusco, y por eso se sentía tosca. */
+  .formas-lista > li {
+    transition:
+      opacity 820ms var(--ease-fluid),
+      transform 820ms var(--ease-fluid) !important;
+  }
+
+  :global(.js) .formas-lista > li[data-reveal] {
+    transform: translateY(34px) scale(0.985);
+  }
+
+  .formas-lista > li[data-reveal].is-revealed {
+    transform: none;
+  }
+
+  /* --- Tarjeta --- */
+  .forma {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    border-radius: 22px;
+    background-color: var(--color-blanc);
+    padding: 1.75rem 1.5rem;
+    /* Flotan desde el principio, no pegadas al fondo. */
+    box-shadow: var(--shadow-flota);
+    transition:
+      transform 520ms var(--ease-fluid),
+      box-shadow 520ms var(--ease-fluid);
+  }
+
+  /* El degradado del estado activo. Se funde por opacidad, que es lo único
+     que se puede animar de forma continua en un degradado. */
+  .forma::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-encre) 0%,
+      var(--color-encre) 30%,
+      var(--color-nuit) 100%
+    );
+    opacity: 0;
+    transition: opacity 520ms var(--ease-fluid);
+  }
+
+  .forma__titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1.1rem + 0.85vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  /**
+   * El precio, en voz baja.
+   *
+   * Antes abría la tarjeta a 48px y era lo primero que se leía, así que la
+   * tarjeta hablaba de dinero antes que de la clase. Ahora va al final, del
+   * tamaño del texto de apoyo y en tinta rebajada: quien lo busca lo
+   * encuentra, y quien no, lee antes lo que se lleva.
+   *
+   * El margen automático empuja este bloque y el botón al fondo de la
+   * tarjeta, así que los tres botones quedan a la misma altura aunque las
+   * listas tengan distinto largo.
+   */
+  .forma__bloque-precio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.3rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .forma__precio {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    /* Un punto por encima de su línea, no más: dentro de la frase se
+       distingue, pero la frase entera sigue siendo discreta. */
+    color: color-mix(in srgb, var(--color-encre) 80%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .forma__unidad {
+    font-weight: 500;
+    color: inherit;
+  }
+
+  /* --- Botón: blanco como la tarjeta, definido por su filete. Es lo que
+         hacen las referencias 3, 4 y 5, donde el botón sólido se reserva
+         para el plan destacado, y aquí no hay destacado. Sobre la tarjeta
+         activa, ese mismo blanco pasa a ser lo que más resalta. --- */
+  .forma__accion {
+    display: flex;
+    min-height: 3.25rem;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    /* Pegado al precio: los dos son el cierre de la tarjeta. */
+    margin-top: 0.85rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in srgb, var(--color-encre) 24%, transparent);
+    background-color: var(--color-blanc);
+    padding-inline: 1.25rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-encre);
+    transition:
+      background-color 420ms var(--ease-fluid),
+      border-color 420ms var(--ease-fluid),
+      color 420ms var(--ease-fluid);
+  }
+
+  .forma__flecha {
+    transition: transform 520ms var(--ease-fluid);
+  }
+
+  /* --- Lista --- */
+  /* Sube justo debajo del título: es lo que se lleva, y va antes que lo que
+     cuesta. */
+  .forma__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 1.35rem;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 80%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .forma__lista li {
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    gap: 0.65rem;
+    align-items: start;
+  }
+
+  /* Sin círculo alrededor: la marca sola es más limpia y no compite. */
+  .forma__check {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.2rem;
+    color: var(--color-encre);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  /* --- Estado activo --- */
+  .forma:hover,
+  .forma:focus-within {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .forma:hover::before,
+  .forma:focus-within::before {
+    opacity: 1;
+  }
+
+  .forma:hover .forma__titulo,
+  .forma:focus-within .forma__titulo,
+  .forma:hover .forma__lista,
+  .forma:focus-within .forma__lista {
+    color: var(--color-blanc);
+  }
+
+  /* Sobre la tarjeta activa el precio sigue siendo el que menos levanta la
+     voz: la línea entera en ciel y la cifra en un blanco rebajado, nunca el
+     blanco pleno del titular. */
+  .forma:hover .forma__bloque-precio,
+  .forma:focus-within .forma__bloque-precio,
+  .forma:hover .forma__check,
+  .forma:focus-within .forma__check {
+    color: var(--color-ciel);
+  }
+
+  .forma:hover .forma__precio,
+  .forma:focus-within .forma__precio {
+    color: color-mix(in srgb, var(--color-blanc) 82%, transparent);
+  }
+
+  .forma:hover .forma__accion,
+  .forma:focus-within .forma__accion {
+    background-color: var(--color-blanc);
+    border-color: var(--color-blanc);
+    color: var(--color-encre);
+  }
+
+  .forma:hover .forma__flecha,
+  .forma:focus-within .forma__flecha {
+    transform: translateX(5px);
+  }
+
+  /* --- Aviso de París: sin caja. Solo la frase y el botón. --- */
+  .formas-paris {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 52ch;
+    margin: 3.5rem auto 0;
+    text-align: center;
+  }
+
+  .formas-paris p {
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  /**
+   * Botón de letra abierta.
+   *
+   * Se anima letter-spacing, que es propiedad de maquetación. Es la segunda
+   * excepción declarada a la regla de animar solo transform y opacity: es lo
+   * que define este botón, va en un elemento suelto de una línea y no arrastra
+   * a nada más de la página.
+   */
+  .boton-expandido {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    /* La etiqueta es larga y en mayúsculas con la letra abierta: en móvil el
+       relleno se recorta y se permite que parta, para que no desborde. */
+    max-width: 100%;
+    padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
+    text-align: center;
+    text-wrap: balance;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-blanc);
+    box-shadow: 0 0 8px rgb(0 4 58 / 0.07);
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-encre);
+    transition:
+      letter-spacing 500ms ease,
+      background-color 500ms ease,
+      color 500ms ease,
+      box-shadow 500ms ease,
+      transform 500ms ease;
+  }
+
+  .boton-expandido:hover,
+  .boton-expandido:focus-visible {
+    letter-spacing: 0.2em;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: 0 7px 29px 0 rgb(0 4 58 / 0.45);
+  }
+
+  .boton-expandido:active {
+    letter-spacing: 0.2em;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: 0 0 0 0 rgb(0 4 58 / 0.45);
+    transform: translateY(10px);
+    transition-duration: 100ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boton-expandido,
+    .boton-expandido:hover,
+    .boton-expandido:focus-visible,
+    .boton-expandido:active {
+      letter-spacing: 0.1em;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .forma,
+    .forma::before,
+    .forma__flecha,
+    .formas-lista > li {
+      transition: none !important;
+    }
+
+    .forma:hover,
+    .forma:focus-within {
+      transform: none;
+    }
+
+    .forma:hover .forma__flecha,
+    .forma:focus-within .forma__flecha {
+      transform: none;
+    }
+  }
+</style>

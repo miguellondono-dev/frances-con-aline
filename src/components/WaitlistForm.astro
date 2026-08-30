@@ -1,0 +1,94 @@
+---
+import Cta from './Cta.astro';
+
+/**
+ * Lista de espera de talleres y tours.
+ *
+ * Anti spam sin captcha visible: campo trampa (honeypot) mas limite por IP en
+ * el endpoint. Un captcha visible cobra el peaje al usuario legitimo.
+ *
+ * Accesibilidad: label sobre el campo, error en linea junto al campo y nunca
+ * solo por color, estado anunciado con aria-live.
+ */
+interface Props {
+  /** Distingue el origen del envio en la notificacion y en la hoja. */
+  origen: 'talleres' | 'tours' | 'ambos';
+  /** Sobre superficie oscura cambian los colores de borde y texto. */
+  oscuro?: boolean;
+  id?: string;
+}
+
+const { origen, oscuro = false, id = 'lista-espera' } = Astro.props;
+
+const campo = oscuro
+  ? 'border-ciel/50 bg-transparent text-blanc placeholder:text-ciel/70'
+  : 'border-pierre bg-blanc text-encre placeholder:text-nuit/60';
+
+const etiqueta = oscuro ? 'text-ciel' : 'text-nuit';
+---
+
+<form
+  class="w-full"
+  method="post"
+  action="/api/lista-espera"
+  data-waitlist
+  data-origen={origen}
+  novalidate
+>
+  <input type="hidden" name="origen" value={origen} />
+
+  {/* Campo trampa. Invisible para personas, visible para robots. */}
+  <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+    <label for={`${id}-empresa`}>No rellenes este campo</label>
+    <input id={`${id}-empresa`} name="empresa" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto] sm:items-end">
+    <div class="flex flex-col gap-2">
+      <label for={`${id}-correo`} class={`label ${etiqueta}`}>
+        Tu correo <span aria-hidden="true">*</span>
+      </label>
+      <input
+        id={`${id}-correo`}
+        name="correo"
+        type="email"
+        required
+        aria-required="true"
+        autocomplete="email"
+        placeholder="nombre@correo.com"
+        class={`min-h-[52px] rounded-panel border px-4 py-3 text-body-s ${campo}`}
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for={`${id}-interes`} class={`label ${etiqueta}`}>Qué te interesa</label>
+      <select
+        id={`${id}-interes`}
+        name="interes"
+        class={`min-h-[52px] rounded-panel border px-4 py-3 text-body-s ${campo}`}
+      >
+        <option value="talleres">Talleres</option>
+        <option value="tours">Tours en París</option>
+        <option value="ambos">Los dos</option>
+      </select>
+    </div>
+
+    <Cta type="submit" variant={oscuro ? 'grenat' : 'grenat'} class="sm:h-[52px] sm:py-0">
+      Avísame
+    </Cta>
+  </div>
+
+  {/* Errores: en linea, junto al campo, y con texto. Nunca solo en color. */}
+  <p
+    data-waitlist-message
+    role="status"
+    aria-live="polite"
+    class={`mt-4 text-body-s ${oscuro ? 'text-ciel' : 'text-nuit'}`}
+  >
+  </p>
+
+  <p class={`mt-2 text-body-s ${oscuro ? 'text-ciel' : 'text-nuit'}`}>
+    Te escribo cuando haya fecha. Nada más. Puedes salir de la lista cuando
+    quieras.
+  </p>
+</form>

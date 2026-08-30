@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO [PENDIENTE: dominio] Sustituir por el dominio real antes de publicar.
+Sitemap: https://PENDIENTE-DOMINIO.example/sitemap-index.xml

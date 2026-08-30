@@ -1,0 +1,34 @@
+---
+/**
+ * Marca de Francés con Aline: el ojo.
+ * El SVG original se importa en crudo y se le inyectan clases, viewBox y los
+ * atributos de accesibilidad. El relleno ya es currentColor, asi que hereda el
+ * color del contexto: tinta sobre claro, blanco sobre oscuro.
+ */
+import logoRaw from '../assets/logo-aline.svg?raw';
+
+interface Props {
+  class?: string;
+  /**
+   * viewBox recortado al ojo. El archivo original es cuadrado y deja mucho aire
+   * arriba y abajo, que en el header se ve como un logo pequeno y perdido.
+   */
+  viewBox?: string;
+  /** Si se pasa, el logo es contenido y se anuncia. Si no, es decorativo. */
+  label?: string;
+}
+
+const { class: className = '', viewBox, label } = Astro.props;
+
+const attrs = label
+  ? `role="img" aria-label="${label}"`
+  : 'aria-hidden="true" focusable="false"';
+
+let svg = logoRaw.replace('<svg', `<svg class="${className}" ${attrs}`);
+
+if (viewBox) {
+  svg = svg.replace(/viewBox="[^"]*"/, `viewBox="${viewBox}"`);
+}
+---
+
+<Fragment set:html={svg} />

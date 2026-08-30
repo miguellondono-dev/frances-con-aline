@@ -1,0 +1,104 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Cta from '../../components/Cta.astro';
+import EyeGlyph from '../../components/EyeGlyph.astro';
+import { breadcrumb } from '../../lib/schema';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Diario', path: '/diario' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+const entradas = (await getCollection('diario', ({ data }) => !data.borrador)).sort(
+  (a, b) => b.data.fecha.getTime() - a.data.fecha.getTime(),
+);
+
+const formatoFecha = new Intl.DateTimeFormat('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout
+  title="Diario: vídeos sobre francés y cultura"
+  description="Vídeos cortos sobre el idioma francés y la cultura que lo rodea, con transcripción completa. Escritos y grabados por Aline."
+  path="/diario"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit">Diario</p>
+      <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre">
+        Vídeos sobre el idioma y lo que lo rodea
+      </h1>
+      <p class="measure mt-7 text-body text-nuit">
+        Cosas que explico muchas veces en clase y que prefiero dejar grabadas.
+        Cada entrada lleva su transcripción completa, para leerla si prefieres
+        leer.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-papier">
+    <div class="shell py-section">
+      {
+        entradas.length === 0 ? (
+          /* Estado vacio: explica qué pasó y qué hacer, en la voz del sitio.
+             El enlace del menu principal sigue oculto hasta que haya tres. */
+          <div class="mx-auto max-w-2xl rounded-panel border border-encre/20 bg-blanc p-10 text-center">
+            <div class="flex justify-center">
+              <EyeGlyph class="h-4 w-8 text-corail" />
+            </div>
+            <h2 class="mt-6 text-display-m text-encre">Todavía no hay entradas</h2>
+            <p class="measure mx-auto mt-4 text-body text-nuit">
+              Estoy grabando las primeras. Mientras tanto, lo que iba a contar
+              aquí te lo cuento en la clase gratis, que además dura media hora y
+              es sobre ti.
+            </p>
+            <div class="mt-8 flex justify-center">
+              <Cta href="/agenda">Agenda tu clase gratis</Cta>
+            </div>
+          </div>
+        ) : (
+          <ul class="grid gap-10 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-14">
+            {entradas.map((entrada) => (
+              <li data-reveal>
+                <article>
+                  <p class="text-body-s text-nuit">
+                    <time datetime={entrada.data.fecha.toISOString().slice(0, 10)}>
+                      {formatoFecha.format(entrada.data.fecha)}
+                    </time>
+                  </p>
+                  <h2 class="mt-3 text-display-m text-encre">
+                    <a
+                      href={`/diario/${entrada.id}`}
+                      class="underline-offset-4 hover:underline"
+                    >
+                      {entrada.data.titulo}
+                    </a>
+                  </h2>
+                  <p class="measure mt-4 text-body text-nuit">{entrada.data.resumen}</p>
+                  {entrada.data.etiquetas.length > 0 && (
+                    <ul class="mt-5 flex flex-wrap gap-2">
+                      {entrada.data.etiquetas.map((etiqueta) => (
+                        <li class="label rounded-pill border border-encre/20 px-3 py-1 text-nuit">
+                          {etiqueta}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

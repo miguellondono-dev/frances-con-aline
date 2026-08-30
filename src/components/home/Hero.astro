@@ -1,0 +1,146 @@
+---
+import Cta from '../Cta.astro';
+import ParisBackdrop from '../ParisBackdrop.astro';
+import { CTA_AGENDA, CTA } from '../../data/site';
+
+/**
+ * HERO.
+ *
+ * El verbo se borra letra a letra y el siguiente se escribe letra a letra.
+ * Ya no hay cuatro palabras apiladas peleando por el mismo sitio: hay una
+ * sola, y lo único que cambia es su texto. Por construcción no se pueden
+ * solapar.
+ *
+ * El ancho de la caja lo reserva un pseudoelemento invisible con el verbo de
+ * destino, así que mientras se escribe no se mueve nada de la línea. Ese
+ * ancho solo cambia en el instante en que la caja está vacía.
+ *
+ * El pseudoelemento no cuenta como texto: no sale al copiar, no lo lee un
+ * lector de pantalla y no lo indexa un buscador.
+ */
+const VERBOS = ['comunicarte', 'expresarte', 'pensar', 'leer'];
+---
+
+<section class="hero relative overflow-hidden bg-blanc">
+  <ParisBackdrop eager />
+
+  {/* Relleno simétrico: con el contenido centrado, cualquier desequilibrio
+      entre arriba y abajo desplaza el bloque. Aquí queremos que quede
+      exactamente en el centro de la sección. */}
+  <div
+    class="shell relative z-10 flex min-h-[calc(100svh-5.75rem)] flex-col items-center justify-center py-16 text-center"
+  >
+    <h1 class="hero-title text-encre" data-reveal>
+      {/* Un único hijo dentro del h1. El h1 es una rejilla para poder centrar
+          el texto dentro del alto reservado, y en una rejilla cada hijo se
+          convierte en bloque: sin este envoltorio, el verbo se iba solo a su
+          propia línea y rompía la frase. */}
+      <span class="hero-title__inner">
+        No es solo aprender francés.<br />
+        Es aprender a <span class="rotator" data-rotator data-verbos={JSON.stringify(VERBOS)}
+          ><span data-text>{VERBOS[0]}</span><i class="rotator__caret" aria-hidden="true"></i></span
+        > en francés.
+      </span>
+    </h1>
+
+    {/* Frase de apoyo. Va en la tipografía de cuerpo y a menor tamaño:
+        acompaña al titular, no compite con él. */}
+    <p class="hero-apoyo mt-6" data-reveal>
+      Aprende a tu ritmo, con clases dinámicas y mucha práctica para que hablar
+      francés se sienta cada vez más natural.
+    </p>
+
+    <div class="mt-9" data-reveal>
+      <Cta href={CTA_AGENDA.href}>{CTA.heroHome}</Cta>
+    </div>
+  </div>
+</section>
+
+<style>
+  /**
+   * Tamaño propio del hero. Dos puntos más de cuerpo y algo más de grosor, sin llegar a 700: Cabinet
+   * Grotesk es variable, así que 650 existe de verdad y engorda sin que el
+   * titular empiece a gritar.
+   */
+  .hero-title {
+    font-family: var(--font-display);
+    /* El techo son 74px, pero la pendiente es suave: la segunda frase tiene
+       que caber entera en una línea, y en pantallas de 1100 o 1200 una
+       pendiente mayor la partía en tres líneas. */
+    font-size: clamp(2.375rem, 1rem + 4.2vw, 4.625rem);
+    font-weight: 650;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    max-width: 22ch;
+    /* El script reserva aquí el alto del estado más largo. Se centra dentro de
+       ese alto para que la diferencia se reparta arriba y abajo en vez de
+       caer entera encima del botón. */
+    display: grid;
+    align-content: center;
+  }
+
+  @media (width >= 64rem) {
+    .hero-title {
+      max-width: none;
+    }
+  }
+
+  /* La frase de apoyo: tipografía de cuerpo, más pequeña y en tinta rebajada.
+     Se lee, pero queda claro que no es el titular. */
+  .hero-apoyo {
+    font-family: var(--font-body);
+    font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+    max-width: 46ch;
+    text-wrap: balance;
+  }
+
+  /**
+   * Nada de reservar ancho.
+   *
+   * Antes la caja medía siempre el verbo de destino, así que mientras se
+   * escribía quedaba un hueco blanco esperando a llenarse. Ahora la caja mide
+   * exactamente lo que hay escrito, y "en francés" se cierra detrás del cursor
+   * al borrar y se aparta al escribir, que es lo que pasa de verdad cuando
+   * uno corrige una palabra.
+   */
+  .rotator {
+    color: var(--color-grenat);
+    white-space: nowrap;
+  }
+
+  /* El cursor solo aparece si hay JavaScript que escriba de verdad. */
+  .rotator__caret {
+    display: none;
+    width: 0.055em;
+    height: 0.74em;
+    margin-left: 0.07em;
+    background-color: currentColor;
+    transform: translateY(0.04em);
+  }
+
+  .rotator[data-escribiendo='true'] .rotator__caret {
+    display: inline-block;
+    animation: caret-parpadeo 1.1s steps(1, end) infinite;
+  }
+
+  @keyframes caret-parpadeo {
+    0%,
+    55% {
+      opacity: 1;
+    }
+    56%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Sin movimiento no se escribe nada: se queda el primer verbo, quieto. */
+    .rotator[data-escribiendo='true'] .rotator__caret {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+/**
+ * BANDA DE VOCABULARIO.
+ *
+ * Antes era gris sobre crema y no tenía ninguna presencia. Ahora es una banda
+ * de tinta: corta el blanco del hero, marca el cambio de sección y las
+ * palabras se leen de verdad.
+ *
+ * Corre a velocidad constante. Antes aceleraba con el scroll y se descontrolaba.
+ * Cada palabra francesa va con su traducción: nunca decoración.
+ */
+const VOCABULARIO = [
+  { fr: 'flâner', es: 'pasear sin rumbo' },
+  { fr: 'la vitrine', es: 'el escaparate' },
+  { fr: 'le quotidien', es: 'la vida diaria' },
+  { fr: 'la démarche', es: 'el trámite' },
+  { fr: 'le quartier', es: 'el barrio' },
+  { fr: "s'installer", es: 'instalarse' },
+  { fr: 'la rentrée', es: 'la vuelta al curso' },
+  { fr: 'râler', es: 'quejarse a gusto' },
+  { fr: 'le boulot', es: 'el curro' },
+  { fr: 'dépaysé', es: 'fuera de tu elemento' },
+];
+---
+
+<div
+  class="marquee surface-dark relative py-7"
+  aria-label="Vocabulario francés con su traducción"
+>
+  <div class="marquee__track">
+    {
+      [0, 1].map((copia) => (
+        <ul class="marquee__group" aria-hidden={copia === 1 ? 'true' : undefined}>
+          {VOCABULARIO.map((par) => (
+            <li class="flex shrink-0 items-baseline gap-3">
+              <span class="font-display text-display-m text-blanc" lang="fr">
+                {par.fr}
+              </span>
+              <span class="text-body-s text-ciel">{par.es}</span>
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+  }
+
+  /* Los bordes se desvanecen hacia el color de la banda: las palabras entran
+     y salen en vez de cortarse en seco contra el filo. */
+  .marquee::before,
+  .marquee::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: clamp(3rem, 10vw, 9rem);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .marquee::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-encre), transparent);
+  }
+
+  .marquee::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-encre), transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-slide 60s linear infinite;
+  }
+
+  .marquee:hover .marquee__track,
+  .marquee:focus-within .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__group {
+    display: flex;
+    align-items: baseline;
+    gap: 3.5rem;
+    padding-inline: 1.75rem;
+  }
+
+  @keyframes marquee-slide {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+    }
+
+    .marquee__track {
+      animation: none !important;
+    }
+  }
+</style>

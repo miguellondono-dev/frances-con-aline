@@ -1,0 +1,123 @@
+{
+  "_aviso": "PLACEHOLDER. Las 12 preguntas definitivas las redacta Aline. Estas son de ejemplo, con la estructura ya lista: cambiar solo los textos, sin tocar el codigo. Cada pregunta tiene 4 opciones y una sola correcta, y van en dificultad ascendente.",
+  "_como_editar": "Cada objeto de 'preguntas' necesita: id, nivel (A1, A2, B1, B2 o C1), enunciado, opciones (4 textos) y correcta (indice 0 a 3). El nivel se usa para calcular el resultado: se estima el nivel mas alto en el que se acierta la mayoria.",
+  "_pendiente": true,
+  "preguntas": [
+    {
+      "id": 1,
+      "nivel": "A1",
+      "enunciado": "PLACEHOLDER. Elle _____ à Paris.",
+      "opciones": ["habite", "habites", "habitent", "habiter"],
+      "correcta": 0
+    },
+    {
+      "id": 2,
+      "nivel": "A1",
+      "enunciado": "PLACEHOLDER. _____ est ton nom ?",
+      "opciones": ["Quel", "Quelle", "Qui", "Où"],
+      "correcta": 0
+    },
+    {
+      "id": 3,
+      "nivel": "A1",
+      "enunciado": "PLACEHOLDER. Je voudrais _____ café, s'il vous plaît.",
+      "opciones": ["un", "une", "des", "de la"],
+      "correcta": 0
+    },
+    {
+      "id": 4,
+      "nivel": "A2",
+      "enunciado": "PLACEHOLDER. Hier, nous _____ au cinéma.",
+      "opciones": ["sommes allés", "avons allé", "allons", "allions"],
+      "correcta": 0
+    },
+    {
+      "id": 5,
+      "nivel": "A2",
+      "enunciado": "PLACEHOLDER. Il y a beaucoup _____ monde ici.",
+      "opciones": ["de", "du", "des", "le"],
+      "correcta": 0
+    },
+    {
+      "id": 6,
+      "nivel": "A2",
+      "enunciado": "PLACEHOLDER. Je ne connais personne qui _____ ce quartier.",
+      "opciones": ["connaisse", "connaît", "connaîtra", "connaissait"],
+      "correcta": 0
+    },
+    {
+      "id": 7,
+      "nivel": "B1",
+      "enunciado": "PLACEHOLDER. Si j'avais le temps, je _____ plus souvent.",
+      "opciones": ["voyagerais", "voyagerai", "voyage", "voyageais"],
+      "correcta": 0
+    },
+    {
+      "id": 8,
+      "nivel": "B1",
+      "enunciado": "PLACEHOLDER. C'est le livre _____ je t'ai parlé.",
+      "opciones": ["dont", "que", "qui", "lequel"],
+      "correcta": 0
+    },
+    {
+      "id": 9,
+      "nivel": "B1",
+      "enunciado": "PLACEHOLDER. Elle est partie _____ prévenir personne.",
+      "opciones": ["sans", "sauf", "hors", "malgré"],
+      "correcta": 0
+    },
+    {
+      "id": 10,
+      "nivel": "B2",
+      "enunciado": "PLACEHOLDER. Bien qu'il _____ tard, ils ont continué.",
+      "opciones": ["soit", "est", "sera", "était"],
+      "correcta": 0
+    },
+    {
+      "id": 11,
+      "nivel": "B2",
+      "enunciado": "PLACEHOLDER. Elige la frase con el registro más formal.",
+      "opciones": [
+        "Auriez-vous l'obligeance de patienter ?",
+        "Tu peux attendre ?",
+        "Attends deux minutes.",
+        "Vous pouvez attendre ?"
+      ],
+      "correcta": 0
+    },
+    {
+      "id": 12,
+      "nivel": "C1",
+      "enunciado": "PLACEHOLDER. ¿Qué significa la expresión 'tomber dans les pommes'?",
+      "opciones": [
+        "Desmayarse",
+        "Caer en desgracia",
+        "Enamorarse",
+        "Quedarse dormido"
+      ],
+      "correcta": 0
+    }
+  ],
+  "niveles": {
+    "A1": {
+      "titulo": "A1",
+      "explicacion": "Reconoces palabras sueltas y frases muy básicas. En la práctica: puedes saludar, pedir algo señalando y dar datos tuyos, pero una conversación normal todavía se te escapa entera."
+    },
+    "A2": {
+      "titulo": "A2",
+      "explicacion": "Te defiendes en situaciones cotidianas y predecibles. En la práctica: haces la compra y pides en un restaurante, pero en la oficina de trámites necesitas que te repitan casi todo."
+    },
+    "B1": {
+      "titulo": "B1",
+      "explicacion": "Sostienes una conversación sobre temas conocidos y te haces entender aunque cometas errores. En la práctica: puedes vivir el día a día en Francia, con esfuerzo y con lagunas en lo administrativo."
+    },
+    "B2": {
+      "titulo": "B2",
+      "explicacion": "Sigues una conversación entre nativos y defiendes una opinión. En la práctica: trabajas en francés y entiendes la mayor parte de la prensa, aunque los matices y el humor todavía se pierden."
+    },
+    "C1": {
+      "titulo": "C1",
+      "explicacion": "Te mueves con soltura, incluido el registro formal y el implícito. En la práctica: no cambias de idioma para explicarte y captas la ironía, que es lo último que llega."
+    }
+  }
+}

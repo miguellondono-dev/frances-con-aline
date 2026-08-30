@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceLanding from '../components/ServiceLanding.astro';
+import { FAQ_DELF } from '../data/faq-servicios';
+import { faqSchema } from '../data/faq';
+import { BONOS, PENDIENTE, CTA } from '../data/site';
+import { breadcrumb, service, course } from '../lib/schema';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Preparación DELF', path: '/preparacion-delf' },
+];
+
+const schema = [
+  course({
+    name: 'Preparación del DELF en línea',
+    description:
+      'Preparación del examen DELF con simulacros en el formato oficial. Preparo el examen y hago simulacros; no soy examinadora acreditada.',
+    path: '/preparacion-delf',
+    site: Astro.site,
+  }),
+  service({
+    name: 'Preparación DELF en línea',
+    description:
+      'Preparación del DELF una a una o en grupo, con simulacros completos en el formato y los tiempos oficiales.',
+    path: '/preparacion-delf',
+    precio: 35,
+    unidad: '35 € la hora en privado, 20 € la hora por persona en grupo',
+    site: Astro.site,
+  }),
+  breadcrumb(migas, Astro.site),
+  faqSchema(FAQ_DELF),
+];
+---
+
+<BaseLayout
+  title="Preparación del DELF en línea, con simulacros"
+  description="Preparo el DELF con simulacros en el formato oficial. Trabajamos las cuatro partes del examen y los tiempos reales. Primera clase gratis de 30 minutos."
+  path="/preparacion-delf"
+  schema={schema}
+>
+  <ServiceLanding
+    label="DELF · mismo precio que privada o grupo"
+    titulo="Llegar al examen sabiendo cómo funciona el examen"
+    intro="Preparo el DELF con simulacros en el formato y los tiempos oficiales. Quiero ser precisa en una cosa: preparo y hago simulacros, no soy examinadora acreditada y no evalúo oficialmente. Quien te pone la nota es el centro donde te presentes."
+    apertura={{
+      alt: 'Mesa de estudio con hojas de examen y un reloj',
+      todo: 'Mesa de examen con reloj y hojas',
+    }}
+    paraQuienSi={[
+      'Necesitas el DELF para una universidad, un trabajo o un trámite migratorio.',
+      'Ya tienes base en francés y quieres convertirla en un resultado concreto.',
+      'Tienes una fecha de examen y quieres organizar la preparación hacia ella.',
+      'Se te va el tiempo en las pruebas y no sabes exactamente dónde.',
+      'Quieres hacer el examen completo, cronometrado, antes de hacerlo de verdad.',
+    ]}
+    paraQuienNo={[
+      'Quieres aprender francés desde cero en un mes y presentarte a un B2. No es realista y te lo voy a decir en la primera clase.',
+      'Buscas quien te corrija pruebas oficiales o te dé la nota. Eso lo hace el centro examinador, no yo.',
+      'Necesitas que te inscriba al examen. La inscripción se hace en un centro autorizado.',
+      'No tienes claro para qué quieres el título. Si el objetivo es hablar, hay caminos mejores que preparar un examen.',
+    ]}
+    incluye={[
+      {
+        titulo: 'Las cuatro partes medidas por separado',
+        texto:
+          'Comprensión oral, comprensión escrita, producción escrita y producción oral. Casi nadie las tiene al mismo nivel, así que primero las medimos una por una y luego el plan se concentra en la que más va a costar.',
+      },
+      {
+        titulo: 'Simulacros completos y cronometrados',
+        texto:
+          'El examen entero, de una sentada, con el formato y los tiempos oficiales. Sin pausas y sin ayuda. Después lo revisamos parte por parte.',
+      },
+      {
+        titulo: 'Trabajo específico sobre el reloj',
+        texto:
+          'La mayoría de los puntos que se pierden no se pierden por no saber, se pierden por llegar tarde al final de la prueba. Eso se entrena.',
+      },
+      {
+        titulo: 'La producción oral, ensayada en voz alta',
+        texto:
+          'La parte que más se descuida porque es la más incómoda. La practicamos con el formato real de la prueba, con preparación cronometrada incluida.',
+      },
+      {
+        titulo: 'Calendario hacia tu fecha',
+        texto:
+          'Cuántas clases por semana y qué cubrimos cada semana hasta el día del examen. Si el calendario no da, lo digo antes de empezar y no después.',
+      },
+      {
+        titulo: 'Niveles que preparo',
+        texto: PENDIENTE.nivelesDelf
+          ? PENDIENTE.nivelesDelf
+          : 'Pendiente de confirmar el rango exacto de niveles antes de publicar.',
+      },
+    ]}
+    pasos={[
+      {
+        titulo: 'La clase gratis',
+        texto:
+          'Media hora para medir por dónde andas y para saber a qué nivel te conviene presentarte, que no siempre es el que traías pensado.',
+      },
+      {
+        titulo: 'El calendario',
+        texto:
+          'Un plan semana a semana hacia tu fecha de examen, con los simulacros ya colocados. Si la fecha es demasiado justa, te lo digo aquí.',
+      },
+      {
+        titulo: 'Preparación y simulacros',
+        texto:
+          'Clases de una hora más simulacros completos en los momentos clave. Revisión de cada simulacro parte por parte.',
+      },
+    ]}
+    precio={{
+      valor: 'Mismo precio',
+      unidad: '35 € la hora en privado, 20 € por persona en grupo',
+      nota: 'No cobro un extra por preparar el examen, y los bonos de varias clases también sirven para esto.',
+    }}
+    bonos={{
+      titulo: 'Bonos, también para la preparación',
+      confirmado: BONOS.confirmado,
+      lista: BONOS.privada,
+    }}
+    faq={FAQ_DELF}
+    cierre={{
+      titulo: 'Primero medimos, después decidimos el nivel',
+      texto:
+        'Media hora en línea para medir las cuatro partes y ver a qué nivel te conviene presentarte.',
+    }}
+    breadcrumb={migas}
+    ctaHero={CTA.heroDelf}
+    ctaCierre={CTA.cierreDelf}
+  />
+</BaseLayout>

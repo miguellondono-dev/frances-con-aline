@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Cta from '../components/Cta.astro';
+import Logo from '../components/Logo.astro';
+import { CTA } from '../data/site';
+
+const OJO = '195 258 860 691';
+---
+
+<BaseLayout
+  title="Esta página no existe"
+  description="La página que buscabas no está aquí. Estos son los sitios a los que probablemente querías llegar."
+  path="/404"
+  noindex
+>
+  <section class="bg-blanc">
+    <div class="shell flex min-h-[60vh] flex-col items-start justify-center py-section">
+      <Logo class="h-8 w-auto text-corail" viewBox={OJO} />
+
+      <p class="label mt-8 text-nuit">Error 404</p>
+      <h1 class="mt-5 max-w-[18ch] text-display-xl text-encre">
+        Esta página no existe
+      </h1>
+      <p class="measure mt-7 text-body text-nuit">
+        Puede que el enlace estuviera mal escrito, o que yo haya movido algo de
+        sitio. Estos son los lugares a los que suele querer llegar la gente.
+      </p>
+
+      <ul class="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-body">
+        <li>
+          <a
+            href="/"
+            class="inline-flex min-h-11 items-center text-bleu underline underline-offset-4 hover:no-underline"
+            >Inicio</a
+          >
+        </li>
+        <li>
+          <a
+            href="/precios"
+            class="inline-flex min-h-11 items-center text-bleu underline underline-offset-4 hover:no-underline"
+            >Precios</a
+          >
+        </li>
+        <li>
+          <a
+            href="/quien-soy"
+            class="inline-flex min-h-11 items-center text-bleu underline underline-offset-4 hover:no-underline"
+            >Quién soy</a
+          >
+        </li>
+        <li>
+          <a
+            href="/contacto"
+            class="inline-flex min-h-11 items-center text-bleu underline underline-offset-4 hover:no-underline"
+            >Contacto</a
+          >
+        </li>
+      </ul>
+
+      <div class="mt-12">
+        <Cta href="/agenda">{CTA.perdido}</Cta>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

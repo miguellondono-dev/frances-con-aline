@@ -1,0 +1,82 @@
+---
+import Cta from '../Cta.astro';
+import ParisBackdrop from '../ParisBackdrop.astro';
+import { CTA_AGENDA, CTA } from '../../data/site';
+
+/**
+ * CIERRE.
+ *
+ * Antes era una caja oscura con dos líneas flotando en el centro de mucho
+ * vacío. Ahora los tejados cierran el sitio igual que lo abren, así que el
+ * espacio de abajo tiene algo dentro y las dos pantallas riman.
+ *
+ * Aquí vive el parpadeo: los párpados se abren para revelar el cierre, y se
+ * vuelven a cerrar al salir, así que se repite cada vez que se pasa.
+ */
+---
+
+<section
+  class="surface-dark relative overflow-hidden"
+  data-blink="closed"
+  aria-labelledby="cierre-titulo"
+>
+  <ParisBackdrop variant="oscuro" />
+
+  <div class="shell relative z-10 flex flex-col items-center py-section text-center">
+    <h2 id="cierre-titulo" class="max-w-[24ch] text-display-l text-blanc" data-reveal>
+      Hablemos de lo que quieres lograr en francés y te ayudo a alcanzarlo
+    </h2>
+
+    <div class="mt-9" data-reveal>
+      <Cta href={CTA_AGENDA.href}>{CTA.cierreHome}</Cta>
+    </div>
+  </div>
+
+  <span class="blink-lid blink-lid--top" aria-hidden="true"></span>
+  <span class="blink-lid blink-lid--bottom" aria-hidden="true"></span>
+</section>
+
+<style>
+  .blink-lid {
+    position: absolute;
+    left: -2%;
+    width: 104%;
+    height: 56%;
+    background-color: var(--color-blanc);
+    pointer-events: none;
+    z-index: 20;
+    will-change: transform;
+    transition: transform 900ms var(--ease-smooth);
+  }
+
+  .blink-lid--top {
+    top: 0;
+    border-radius: 0 0 50% 50% / 0 0 22% 22%;
+    transform: translateY(-102%);
+  }
+
+  .blink-lid--bottom {
+    bottom: 0;
+    border-radius: 50% 50% 0 0 / 22% 22% 0 0;
+    transform: translateY(102%);
+    transition-delay: 80ms;
+  }
+
+  /* Los parpados solo empiezan cerrados si hay JS que los pueda abrir. */
+  :global(.js) [data-blink='closed'] .blink-lid--top,
+  :global(.js) [data-blink='closed'] .blink-lid--bottom {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blink-lid {
+      transition: none !important;
+    }
+    :global(.js) [data-blink='closed'] .blink-lid--top {
+      transform: translateY(-102%) !important;
+    }
+    :global(.js) [data-blink='closed'] .blink-lid--bottom {
+      transform: translateY(102%) !important;
+    }
+  }
+</style>

@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import Vocabulario from '../components/home/Thesis.astro';
+import Formats from '../components/home/Formats.astro';
+import Method from '../components/home/Method.astro';
+import LevelTest from '../components/home/LevelTest.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import Faq from '../components/Faq.astro';
+import { FAQ_HOME, faqSchema } from '../data/faq';
+import { SITE_NAME } from '../data/site';
+
+const site = Astro.site?.href ?? 'https://PENDIENTE-DOMINIO.example/';
+
+/**
+ * Datos estructurados del home.
+ *
+ * No se usa LocalBusiness: no hay local fisico.
+ * No se usa Review ni AggregateRating: todavia no hay resenas, e inventarlas
+ * es penalizable.
+ * TODO SearchAction: se anade a WebSite cuando exista una busqueda real.
+ */
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: site,
+    inLanguage: 'es',
+    publisher: { '@id': `${site}quien-soy#aline` },
+  },
+  faqSchema(FAQ_HOME),
+];
+---
+
+<BaseLayout
+  title="Clases de francés en línea con Aline, profesora francesa"
+  description="Clases de francés en línea para hispanohablantes. Soy francesa y aprendí español de adulta, así que sé dónde te vas a trabar. Primera clase gratis."
+  path="/"
+  rawTitle
+  schema={schema}
+>
+  <Hero />
+  <Vocabulario />
+  <Formats />
+  <Method />
+  <LevelTest />
+  <Faq preguntas={FAQ_HOME} id="preguntas" />
+  <FinalCta />
+</BaseLayout>

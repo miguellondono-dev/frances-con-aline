@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Cta from '../components/Cta.astro';
+import { breadcrumb } from '../lib/schema';
+import { PENDIENTE } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Agenda', path: '/agenda' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+/**
+ * AGENDAR.
+ *
+ * Quien llega aquí ya decidió. Lo único que necesita es elegir una hora, así
+ * que el calendario va arriba y no hay nada entre el título y él.
+ *
+ * Fuera el filtro de tres preguntas que había antes: interrogar a alguien
+ * justo cuando iba a reservar es la peor pantalla posible para preguntar, y
+ * esas cosas se preguntan en la sesión, que para eso es una conversación.
+ *
+ * Lo demás son datos, no párrafos: cuánto dura, dónde es, qué cuesta, en qué
+ * idioma. Es lo que la gente quiere saber antes de bloquear media hora.
+ */
+const DATOS = [
+  { clave: 'Duración', valor: '30 minutos' },
+  { clave: 'Dónde', valor: 'En línea, por videollamada' },
+  { clave: 'Precio', valor: 'Sin costo' },
+  { clave: 'Idioma', valor: 'Español y francés' },
+];
+---
+
+<BaseLayout
+  title="Agenda tu sesión gratuita de francés de 30 minutos"
+  description="Media hora en línea conmigo para escucharte y salir con un plan claro de por dónde empezar con el francés. Elige el horario que te sirva."
+  path="/agenda"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit">Tu primera sesión</p>
+      <h1 class="mt-5 max-w-[16ch] text-display-xl text-encre">Agenda tu sesión</h1>
+      <p class="mt-6 max-w-[52ch] text-body text-encre/70">
+        Media hora en línea conmigo para escucharte y salir con un plan claro de
+        por dónde empezar.
+      </p>
+
+      <dl class="mt-10 grid gap-x-8 gap-y-6 border-t border-encre/10 pt-8 sm:grid-cols-4">
+        {
+          DATOS.map((dato) => (
+            <div>
+              <dt class="label text-nuit">{dato.clave}</dt>
+              <dd class="mt-2 text-body text-encre">{dato.valor}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- El calendario, sin nada delante. -->
+  <section class="bg-papier" aria-labelledby="calendario">
+    <div class="shell py-section">
+      <h2 id="calendario" class="text-display-l text-encre">Elige tu horario</h2>
+
+      {
+        PENDIENTE.calcom ? (
+          /* Aquí va el embebido de Cal.com cuando exista la cuenta. */
+          <div class="mt-10 min-h-[40rem] rounded-panel bg-blanc" data-cal-embed />
+        ) : (
+          /* TODO [PENDIENTE] Cuenta de Cal.com conectada al Google Calendar de
+             Aline, con la disponibilidad cargada y un evento gratuito de 30
+             minutos. Mientras tanto se ofrece la vía que sí funciona hoy. */
+          <div class="mt-10 max-w-2xl rounded-panel border border-corail/40 bg-blanc p-8">
+            <span class="label mb-3 block text-lie">Pendiente</span>
+            <p class="text-body text-encre">
+              El calendario todavía no está conectado, así que por ahora lo
+              cerramos por correo: dime dos o tres franjas que te sirvan y te
+              confirmo una.
+            </p>
+            <div class="mt-8">
+              <Cta href="/contacto">Escríbeme para agendar</Cta>
+            </div>
+          </div>
+        )
+      }
+
+      <p class="mt-10 max-w-[56ch] text-body text-encre/70">
+        Te escucho hablar un rato, te digo qué nivel veo y decidimos juntos con
+        qué frecuencia trabajar.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,239 @@
+---
+import Aperture from './Aperture.astro';
+import Cta from './Cta.astro';
+import Faq from './Faq.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import type { Pregunta } from '../data/faq';
+
+/**
+ * PLANTILLA DE LANDING DE SERVICIO.
+ *
+ * La estructura se comparte entre /clases-privadas, /clases-en-grupo y
+ * /preparacion-delf. El copy no: cada pagina trae el suyo y no se recicla.
+ *
+ * El bloque "para quien NO es" es obligatorio. Es lo que da credibilidad al
+ * resto de la pagina: si todo sirve para todos, nada sirve para nadie.
+ */
+interface Bono {
+  clases: number;
+  precio: number;
+  vence: string;
+  nota?: string;
+}
+
+interface Props {
+  label: string;
+  titulo: string;
+  intro: string;
+  apertura: { alt: string; todo: string };
+  paraQuienSi: string[];
+  paraQuienNo: string[];
+  incluye: { titulo: string; texto: string }[];
+  pasos: { titulo: string; texto: string }[];
+  precio: { valor: string; unidad: string; nota?: string };
+  bonos?: { titulo: string; confirmado: boolean; lista: Bono[] };
+  faq: Pregunta[];
+  cierre: { titulo: string; texto: string };
+  /** Texto del CTA de arriba y del de cierre. Cada landing trae el suyo. */
+  ctaHero?: string;
+  ctaCierre?: string;
+  breadcrumb: { name: string; path: string }[];
+}
+
+const {
+  label,
+  titulo,
+  intro,
+  apertura,
+  paraQuienSi,
+  paraQuienNo,
+  incluye,
+  pasos,
+  precio,
+  bonos,
+  faq,
+  cierre,
+  breadcrumb,
+  ctaHero = 'Agenda tu clase gratis',
+  ctaCierre = 'Agenda tu clase gratis',
+} = Astro.props;
+---
+
+<!-- 1. PROMESA. Composicion espejada respecto al home: aqui el texto va a la
+     derecha, para que las dos paginas no se lean como la misma maqueta. -->
+<section class="overflow-hidden bg-blanc">
+  <div
+    class="pad-shell-right grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-16"
+  >
+    <div class="pad-shell-left order-2 lg:order-1 lg:pl-0" data-reveal="fade">
+      <Aperture
+        alt={apertura.alt}
+        todo={apertura.todo}
+        ratio="aspect-[4/5]"
+        lids
+        lidColor="blanc"
+        eager
+        class="mx-auto w-full max-w-[24rem]"
+      />
+    </div>
+
+    <div class="pad-shell-left order-1 lg:order-2 lg:pl-0">
+      <Breadcrumbs items={breadcrumb} />
+      <p class="label mt-8 text-nuit" data-reveal>{label}</p>
+      <h1 class="mt-5 text-display-xl text-encre" data-reveal>{titulo}</h1>
+      <p class="measure mt-7 text-body text-nuit" data-reveal>{intro}</p>
+      <div class="mt-8" data-reveal>
+        <Cta href="/agenda">{ctaHero}</Cta>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. PARA QUIEN SI, PARA QUIEN NO -->
+<section class="bg-papier" aria-labelledby="para-quien">
+  <div class="shell py-section">
+    <h2 id="para-quien" class="max-w-[22ch] text-display-l text-encre" data-reveal>
+      Para quién es esto, y para quién no
+    </h2>
+
+    <div class="mt-12 grid gap-px overflow-hidden rounded-panel bg-encre/15 lg:grid-cols-2">
+      <div class="bg-papier p-8 sm:p-10" data-reveal>
+        <p class="label text-bleu">Es para ti si</p>
+        <ul class="mt-6 flex flex-col gap-4">
+          {
+            paraQuienSi.map((item) => (
+              <li class="grid grid-cols-[1.25rem_1fr] gap-3 text-body text-encre">
+                <span class="pt-2.5 text-bleu" aria-hidden="true">
+                  <svg viewBox="0 0 16 2" class="h-0.5 w-4">
+                    <path d="M0 1h16" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                </span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="bg-papier p-8 sm:p-10" data-reveal>
+        <p class="label text-lie">No es para ti si</p>
+        <ul class="mt-6 flex flex-col gap-4">
+          {
+            paraQuienNo.map((item) => (
+              <li class="grid grid-cols-[1.25rem_1fr] gap-3 text-body text-encre">
+                <span class="pt-2.5 text-lie" aria-hidden="true">
+                  <svg viewBox="0 0 16 2" class="h-0.5 w-4">
+                    <path d="M0 1h16" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                </span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. QUE INCLUYE -->
+<section class="bg-blanc" aria-labelledby="incluye">
+  <div class="shell grid gap-12 py-section lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-4">
+      <h2 id="incluye" class="text-display-l text-encre lg:sticky lg:top-28" data-reveal>
+        Qué incluye
+      </h2>
+    </div>
+    <dl class="lg:col-span-7 lg:col-start-6">
+      {
+        incluye.map((item) => (
+          <div class="border-t border-pierre py-7 first:border-t-0 first:pt-0" data-reveal>
+            <dt class="text-title text-encre">{item.titulo}</dt>
+            <dd class="measure mt-2 text-body text-nuit">{item.texto}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<!-- 4. COMO FUNCIONA. Unica fila de tres del sitio: es una secuencia real. -->
+<section class="bg-papier" aria-labelledby="como-funciona">
+  <div class="shell py-section">
+    <h2 id="como-funciona" class="text-display-l text-encre" data-reveal>Cómo funciona</h2>
+    <ol class="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
+      {
+        pasos.map((paso, i) => (
+          <li class="border-t border-encre/20 pt-6" data-reveal>
+            <span class="numerals text-title text-corail" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3 class="mt-3 text-display-m text-encre">{paso.titulo}</h3>
+            <p class="mt-3 text-body text-nuit">{paso.texto}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- 5. PRECIO Y BONOS -->
+<section class="surface-dark" aria-labelledby="precio">
+  <div class="shell py-section">
+    <p class="label text-ciel" data-reveal>Precio</p>
+    <h2 id="precio" class="sr-only">Precio y bonos</h2>
+
+    <div class="mt-10 flex flex-wrap items-end gap-x-16 gap-y-8" data-reveal>
+      <p>
+        <span class="numerals block text-display-xl text-blanc">{precio.valor}</span>
+        <span class="mt-3 block text-body text-ciel">{precio.unidad}</span>
+      </p>
+      {precio.nota && <p class="measure-tight text-body text-ciel">{precio.nota}</p>}
+    </div>
+
+    {
+      bonos && (
+        <div class="mt-16 border-t border-nuit pt-12" data-reveal>
+          <h3 class="text-display-m text-blanc">{bonos.titulo}</h3>
+
+          {!bonos.confirmado && (
+            /* TODO [PENDIENTE] Miguel confirma o ajusta estos numeros antes de
+               publicar. Se muestran como propuesta, nunca como precio firme. */
+            <p class="mt-4 inline-block rounded-panel border border-chair/50 px-4 py-2 text-body-s text-chair">
+              Pendiente de confirmar: estas cifras son la propuesta, todavía no el
+              precio final.
+            </p>
+          )}
+
+          <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {bonos.lista.map((bono) => (
+              <li class="border-t border-nuit pt-5">
+                <p class="numerals text-display-m text-blanc">{bono.precio} €</p>
+                <p class="mt-2 text-body text-blanc">
+                  {bono.clases} clases {bono.nota ? bono.nota : ''}
+                </p>
+                <p class="text-body-s text-ciel">Vence en {bono.vence}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<!-- 6. FAQ propia del servicio -->
+<Faq preguntas={faq} id="preguntas" />
+
+<!-- 7. CTA -->
+<section class="border-t-4 border-chair bg-papier" aria-labelledby="cierre">
+  <div class="shell flex flex-col items-start py-section">
+    <h2 id="cierre" class="max-w-[20ch] text-display-l text-encre" data-reveal>
+      {cierre.titulo}
+    </h2>
+    <p class="measure mt-7 text-body text-encre" data-reveal>{cierre.texto}</p>
+    <div class="mt-10" data-reveal>
+      <Cta href="/agenda" variant="lie">{ctaCierre}</Cta>
+    </div>
+  </div>
+</section>

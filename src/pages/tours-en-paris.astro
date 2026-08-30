@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Aperture from '../components/Aperture.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import { breadcrumb } from '../lib/schema';
+import { PENDIENTE } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Tours en París', path: '/tours-en-paris' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+---
+
+<BaseLayout
+  title="Tours privados por París, explicados en español"
+  description="Recorridos por París guiados en español por una gestora cultural francesa. Para familias y grupos de amigos. Están en construcción: deja tu correo."
+  path="/tours-en-paris"
+  schema={schema}
+>
+  <section class="overflow-hidden bg-blanc">
+    <div
+      class="pad-shell-left grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+    >
+      <div class="pad-shell-right lg:pr-0">
+        <Breadcrumbs items={migas} />
+        <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
+        <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre" data-reveal>
+          París contado por quien estudió cómo se cuenta
+        </h1>
+        <p class="measure mt-7 text-body text-nuit" data-reveal>
+          Estudié Gestión de la Cultura, así que un recorrido conmigo no es una
+          lista de fechas delante de un edificio. Es por qué ese barrio quedó
+          así, quién decidió que quedara así y qué se discutía entonces.
+        </p>
+        <p class="measure mt-5 text-body text-nuit" data-reveal>
+          En español, para que no te pierdas la mitad. Están en construcción:
+          todavía no hay recorridos cerrados ni precio.
+        </p>
+      </div>
+
+      <div class="pad-shell-right lg:pr-0" data-reveal="fade">
+        {/* TODO [PENDIENTE: foto real] Calle o escalinata de Montmartre. */}
+        <Aperture
+          alt="Calle en cuesta de Montmartre a primera hora"
+          todo="Calle de Montmartre"
+          ratio="aspect-[4/5]"
+          lids
+          lidColor="blanc"
+          eager
+          class="mx-auto w-full max-w-[24rem]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-papier" aria-labelledby="para-quien">
+    <div class="shell py-section">
+      <h2 id="para-quien" class="max-w-[22ch] text-display-l text-encre" data-reveal>
+        Pensados para ir en grupo pequeño
+      </h2>
+
+      <div class="mt-12 grid gap-10 lg:grid-cols-3 lg:gap-8">
+        <div data-reveal>
+          <h3 class="text-display-m text-encre">Familias</h3>
+          <p class="mt-4 text-body text-nuit">
+            El ritmo se ajusta a quien va más lento y las paradas se eligen
+            pensando en que haya dónde sentarse. Los niños no tienen que fingir
+            interés por una fachada.
+          </p>
+        </div>
+        <div data-reveal>
+          <h3 class="text-display-m text-encre">Grupos de amigos</h3>
+          <p class="mt-4 text-body text-nuit">
+            Un recorrido privado, sin unirse a un grupo de treinta desconocidos
+            siguiendo un paraguas de colores. Se puede parar a tomar algo y
+            seguir.
+          </p>
+        </div>
+        <div data-reveal>
+          <h3 class="text-display-m text-encre">Quien ya estudia conmigo</h3>
+          <p class="mt-4 text-body text-nuit">
+            Si vienes a París y ya damos clase, el tour se puede hacer mitad en
+            francés. Es la prueba de fuego de todo lo que trabajamos en línea.
+          </p>
+        </div>
+      </div>
+
+      <dl class="mt-16 grid gap-8 border-t border-encre/20 pt-10 sm:grid-cols-3" data-reveal>
+        <div>
+          <dt class="label text-nuit">Dónde</dt>
+          <dd class="mt-2 text-body text-encre">París. Montmartre y otros barrios.</dd>
+        </div>
+        <div>
+          <dt class="label text-nuit">Precio</dt>
+          {/* TODO [PENDIENTE] Precio y formato definitivo de los tours. */}
+          <dd class="mt-2 text-body text-lie">
+            {PENDIENTE.precioTours ?? 'Pendiente de definir'}
+          </dd>
+        </div>
+        <div>
+          <dt class="label text-nuit">Recorridos</dt>
+          {/* TODO [PENDIENTE] Lista de recorridos y duracion. */}
+          <dd class="mt-2 text-body text-lie">Pendiente de definir</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="surface-dark" aria-labelledby="lista">
+    <div class="shell py-section">
+      <h2 id="lista" class="max-w-[20ch] text-display-l text-blanc" data-reveal>
+        Avísame cuando abra fechas
+      </h2>
+      <p class="measure mt-7 text-body text-ciel" data-reveal>
+        Si ya sabes cuándo vienes a París, dímelo en el correo y lo tengo en
+        cuenta al organizar los primeros recorridos.
+      </p>
+      <div class="mt-10 max-w-3xl" data-reveal>
+        <WaitlistForm origen="tours" oscuro id="lista-tours" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

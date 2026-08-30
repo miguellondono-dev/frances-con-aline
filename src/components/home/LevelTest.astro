@@ -1,0 +1,803 @@
+---
+import Cta from '../Cta.astro';
+import Icon from '../Icon.astro';
+import Logo from '../Logo.astro';
+
+/**
+ * TEST DE NIVEL.
+ *
+ * A la izquierda el titular, el boton y tres apoyos, centrados a la altura
+ * del grafico. A la derecha los seis niveles girando alrededor de la mirada,
+ * cada uno con su nombre debajo.
+ *
+ * El orden importa y se ve: A1 corre por la linea mas pegada al ojo y C2 por
+ * la de fuera. Los angulos van separados por el angulo aureo, 137,5 grados,
+ * que reparte seis puntos alrededor de un centro sin que ninguno quede
+ * enfrente de otro. Con angulos regulares salian parejas alineadas.
+ *
+ * Giran todos a la misma velocidad angular. Con velocidades distintas antes o
+ * despues dos se alinean y se pisan; con la misma, sus posiciones relativas
+ * no cambian nunca. Como el conjunto gira entero, cada pastilla lleva dentro
+ * una capa que gira al reves, para que el texto se quede derecho.
+ *
+ * Nada de esto reacciona al puntero: lo unico que se toca es el boton.
+ */
+
+/** Las tres tarjetas de debajo del boton. Una palabra cada una. */
+const APOYOS = [
+  { icono: 'rapido' as const, titulo: 'Rápido' },
+  { icono: 'gratis' as const, titulo: 'Gratuito' },
+  { icono: 'escudo' as const, titulo: 'Confiable' },
+];
+
+/** Punto en la escena, en porcentaje. 0 grados es la derecha, y sube. */
+function punto(radio: number, angulo: number) {
+  const r = (angulo * Math.PI) / 180;
+  return {
+    x: +(50 + radio * Math.cos(r)).toFixed(2),
+    y: +(50 - radio * Math.sin(r)).toFixed(2),
+  };
+}
+
+/** Punto en unidades del viewBox de 100, con la y hacia abajo, como en SVG. */
+function puntoSvg(radio: number, angulo: number) {
+  const r = (angulo * Math.PI) / 180;
+  return {
+    cx: +(50 + radio * Math.cos(r)).toFixed(2),
+    cy: +(50 + radio * Math.sin(r)).toFixed(2),
+  };
+}
+
+/**
+ * Radio creciente por nivel. El nombre de cada uno es el corriente, no el
+ * tecnico del marco: "Principiante" se entiende y "Acceso" no.
+ */
+const NIVELES = [
+  { nombre: 'A1', etiqueta: 'Principiante', radio: 18, angulo: 0 },
+  { nombre: 'A2', etiqueta: 'Básico', radio: 23, angulo: 137.5 },
+  { nombre: 'B1', etiqueta: 'Intermedio', radio: 28, angulo: 275 },
+  { nombre: 'B2', etiqueta: 'Intermedio alto', radio: 33, angulo: 52.5 },
+  { nombre: 'C1', etiqueta: 'Avanzado', radio: 38, angulo: 190 },
+  { nombre: 'C2', etiqueta: 'Dominio', radio: 43, angulo: 327.5 },
+].map((n, i) => ({
+  ...n,
+  ...punto(n.radio, n.angulo),
+  retraso: 520 + i * 70,
+  faseColor: +((i * -10) / 6).toFixed(2),
+  ex: +(Math.cos((n.angulo * Math.PI) / 180) * 14).toFixed(1),
+  ey: +(-Math.sin((n.angulo * Math.PI) / 180) * 14).toFixed(1),
+}));
+
+/**
+ * Las lineas. Las seis primeras van al radio de su nivel; las otras son
+ * secundarias, mas finas y mas apagadas, y solo estan para dar densidad.
+ *
+ * largo es el porcentaje de circunferencia dibujado. Cada una lleva un punto
+ * en su extremo, que es lo que las convierte en trazos con principio y fin en
+ * vez de circulos rotos.
+ *
+ * fase desplaza el ciclo de color, para que en cualquier instante unas esten
+ * azules y otras rojas en vez de latir todas a la vez.
+ */
+const ARCOS = [
+  { r: 18, largo: 78, giro: 196, fase: 0, entra: 200, tenue: false },
+  { r: 23, largo: 88, giro: -38, fase: -7, entra: 260, tenue: false },
+  { r: 28, largo: 72, giro: 118, fase: -13, entra: 320, tenue: false },
+  { r: 33, largo: 92, giro: 244, fase: -20, entra: 380, tenue: false },
+  { r: 38, largo: 80, giro: 16, fase: -27, entra: 440, tenue: false },
+  { r: 43, largo: 86, giro: 152, fase: -33, entra: 500, tenue: false },
+  { r: 20.5, largo: 46, giro: 82, fase: -3, entra: 560, tenue: true },
+  { r: 30.5, largo: 40, giro: -104, fase: -17, entra: 600, tenue: true },
+  { r: 40.5, largo: 48, giro: 208, fase: -30, entra: 640, tenue: true },
+].map((a) => ({
+  ...a,
+  vuelta: +(2 * Math.PI * a.r).toFixed(2),
+  // Donde arranca el trazo, que es la cabeza. La y del SVG va hacia abajo.
+  ...puntoSvg(a.r, a.giro),
+}));
+
+---
+
+<section class="test-seccion" aria-labelledby="test-titulo">
+  <div class="shell py-section">
+    <div class="test-lienzo">
+      <div class="test-texto">
+        <h2 id="test-titulo" class="test-titular" data-reveal>
+          Descubre tu nivel de francés en solo
+          <span class="test-titular__acento">diez minutos</span>
+        </h2>
+
+        <div class="test-accion mt-9" data-reveal>
+          <Cta href="/test-de-nivel">
+            Hacer el test
+            <span class="test-cta__flecha" aria-hidden="true">
+              <svg viewBox="0 0 24 16" class="h-3.5 w-5" fill="none">
+                <path d="M0 8h22M15 1l7 7-7 7" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </span>
+          </Cta>
+        </div>
+
+        <ul class="test-apoyos" data-reveal>
+          {
+            APOYOS.map((apoyo) => (
+              <li class="apoyo">
+                <span class="apoyo__icono">
+                  <Icon name={apoyo.icono} class="h-4 w-4" />
+                </span>
+                <span class="apoyo__titulo">{apoyo.titulo}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      {/* La escena es una ilustracion. Lleva role="img" y no aria-hidden:
+          quien no la ve merece saber que el test devuelve un nivel del marco
+          europeo, que es la informacion que da. */}
+      <div
+        class="escena"
+        data-test-escena
+        role="img"
+        aria-label="Los seis niveles del Marco Común Europeo girando alrededor de una mirada: A1 principiante el más cercano, luego A2 básico, B1 intermedio, B2 intermedio alto, C1 avanzado y C2 dominio"
+      >
+        <span class="escena__halo" aria-hidden="true"></span>
+
+        {/* Todo lo que gira vive aqui dentro. El centro se queda fuera. */}
+        <div class="orbe" data-test-orbe>
+          <svg class="orbe__trazos" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <defs>
+              {
+                ARCOS.map((arco, i) => (
+                  <linearGradient id={`arco-${i}`} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" class="parada parada--ida" style={`--fase:${arco.fase}s`} />
+                    <stop offset="100%" class="parada parada--vuelta" style={`--fase:${arco.fase}s`} />
+                  </linearGradient>
+                ))
+              }
+            </defs>
+
+            {/* El punteado de fuera enmarca, no dibuja. */}
+            <circle
+              class="arco arco--punteado"
+              cx="50"
+              cy="50"
+              r="47.5"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-dasharray="0.5 3.6"
+              vector-effect="non-scaling-stroke"
+              style="--retraso:700ms"
+            />
+
+            {
+              ARCOS.map((arco, i) => (
+                <>
+                  <circle
+                    class:list={['arco', arco.tenue && 'arco--tenue']}
+                    cx="50"
+                    cy="50"
+                    r={arco.r}
+                    stroke={`url(#arco-${i})`}
+                    stroke-width={arco.tenue ? 0.9 : 1.2}
+                    stroke-linecap="round"
+                    stroke-dasharray={`${((arco.largo / 100) * arco.vuelta).toFixed(2)} ${arco.vuelta}`}
+                    vector-effect="non-scaling-stroke"
+                    style={`--vuelta:${arco.vuelta}; --grados:${(arco.largo * 3.6).toFixed(1)}deg; --retraso:${arco.entra}ms; transform: rotate(${arco.giro}deg)`}
+                  />
+                  {/* El punto de la cabeza, donde el trazo esta a pleno color. */}
+                  <circle
+                    class="remate"
+                    cx={arco.cx}
+                    cy={arco.cy}
+                    r={arco.tenue ? 0.75 : 1}
+                    fill={`url(#arco-${i})`}
+                    style={`--retraso:${arco.entra + 420}ms`}
+                  />
+                </>
+              ))
+            }
+
+
+          </svg>
+
+          {
+            NIVELES.map((n) => (
+              <span
+                class="nivel"
+                style={`--x:${n.x}%; --y:${n.y}%; --ex:${n.ex}px; --ey:${n.ey}px; --retraso:${n.retraso}ms; --fase-color:${n.faseColor}s`}
+              >
+                <span class="nivel__entrada">
+                  {/* Gira al reves que el orbe: el texto se queda derecho. */}
+                  <span class="nivel__contra">
+                    <span class="pastilla">
+                      <span class="pastilla__codigo">{n.nombre}</span>
+                      <span class="pastilla__nombre">{n.etiqueta}</span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            ))
+          }
+        </div>
+
+        <span class="escena__centro">
+          <span class="escena__disco" data-test-foco>
+            {/* El mismo recorte al ojo que usa la cabecera. */}
+            <span class="escena__marca">
+              <Logo viewBox="195 258 860 691" />
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /**
+   * El fondo entra y sale en blanco: la seccion vive entre dos blancas y un
+   * bloque plano dejaba los dos cortes a la vista.
+   */
+  .test-seccion {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 22%,
+      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 52%,
+      color-mix(in srgb, var(--color-papier) 38%, var(--color-blanc)) 80%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  /* El texto va centrado a la altura del grafico, no pegado arriba. */
+  .test-lienzo {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (width >= 64rem) {
+    .test-lienzo {
+      grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+  }
+
+  /* --- Columna de texto --- */
+
+  .test-titular {
+    font-family: var(--font-display);
+    font-size: clamp(2.125rem, 1.4rem + 2.4vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 15ch;
+    text-wrap: balance;
+  }
+
+  .test-titular__acento {
+    display: block;
+    color: var(--color-grenat);
+  }
+
+  .test-apoyos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .apoyo {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 16px;
+    background-color: color-mix(in srgb, var(--color-blanc) 82%, transparent);
+    box-shadow: var(--shadow-flota);
+    padding: 0.65rem 0.95rem;
+  }
+
+  .apoyo__icono {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--color-papier) 70%, var(--color-blanc));
+    color: var(--color-lie);
+  }
+
+  .apoyo__titulo {
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-encre);
+  }
+
+  /* --- La escena --- */
+
+  /**
+   * Contenedor de consulta: todo lo de dentro se mide en porcentaje de su
+   * ancho, asi que la composicion se comporta igual en un movil que en un
+   * escritorio en vez de descuadrarse.
+   */
+  .escena {
+    position: relative;
+    container-type: inline-size;
+    width: min(38rem, 100%);
+    margin-inline: auto;
+    aspect-ratio: 1;
+  }
+
+  /**
+   * El aire del centro, para que las lineas no floten sobre la nada.
+   *
+   * Era frio y desentonaba: el resto de la seccion es papier, que es calido.
+   * Ahora es del mismo palo y sube el fondo cinco puntos, ni uno mas.
+   *
+   * El 13 por ciento no es al ojo. Debajo el fondo ya lleva papier al 62 por
+   * ciento sobre blanco, asi que una capa de papier con alfa a se compone en
+   * 62 + a por 38. Para llegar al 67, a vale 0,13. Con el 62 que puse primero
+   * el centro se iba al 86 y quedaba un manchon.
+   */
+  .escena__halo {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-papier) 13%, transparent) 0%,
+      color-mix(in srgb, var(--color-papier) 7%, transparent) 52%,
+      transparent 78%
+    );
+  }
+
+  .orbe {
+    position: absolute;
+    inset: 0;
+  }
+
+  /**
+   * El orbe y la contracapa de cada pastilla giran la misma vuelta, en el
+   * mismo tiempo y con el mismo ritmo lineal, uno en cada sentido. Arrancan a
+   * la vez, asi que no pueden desfasarse y el texto queda siempre derecho.
+   *
+   * Casi cuatro minutos por vuelta. A esa velocidad no se ve girar, se nota.
+   */
+  [data-montado='true'] .orbe {
+    animation: orbe-giro 220s linear infinite;
+  }
+
+  [data-montado='true'] .nivel__contra {
+    animation: orbe-contra 220s linear infinite;
+  }
+
+  @keyframes orbe-giro {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes orbe-contra {
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  .orbe__trazos {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: color-mix(in srgb, var(--color-encre) 24%, transparent);
+  }
+
+  /* Cada trazo gira sobre el centro del viewBox, no sobre su caja. */
+  .arco {
+    transform-origin: 50px 50px;
+  }
+
+  /**
+   * EL RASTRO.
+   *
+   * Cada trazo arranca a pleno color en la cabeza, donde esta su punto, y se
+   * va apagando hasta desaparecer del todo en la cola. El grosor no cambia en
+   * ningun momento: lo unico que varia es la opacidad, como en la estela de
+   * una estrella fugaz.
+   *
+   * Se hace con una mascara conica centrada en la caja del circulo, que
+   * coincide con su centro. La mascara vive en las coordenadas del elemento,
+   * antes del giro, asi que el arco empieza siempre a las tres en punto: en
+   * angulos de cono eso son 90 grados.
+   *
+   * El primer intento puso la caida al 45 por ciento del recorrido y ya al 35
+   * por ciento de opacidad: a mitad de trazo no quedaba nada y las lineas
+   * desaparecian. Aqui el trazo va entero hasta pasada la mitad y solo se
+   * apaga en el ultimo tramo. La linea se ve; lo que se desvanece es su punta.
+   */
+  .arco:not(.arco--punteado) {
+    -webkit-mask-image: conic-gradient(
+      from 90deg,
+      rgb(0 0 0 / 1) 0deg,
+      rgb(0 0 0 / 1) calc(var(--grados) * 0.55),
+      rgb(0 0 0 / 0.62) calc(var(--grados) * 0.78),
+      transparent var(--grados)
+    );
+    mask-image: conic-gradient(
+      from 90deg,
+      rgb(0 0 0 / 1) 0deg,
+      rgb(0 0 0 / 1) calc(var(--grados) * 0.55),
+      rgb(0 0 0 / 0.62) calc(var(--grados) * 0.78),
+      transparent var(--grados)
+    );
+  }
+
+  .arco--punteado {
+    opacity: 0.6;
+  }
+
+  .arco--tenue {
+    opacity: 0.5;
+  }
+
+  /**
+   * EL CICLO DE COLOR.
+   *
+   * Cada linea va del azul al rojo y vuelve en cuarenta segundos, cuatro veces
+   * mas despacio que las palabras. Esa diferencia es a proposito: si los dos
+   * ritmos fueran parecidos se leerian como un solo parpadeo, y asi se
+   * distingue el fondo lento de la lectura rapida.
+   *
+   * Los desfases reparten las nueve a lo largo del ciclo, para que en
+   * cualquier instante haya unas azules y otras rojas. Si latieran todas a la
+   * vez pareceria una alarma.
+   *
+   * El cambio ocurre en un ocho por ciento del ciclo y el resto se queda
+   * quieto en cada color. Es a proposito: entre el azul y el rojo hay un
+   * morado sucio, y pasando deprisa no se ve.
+   *
+   * Animar color no es transform ni opacity, y por tanto es la tercera
+   * excepcion declarada del sitio, tras el trazo del acento y el espaciado
+   * del boton de talleres. Son lineas de un pixel: el coste es nada.
+   */
+  .parada {
+    animation: parada-color 40s ease-in-out infinite;
+    animation-delay: var(--fase, 0s);
+  }
+
+  /* Los dos colores van rebajados hacia el blanco: a plena saturacion las
+     lineas gritaban mas que el titular, y son decoracion. */
+  .parada--ida {
+    stop-color: color-mix(in srgb, var(--color-bleu) 68%, var(--color-blanc));
+  }
+
+  .parada--vuelta {
+    stop-color: color-mix(in srgb, var(--color-ciel) 68%, var(--color-blanc));
+    animation-name: parada-color-claro;
+  }
+
+  @keyframes parada-color {
+    0%,
+    42% {
+      stop-color: color-mix(in srgb, var(--color-bleu) 68%, var(--color-blanc));
+    }
+    50%,
+    92% {
+      stop-color: color-mix(in srgb, var(--color-grenat) 68%, var(--color-blanc));
+    }
+    100% {
+      stop-color: color-mix(in srgb, var(--color-bleu) 68%, var(--color-blanc));
+    }
+  }
+
+  @keyframes parada-color-claro {
+    0%,
+    42% {
+      stop-color: color-mix(in srgb, var(--color-ciel) 68%, var(--color-blanc));
+    }
+    50%,
+    92% {
+      stop-color: color-mix(in srgb, var(--color-chair) 68%, var(--color-blanc));
+    }
+    100% {
+      stop-color: color-mix(in srgb, var(--color-ciel) 68%, var(--color-blanc));
+    }
+  }
+
+  /* --- El centro --- */
+
+  .escena__centro {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14cqw;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+  }
+
+  /**
+   * El disco no es un circulo plano: lleva luz arriba a la izquierda y dos
+   * sombras, una corta y pegada y otra larga y abierta. Eso es lo que le da
+   * el aire de canto rodado del referente.
+   */
+  .escena__disco {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-image: radial-gradient(
+      circle at 36% 30%,
+      var(--color-blanc) 0%,
+      var(--color-blanc) 46%,
+      color-mix(in srgb, var(--color-pierre) 58%, var(--color-blanc)) 100%
+    );
+    box-shadow:
+      0 2px 6px rgb(0 4 58 / 0.06),
+      0 18px 40px -14px rgb(0 4 58 / 0.22);
+  }
+
+  /**
+   * La marca. Los estilos con ambito no alcanzan al svg que dibuja Logo, asi
+   * que el tamano y el color se ponen en el envoltorio y el svg los hereda:
+   * el archivo ya viene con fill currentColor.
+   *
+   * El recorte al ojo es mas alto que el glifo suelto, casi cuadrado, asi que
+   * ocupa menos ancho para caber igual dentro del circulo.
+   */
+  .escena__marca {
+    display: block;
+    width: 52%;
+    color: var(--color-encre);
+  }
+
+  .escena__marca :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* --- Pastillas --- */
+
+  .nivel {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: translate(-50%, -50%);
+  }
+
+  .nivel__entrada,
+  .nivel__contra {
+    display: block;
+  }
+
+  .pastilla {
+    display: block;
+    border-radius: 18px;
+    background-color: var(--color-blanc);
+    box-shadow:
+      0 1px 3px rgb(0 4 58 / 0.05),
+      0 12px 28px -12px rgb(0 4 58 / 0.24);
+    padding: 0.5rem 0.95rem 0.55rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .pastilla__codigo {
+    display: block;
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.125rem, 3.6cqw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    /**
+     * Las palabras hacen el mismo viaje que las lineas, del azul al rojo,
+     * pero en diez segundos frente a cuarenta: cuatro veces mas rapido. Las
+     * lineas son el fondo y cambian despacio; las palabras son lo que se lee
+     * y cambian a un ritmo que se nota.
+     *
+     * Los seis desfases se reparten el ciclo entero, uno cada 1,67 segundos.
+     * Con los dos segundos de antes, sobre un ciclo de diez, la sexta caia en
+     * el segundo -10 y volvia a coincidir con la primera.
+     */
+    color: var(--color-nuit);
+    animation: pastilla-color 10s ease-in-out infinite;
+    animation-delay: var(--fase-color, 0s);
+  }
+
+  @keyframes pastilla-color {
+    0%,
+    40% {
+      color: var(--color-nuit);
+    }
+    50%,
+    90% {
+      color: var(--color-grenat);
+    }
+    100% {
+      color: var(--color-nuit);
+    }
+  }
+
+  .pastilla__nombre {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: clamp(0.625rem, 1.85cqw, 0.75rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  /**
+   * El nombre solo cabe cuando la escena es grande. Por debajo de 26rem la
+   * pastilla no puede encoger mas (el texto tiene un minimo legible) y a ese
+   * tamano se comia el centro: A1 acababa encima del ojo. Ahi se queda solo
+   * el codigo, que es lo que importa, y el nombre sigue en la descripcion de
+   * la ilustracion para quien la lee con un lector de pantalla.
+   *
+   * Va despues de la regla base a proposito: con la misma
+   * especificidad gana el ultimo, y puesto antes la base lo anulaba.
+   */
+  @container (width < 26rem) {
+    .pastilla__nombre {
+      display: none;
+    }
+
+    .pastilla {
+      border-radius: 14px;
+      padding: 0.4rem 0.7rem;
+    }
+  }
+
+  /**
+   * LA ENTRADA.
+   *
+   * El estado escondido cuelga de data-entrada, que pone el guion y solo
+   * despues de comprobar que tiene todas las piezas. En la hoja de estilos no
+   * hay nada que esconda: si el guion no corre, o corre una version vieja que
+   * ya no reconoce estos elementos, la escena se ve entera.
+   *
+   * Y la entrada son transiciones de CSS, no Motion. Con retardo, Motion
+   * mantiene el primer fotograma durante la espera, asi que las pastillas
+   * aparecian y se volvian a esconder.
+   */
+  .escena__disco,
+  .nivel__entrada,
+  .arco,
+  .remate,
+  .escena__halo {
+    transition-timing-function: var(--ease-fluid);
+    transition-delay: var(--retraso, 0ms);
+  }
+
+  .escena__disco {
+    transition-property: opacity, transform;
+    transition-duration: 700ms;
+  }
+
+  .nivel__entrada {
+    transition-property: opacity, transform;
+    transition-duration: 620ms;
+  }
+
+  .arco {
+    transition-property: stroke-dashoffset, opacity;
+    transition-duration: 1150ms;
+  }
+
+  .remate,
+  .escena__halo {
+    transition-property: opacity;
+    transition-duration: 700ms;
+  }
+
+  [data-entrada='oculta'] .escena__disco {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  [data-entrada='oculta'] .nivel__entrada {
+    opacity: 0;
+    transform: translate(var(--ex), var(--ey)) scale(0.9);
+  }
+
+  [data-entrada='oculta'] .arco {
+    stroke-dashoffset: var(--vuelta);
+  }
+
+  [data-entrada='oculta'] .arco--punteado,
+  [data-entrada='oculta'] .remate,
+  [data-entrada='oculta'] .escena__halo {
+    opacity: 0;
+  }
+
+  /* --- Boton --- */
+
+  .test-accion {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+  }
+
+  .test-accion::before {
+    content: '';
+    position: absolute;
+    inset: -1.5rem;
+    z-index: -1;
+    border-radius: var(--radius-pill);
+    background-image: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-grenat) 22%, transparent) 0%,
+      transparent 100%
+    );
+    opacity: 0;
+    transform: scale(0.72);
+    transition:
+      opacity 460ms var(--ease-fluid),
+      transform 460ms var(--ease-fluid);
+  }
+
+  .test-accion:hover::before,
+  .test-accion:focus-within::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .test-cta__flecha {
+    display: inline-flex;
+    transition: transform 320ms var(--ease-fluid);
+  }
+
+  .test-accion:hover .test-cta__flecha,
+  .test-accion:focus-within .test-cta__flecha {
+    transform: translateX(6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-montado='true'] .orbe,
+    [data-montado='true'] .nivel__contra {
+      animation: none;
+    }
+
+    .parada,
+    .pastilla__codigo {
+      animation: none;
+    }
+
+    .escena__disco,
+    .nivel__entrada,
+    .arco,
+    .remate,
+    .escena__halo,
+    .test-accion::before,
+    .test-cta__flecha {
+      transition: none;
+    }
+
+    [data-entrada='oculta'] .escena__disco,
+    [data-entrada='oculta'] .nivel__entrada {
+      opacity: 1;
+      transform: none;
+    }
+
+    [data-entrada='oculta'] .arco {
+      stroke-dashoffset: 0;
+    }
+
+    [data-entrada='oculta'] .arco--punteado,
+    [data-entrada='oculta'] .remate,
+    [data-entrada='oculta'] .escena__halo {
+      opacity: 1;
+    }
+
+    .test-accion:hover .test-cta__flecha,
+    .test-accion:focus-within .test-cta__flecha {
+      transform: none;
+    }
+  }
+</style>

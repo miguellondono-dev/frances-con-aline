@@ -1,0 +1,178 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Cta from '../../components/Cta.astro';
+import { breadcrumb, alineId } from '../../lib/schema';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const entradas = await getCollection('diario', ({ data }) => !data.borrador);
+  return entradas.map((entrada) => ({
+    params: { slug: entrada.id },
+    props: { entrada },
+  }));
+};
+
+const { entrada } = Astro.props;
+const { Content } = await render(entrada);
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Diario', path: '/diario' },
+  { name: entrada.data.titulo, path: `/diario/${entrada.id}` },
+];
+
+const fechaIso = entrada.data.fecha.toISOString().slice(0, 10);
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: entrada.data.titulo,
+    description: entrada.data.resumen,
+    datePublished: fechaIso,
+    inLanguage: 'es',
+    author: { '@id': alineId(Astro.site) },
+    keywords: entrada.data.etiquetas.join(', '),
+  },
+  breadcrumb(migas, Astro.site),
+];
+
+const formatoFecha = new Intl.DateTimeFormat('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout
+  title={entrada.data.titulo}
+  description={entrada.data.resumen}
+  path={`/diario/${entrada.id}`}
+  schema={schema}
+>
+  <article>
+    <section class="bg-blanc">
+      <div class="shell pb-section-sm pt-6">
+        <Breadcrumbs items={migas} />
+
+        <p class="mt-8 text-body-s text-nuit">
+          <time datetime={fechaIso}>{formatoFecha.format(entrada.data.fecha)}</time>
+          <span aria-hidden="true"> · </span>
+          Escrito por Aline
+        </p>
+
+        <h1 class="mt-5 max-w-[24ch] text-display-xl text-encre">
+          {entrada.data.titulo}
+        </h1>
+        <p class="measure mt-7 text-body text-nuit">{entrada.data.resumen}</p>
+
+        {
+          entrada.data.etiquetas.length > 0 && (
+            <ul class="mt-8 flex flex-wrap gap-2">
+              {entrada.data.etiquetas.map((etiqueta) => (
+                <li class="label rounded-pill border border-pierre px-3 py-1 text-nuit">
+                  {etiqueta}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </section>
+
+    {
+      entrada.data.video && (
+        <section class="bg-blanc">
+          <div class="shell pb-section-sm">
+            <div class="aspect-video w-full overflow-hidden rounded-panel bg-encre">
+              <iframe
+                src={entrada.data.video}
+                title={`Vídeo: ${entrada.data.titulo}`}
+                class="h-full w-full"
+                loading="lazy"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              />
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="bg-papier">
+      <div class="shell py-section">
+        <div class="prose mx-auto max-w-3xl">
+          <Content />
+        </div>
+
+        {
+          entrada.data.transcripcion && (
+            <div class="mx-auto mt-16 max-w-3xl border-t border-encre/20 pt-12">
+              <h2 class="text-display-m text-encre">Transcripción</h2>
+              <p class="measure mt-6 whitespace-pre-line text-body text-nuit">
+                {entrada.data.transcripcion}
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="surface-dark">
+      <div class="shell flex flex-col items-start py-section">
+        <h2 class="max-w-[22ch] text-display-l text-blanc">
+          Esto se entiende mejor hablándolo
+        </h2>
+        <p class="measure mt-7 text-body text-ciel">
+          Media hora en línea para escucharte y ver por dónde empezar.
+        </p>
+        <div class="mt-10">
+          <Cta href="/agenda">Agenda tu clase gratis</Cta>
+        </div>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  /* Tipografia del cuerpo de una entrada. Deliberadamente corta: el sitio no
+     necesita un sistema de prosa completo mientras el diario este vacio. */
+  .prose :global(h2) {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    margin-block: 2.5rem 1rem;
+  }
+
+  .prose :global(p) {
+    max-width: 68ch;
+    margin-block: 1.25rem;
+    color: var(--color-nuit);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    max-width: 68ch;
+    margin-block: 1.25rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+    color: var(--color-nuit);
+  }
+
+  .prose :global(ol) {
+    list-style: decimal;
+  }
+
+  .prose :global(li) {
+    margin-block: 0.5rem;
+  }
+
+  .prose :global(a) {
+    color: var(--color-bleu);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

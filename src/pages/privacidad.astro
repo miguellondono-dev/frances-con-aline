@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { breadcrumb } from '../lib/schema';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Privacidad', path: '/privacidad' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+const actualizado = new Date().toISOString().slice(0, 10);
+
+/**
+ * AVISO IMPORTANTE PARA QUIEN PUBLIQUE ESTO
+ *
+ * Este texto describe con exactitud lo que el sitio hace tecnicamente, que es
+ * dato verificable. Lo que NO hace es inventar los datos legales que solo
+ * Aline puede aportar: identidad del responsable, direccion, base juridica
+ * elegida y plazos de conservacion. Esos van marcados como PENDIENTE.
+ *
+ * Publicar una politica de privacidad con datos inventados seria peor que no
+ * tenerla. Antes de publicar, hay que rellenar los PENDIENTE y conviene que lo
+ * revise alguien que sepa de proteccion de datos en Francia y en la UE.
+ */
+const PENDIENTES_LEGALES = [
+  'Identidad y datos de contacto del responsable del tratamiento (nombre completo o razón social, dirección, correo).',
+  'Base jurídica elegida para cada tratamiento (consentimiento, ejecución de contrato o interés legítimo).',
+  'Plazo de conservación concreto de cada tipo de dato.',
+  'Si se hacen transferencias internacionales de datos y con qué garantías.',
+  'Autoridad de control ante la que reclamar, según el país de establecimiento.',
+];
+---
+
+<BaseLayout
+  title="Política de privacidad"
+  description="Qué datos recojo en este sitio, para qué los uso, dónde se guardan y cómo puedes pedir que los borre."
+  path="/privacidad"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <h1 class="mt-8 max-w-[20ch] text-display-xl text-encre">
+        Política de privacidad
+      </h1>
+      <p class="mt-6 text-body-s text-nuit">
+        Última actualización: <time datetime={actualizado}>{actualizado}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-papier">
+    <div class="shell py-section">
+      <div
+        class="mx-auto max-w-3xl rounded-panel border border-corail/40 bg-blanc p-8"
+      >
+        <span class="label mb-3 block text-lie">Borrador, no publicable todavía</span>
+        <p class="measure text-body text-encre">
+          Lo que sigue describe con exactitud lo que este sitio hace por dentro.
+          Faltan los datos legales que solo puede aportar Aline, y que están
+          listados abajo. Antes de publicar hay que rellenarlos y conviene que lo
+          revise alguien que sepa de protección de datos.
+        </p>
+        <ul class="mt-6 flex flex-col gap-2">
+          {
+            PENDIENTES_LEGALES.map((item) => (
+              <li class="measure text-body-s text-nuit">{item}</li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="mx-auto mt-16 max-w-3xl">
+        <h2 class="text-display-m text-encre">Qué datos recojo</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Solo lo que tú escribes en un formulario. En la lista de espera, tu
+          correo y qué te interesa. En el test de nivel, tu correo y el nivel que
+          salió, y solo si pides el plan. En contacto, tu nombre, tu correo y tu
+          mensaje. Al agendar, lo que pida el calendario más las tres respuestas
+          del filtro previo.
+        </p>
+
+        <h2 class="mt-12 text-display-m text-encre">Para qué los uso</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Para contestarte, para avisarte cuando haya fechas si te apuntaste a
+          una lista de espera, y para mandarte el plan si lo pediste. No los uso
+          para nada más y no los vendo ni los cedo a terceros con fines
+          comerciales.
+        </p>
+
+        <h2 class="mt-12 text-display-m text-encre">Dónde se guardan</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Los envíos llegan a mi correo a través de un proveedor de correo
+          transaccional y se registran en una hoja de cálculo alojada en Google.
+          El agendamiento se gestiona con Cal.com, conectado a mi calendario. El
+          sitio está alojado en un proveedor de hosting. No hay ninguna otra
+          base de datos.
+        </p>
+
+        <h2 class="mt-12 text-display-m text-encre">Analítica</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Uso una analítica sin cookies y sin identificadores personales, que
+          cuenta visitas de forma agregada. No uso Google Analytics ni ninguna
+          herramienta que te siga entre sitios, y por eso este sitio no tiene
+          banner de cookies.
+        </p>
+
+        <h2 class="mt-12 text-display-m text-encre">Cuánto tiempo</h2>
+        {/* TODO [PENDIENTE] Plazos concretos de conservacion por tipo de dato. */}
+        <p
+          class="measure mt-4 rounded-panel border border-corail/40 bg-blanc px-5 py-4 text-body text-encre"
+        >
+          <span class="label mb-1 block text-lie">Pendiente</span>
+          Falta fijar el plazo concreto de conservación de cada tipo de dato.
+        </p>
+
+        <h2 class="mt-12 text-display-m text-encre">Tus derechos</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Puedes pedirme en cualquier momento que te diga qué tengo tuyo, que lo
+          corrija o que lo borre, y darte de baja de cualquier lista. Escríbeme
+          desde <a
+            href="/contacto"
+            class="text-bleu underline underline-offset-4 hover:no-underline">contacto</a
+          > y lo hago. No hace falta que expliques por qué.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

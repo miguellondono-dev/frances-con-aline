@@ -1,0 +1,137 @@
+---
+import { Picture } from 'astro:assets';
+import parisTejados from '../assets/paris-tejados.jpg';
+
+/**
+ * TEJADOS DE PARÍS.
+ *
+ * Sustituye a la ilustración que yo había dibujado en SVG: esta es la que
+ * eligió Miguel.
+ *
+ * Va anclada abajo y detrás del contenido. Un velo degradado la funde con el
+ * color de la sección por arriba, así que el texto nunca se apoya sobre el
+ * dibujo y el contraste del titular no baja.
+ *
+ * En superficies oscuras la imagen se invierte: el crema pasa a tinta y las
+ * líneas quedan claras. Es el mismo archivo, sin una segunda versión que
+ * mantener.
+ *
+ * Astro la sirve en AVIF y WebP, con varios tamaños y las medidas puestas,
+ * así que no provoca saltos de maquetación al cargar.
+ */
+interface Props {
+  variant?: 'claro' | 'oscuro';
+  /** Solo la del hero: está en la primera pantalla. */
+  eager?: boolean;
+  class?: string;
+}
+
+const { variant = 'claro', eager = false, class: className = '' } = Astro.props;
+---
+
+<div class={`paris paris--${variant} ${className}`} aria-hidden="true">
+  <Picture
+    src={parisTejados}
+    alt=""
+    formats={['avif', 'webp']}
+    fallbackFormat="webp"
+    widths={[768, 1200, 1404]}
+    sizes="100vw"
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    class="paris__img"
+    pictureAttributes={{ class: 'paris__pic' }}
+  />
+  <span class="paris__velo"></span>
+</div>
+
+<style>
+  /* Ocupa la sección entera, no solo una franja de abajo. Recortada a una
+     franja se perdía la torre, que es donde está el interés del dibujo. */
+  .paris {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* <picture> es un elemento en línea: sin esto no le pasa el alto al <img>. */
+  .paris__pic {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .paris__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /**
+     * El dibujo ya viene recortado por abajo, así que es más ancho que alto y
+     * en una sección alta sobra anchura. Lo que sobra se recorta por los
+     * lados, y ahí es donde importa este número: cargado a la derecha, para
+     * que el Sacré-Coeur no se quede fuera. La torre queda en el centro.
+     *
+     * Si quieres mover el encuadre, este es el único valor que hay que tocar.
+     */
+    object-position: 62% center;
+    will-change: transform;
+  }
+
+  /* En móvil la franja visible es mucho más estrecha: ahí manda la torre. */
+  @media (width < 48rem) {
+    .paris__img {
+      object-position: 50% center;
+    }
+  }
+
+  /* El velo funde el crema del dibujo con el color de la sección. Sin él, la
+     imagen entraría de golpe con un canto horizontal a media pantalla. */
+  .paris__velo {
+    position: absolute;
+    inset: 0;
+  }
+
+  /**
+   * El velo es fuerte donde va el texto y se abre hacia abajo.
+   *
+   * No lo tapa del todo arriba: deja el dibujo a un 10 o 15 por ciento, lo
+   * justo para que se intuya la torre detrás del titular sin robarle
+   * legibilidad. Con la tinta sobre ese crema tan claro el contraste se queda
+   * por encima de 17:1, muy holgado.
+   */
+  .paris--claro .paris__velo {
+    background: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      var(--color-blanc) 16%,
+      color-mix(in srgb, var(--color-blanc) 90%, transparent) 42%,
+      color-mix(in srgb, var(--color-blanc) 80%, transparent) 62%,
+      color-mix(in srgb, var(--color-blanc) 30%, transparent) 84%,
+      transparent 100%
+    );
+  }
+
+  /* Sobre tinta se invierte: el crema se vuelve oscuro y el trazo, claro. */
+  .paris--oscuro .paris__img {
+    filter: invert(1);
+    opacity: 0.55;
+  }
+
+  .paris--oscuro .paris__velo {
+    background: linear-gradient(
+      to bottom,
+      var(--color-encre) 0%,
+      color-mix(in srgb, var(--color-encre) 82%, transparent) 28%,
+      color-mix(in srgb, var(--color-encre) 40%, transparent) 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .paris__img {
+      transform: none !important;
+    }
+  }
+</style>

@@ -1,0 +1,283 @@
+---
+/**
+ * COMO ES UNA CLASE CONMIGO.
+ *
+ * La seccion se queda quieta mientras se pasa por ella y lo unico que cambia
+ * son los pasos: uno esta a la vista, y al avanzar sube, encoge y se apaga
+ * mientras el siguiente entra desde abajo. Nunca hay dos legibles a la vez.
+ *
+ * La quietud se consigue con una pista alta y un bloque pegajoso dentro. No
+ * hay secuestro del scroll: la rueda se comporta como en cualquier otra parte
+ * de la pagina, y quien pasa de largo pasa de largo.
+ *
+ * El apilado lo enciende el guion, no la hoja de estilos. Sin JavaScript, o
+ * con movimiento reducido, los cuatro pasos se leen en columna, uno debajo de
+ * otro, y la pista no es alta: no hay un vacio que recorrer.
+ */
+const PASOS = [
+  {
+    titulo: 'Empezamos escuchándote',
+    texto:
+      'La primera media hora la dedico a oírte hablar sin corregirte, para saber de dónde partimos.',
+  },
+  {
+    titulo: 'Decidimos juntos hacia dónde vamos',
+    texto:
+      'Elegimos qué necesitas primero y qué puede esperar, y lo cambiamos cuando cambia tu vida.',
+  },
+  {
+    titulo: 'Traemos la vida real a la clase',
+    texto:
+      'Trabajamos con lo que te vas a encontrar de verdad: un menú, una canción, un formulario.',
+  },
+  {
+    titulo: 'No te dejo solo entre clase y clase',
+    texto:
+      'Te dejo algo corto para hacer y lo miramos juntos al empezar la siguiente.',
+  },
+];
+---
+
+<section class="metodo bg-blanc" aria-labelledby="metodo-titulo">
+  <div class="metodo__pista" data-metodo-pista>
+    <div class="metodo__fija" data-metodo-fija>
+      <div class="shell metodo__reparto">
+        <h2 id="metodo-titulo" class="metodo__titulo" data-reveal>
+          Cómo es una clase conmigo
+        </h2>
+
+        <div class="metodo__pasos">
+          {/* El carril: cuatro tramos, uno por paso. Dice en cual vas sin
+              tener que escribirlo. */}
+          <span class="carril" aria-hidden="true">
+            {PASOS.map(() => <span class="carril__tramo"></span>)}
+          </span>
+
+          <ol class="pila" data-metodo-pasos>
+            {
+              PASOS.map((paso, i) => (
+                <li class="paso">
+                  <span class="paso__numero" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+
+                  <div>
+                    <h3 class="paso__titulo">{paso.titulo}</h3>
+                    <p class="paso__texto">{paso.texto}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* --- Pista y bloque quieto --- */
+
+  /**
+   * En reposo no hay nada de esto: la pista mide lo que mida su contenido y
+   * el bloque no esta pegado. El guion enciende las dos cosas a la vez, y
+   * solo si va a poder mover los pasos.
+   */
+  .metodo__fija {
+    padding-block: var(--spacing-section);
+  }
+
+  /**
+   * Alto de la pista: una pantalla para el bloque quieto y el resto es el
+   * recorrido que se reparten los cuatro pasos.
+   *
+   * Va atado a la clase, no al atributo suelto: el atributo lo llevan tambien
+   * el bloque pegajoso y la lista, y con el selector abierto la lista media
+   * tres pantallas de alto en vez de sus trece rem.
+   */
+  .metodo__pista[data-apilado='true'] {
+    height: 320svh;
+  }
+
+  .metodo__fija[data-apilado='true'] {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    min-height: 100svh;
+    height: auto;
+    padding-block: 0;
+  }
+
+  /* --- Reparto --- */
+
+  .metodo__reparto {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  @media (width >= 64rem) {
+    .metodo__reparto {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: 4rem;
+    }
+  }
+
+  /* El titular, centrado a la altura de los pasos y alineado a la izquierda. */
+  .metodo__titulo {
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 12ch;
+    text-wrap: balance;
+  }
+
+  /* --- Carril --- */
+
+  /**
+   * La estructura tiene su propio fondo: un azul muy rebajado que baja hacia
+   * la nada. Solo esta pieza, no la seccion, que sigue en blanco.
+   */
+  .metodo__pasos {
+    display: grid;
+    grid-template-columns: 2px 1fr;
+    gap: 1.75rem;
+    align-items: stretch;
+    border-radius: 26px;
+    padding: 2rem 1.75rem;
+    background-image: radial-gradient(
+      130% 110% at 12% 0%,
+      color-mix(in srgb, var(--color-ciel) 30%, transparent) 0%,
+      color-mix(in srgb, var(--color-ciel) 12%, transparent) 46%,
+      transparent 76%
+    );
+  }
+
+  .carril {
+    display: grid;
+    grid-auto-rows: 1fr;
+    gap: 0.4rem;
+    border-radius: var(--radius-pill);
+  }
+
+  .carril__tramo {
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 12%, transparent);
+    transition: background-color 420ms var(--ease-smooth);
+  }
+
+  .carril__tramo[data-activo='true'] {
+    background-color: var(--color-grenat);
+  }
+
+  .carril__tramo[data-pasado='true'] {
+    background-color: color-mix(in srgb, var(--color-encre) 26%, transparent);
+  }
+
+  /* --- Los pasos --- */
+
+  /**
+   * En reposo es una lista corriente. Con el apilado encendido, los cuatro
+   * ocupan la misma celda y el guion decide cual se ve: asi solo hay uno
+   * legible cada vez, sin que el bloque cambie de alto ni de sitio.
+   */
+  .pila {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  /**
+   * LA VENTANA.
+   *
+   * Antes los cuatro compartian la misma celda y en el relevo se pisaban las
+   * letras. Ahora hay una ventana de alto fijo y los pasos se reparten dentro
+   * separados 132px: el que toca queda arriba, el siguiente asoma por abajo
+   * desenfocado, y el anterior ya ha salido por arriba.
+   *
+   * La mascara funde los dos bordes, asi que nada entra ni sale de golpe: el
+   * de abajo aparece deshaciendose y el de arriba se deshace al irse. Es lo
+   * que da la sensacion de rueda.
+   */
+  .pila[data-apilado='true'] {
+    position: relative;
+    display: block;
+    gap: 0;
+    height: var(--ventana, 15rem);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgb(0 0 0 / 1) 8%,
+      rgb(0 0 0 / 1) 64%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgb(0 0 0 / 1) 8%,
+      rgb(0 0 0 / 1) 64%,
+      transparent 100%
+    );
+  }
+
+  /* El ancla esta arriba del centro: lo que sobra abajo es el sitio del que
+     viene. */
+  .pila[data-apilado='true'] .paso {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--ancla, 5.75rem);
+    will-change: transform, opacity;
+  }
+
+  .paso {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  /**
+   * El numero hace de ancla en lugar del icono. Es tipografia, no un dibujo
+   * prestado, y ademas dice algo: en cual de los cuatro pasos vas.
+   */
+  .paso__numero {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: color-mix(in srgb, var(--color-bleu) 34%, transparent);
+  }
+
+  .paso__titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+
+  .paso__texto {
+    margin-top: 0.65rem;
+    max-width: 44ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carril__tramo {
+      transition: none;
+    }
+  }
+</style>

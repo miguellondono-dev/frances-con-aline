@@ -1,0 +1,291 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Cta from '../components/Cta.astro';
+import { breadcrumb } from '../lib/schema';
+import { CTA } from '../data/site';
+import test from '../data/test-nivel.json';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Test de nivel', path: '/test-de-nivel' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+/* Solo viajan al cliente las respuestas correctas y los textos de nivel.
+   Los enunciados ya estan en el HTML: no hace falta duplicarlos en JSON. */
+const datosCliente = {
+  correctas: test.preguntas.map((p) => ({
+    id: p.id,
+    nivel: p.nivel,
+    correcta: p.correcta,
+  })),
+  niveles: test.niveles,
+};
+---
+
+<BaseLayout
+  title="Test de nivel de francés gratis, 12 preguntas"
+  description="Doce preguntas, tres minutos y sabes tu nivel estimado de francés. El resultado se muestra al terminar, sin pedirte el correo."
+  path="/test-de-nivel"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit">Test de nivel</p>
+      <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre">
+        Doce preguntas, tres minutos
+      </h1>
+      <p class="measure mt-7 text-body text-nuit">
+        Van de menos a más difícil. Al terminar te digo tu nivel estimado y qué
+        significa en la vida real, no en una tabla. No te pido el correo para
+        darte el resultado.
+      </p>
+
+      {
+        test._pendiente && (
+          /* TODO [PENDIENTE] Las 12 preguntas definitivas las redacta Aline.
+             Se editan en src/data/test-nivel.json, sin tocar codigo. */
+          <p class="measure mt-8 rounded-panel border border-corail/40 bg-papier px-5 py-4 text-body-s text-encre">
+            <span class="label mb-1 block text-lie">Pendiente</span>
+            Las preguntas que ves son de ejemplo y están marcadas como
+            PLACEHOLDER. Las definitivas las redacta Aline y se editan en un solo
+            archivo, sin tocar el código.
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="bg-papier">
+    <div class="shell py-section">
+      <script type="application/json" id="test-datos" set:html={JSON.stringify(datosCliente)} is:inline
+      ></script>
+
+      <form data-test class="mx-auto max-w-3xl" novalidate>
+        <!-- Progreso. Oculto para lectores de pantalla porque el cambio ya se
+             anuncia por texto en [data-anuncio]. -->
+        <div class="flex items-center gap-4" aria-hidden="true">
+          <div class="h-1.5 flex-1 overflow-hidden rounded-pill bg-encre/15">
+            <div
+              data-progreso-barra
+              class="progreso h-full origin-left rounded-pill bg-grenat"
+            >
+            </div>
+          </div>
+          <span data-progreso-texto class="numerals shrink-0 text-body-s text-encre">
+            1 de {test.preguntas.length}
+          </span>
+        </div>
+
+        <p data-anuncio class="sr-only" role="status" aria-live="polite"></p>
+
+        <ol class="mt-10">
+          {
+            test.preguntas.map((pregunta, i) => (
+              <li data-paso class="paso" data-indice={i}>
+                <fieldset class="border-0 p-0">
+                  <legend class="font-display text-display-m text-encre">
+                    <span class="label mb-3 block text-nuit">
+                      Pregunta {i + 1} de {test.preguntas.length}
+                    </span>
+                    {pregunta.enunciado}
+                  </legend>
+
+                  <div class="mt-8 flex flex-col gap-3">
+                    {pregunta.opciones.map((opcion, j) => (
+                      <label class="opcion flex min-h-[3.25rem] cursor-pointer items-center gap-4 rounded-panel border border-encre/20 bg-blanc px-5 py-3 text-body text-encre transition-colors duration-fast hover:border-encre">
+                        <input
+                          type="radio"
+                          name={`q${pregunta.id}`}
+                          value={j}
+                          class="h-5 w-5 shrink-0 accent-grenat"
+                        />
+                        <span>{opcion}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </li>
+            ))
+          }
+        </ol>
+
+        <!-- Navegacion: solo aparece cuando el JS ha tomado el control. -->
+        <div data-test-nav hidden class="mt-10 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            data-anterior
+            class="inline-flex min-h-11 items-center gap-2 rounded-panel px-4 py-2 text-body-s text-nuit underline underline-offset-4 hover:no-underline disabled:opacity-40 disabled:no-underline"
+          >
+            Anterior
+          </button>
+          <Cta type="button" data-siguiente>Siguiente</Cta>
+        </div>
+
+        <!-- Sin JavaScript: las 12 preguntas quedan visibles y se explica que
+             el resultado automatico no esta disponible. -->
+        <p
+          data-sin-js
+          class="mt-10 rounded-panel border border-corail/40 bg-blanc px-5 py-4 text-body-s text-encre"
+        >
+          El resultado automático necesita JavaScript. Si lo tienes desactivado,
+          puedes responder las preguntas por tu cuenta y luego agendar la clase
+          gratis: en media hora te digo tu nivel con más precisión que este test.
+        </p>
+      </form>
+
+      <!-- Resultado -->
+      <div data-resultado hidden class="mx-auto max-w-3xl">
+        <p class="label text-nuit">Tu resultado</p>
+        <h2 tabindex="-1" class="mt-4 text-display-l text-encre">
+          Tu nivel estimado es
+          <span data-resultado-nivel class="numerals text-grenat">B1</span>
+        </h2>
+        <p data-resultado-texto class="measure mt-6 text-body text-nuit"></p>
+
+        <p class="measure mt-6 text-body-s text-nuit">
+          Es una estimación a partir de doce preguntas escritas. No mide cómo
+          hablas, que es la mitad del asunto.
+        </p>
+
+        <!-- Momento de captura: el correo se pide aqui, a cambio del plan. -->
+        <div class="mt-12 rounded-panel bg-ciel p-8 sm:p-10">
+          <h3 class="text-display-m text-encre">¿Quieres el plan?</h3>
+          <p class="measure mt-4 text-body text-encre">
+            Te mando por dónde empezar desde tu nivel y qué puedes esperar en los
+            próximos tres meses. Escrito por mí, no automático.
+          </p>
+
+          <form class="mt-8" method="post" action="/api/plan" data-plan novalidate>
+            <input type="hidden" name="origen" value="test" />
+            <input type="hidden" name="nivel" data-resultado-input value="" />
+
+            <div
+              class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+              aria-hidden="true"
+            >
+              <label for="plan-empresa">No rellenes este campo</label>
+              <input id="plan-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+              <div class="flex flex-col gap-2">
+                <label for="plan-correo" class="label text-nuit">
+                  Tu correo <span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="plan-correo"
+                  name="correo"
+                  type="email"
+                  required
+                  aria-required="true"
+                  autocomplete="email"
+                  placeholder="nombre@correo.com"
+                  class="min-h-[52px] rounded-panel border border-encre/25 bg-blanc px-4 py-3 text-body-s text-encre"
+                />
+              </div>
+              <Cta type="submit" class="sm:h-[52px] sm:py-0">Envíamelo</Cta>
+            </div>
+
+            <p
+              data-plan-message
+              role="status"
+              aria-live="polite"
+              class="mt-4 text-body-s text-encre"
+            >
+            </p>
+          </form>
+        </div>
+
+        <div class="mt-12 border-t border-pierre pt-10">
+          <p class="measure text-body text-nuit">
+            O sáltate el correo: en media hora de clase gratis te digo tu nivel
+            con más precisión que cualquier test escrito.
+          </p>
+          <div class="mt-6">
+            <Cta href="/agenda">{CTA.trasTest}</Cta>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .progreso {
+    transform: scaleX(0.0833);
+    transition: transform var(--duration-normal) var(--ease-smooth);
+  }
+
+  /* Solo en modo paso a paso se oculta el resto: sin JS se ven las 12. */
+  .paso {
+    padding-block: 0;
+  }
+
+  [data-modo='paso'] .paso[hidden] {
+    display: none;
+  }
+
+  [data-modo='paso'] .paso[data-entrada='adelante'],
+  [data-modo='paso'] .paso[data-entrada='atras'] {
+    animation: paso-entra 180ms var(--ease-smooth);
+  }
+
+  [data-modo='paso'] .paso[data-entrada='atras'] {
+    animation-name: paso-entra-atras;
+  }
+
+  /* Sin JS las preguntas se separan entre si para poder leerlas de corrido. */
+  form:not([data-modo]) .paso + .paso {
+    margin-top: 3rem;
+    border-top: 1px solid var(--color-encre);
+    padding-top: 3rem;
+  }
+
+  .opcion:focus-within {
+    border-color: var(--color-encre);
+  }
+
+  .opcion:has(input:checked) {
+    border-color: var(--color-grenat);
+    background-color: var(--color-blanc);
+  }
+
+  @keyframes paso-entra {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes paso-entra-atras {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progreso {
+      transition: none;
+    }
+    [data-modo='paso'] .paso[data-entrada] {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/test-nivel.ts';
+</script>

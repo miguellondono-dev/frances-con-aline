@@ -1,0 +1,224 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Cta from '../components/Cta.astro';
+import { breadcrumb } from '../lib/schema';
+import { BONOS, PENDIENTE, CTA } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Precios', path: '/precios' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+
+/** Precios confirmados. Todo en euros: ni conversion ni selector de moneda. */
+const TARIFAS = [
+  {
+    servicio: 'Clase privada, una a una',
+    precio: '35 €',
+    unidad: 'la hora',
+    detalle: 'Personalizada. Avanzas a tu ritmo y hacia tu objetivo.',
+    href: '/clases-privadas',
+  },
+  {
+    servicio: 'Clase en grupo',
+    precio: '20 €',
+    unidad: 'la hora, por persona',
+    detalle: 'Mínimo dos personas, máximo cinco.',
+    href: '/clases-en-grupo',
+  },
+  {
+    servicio: 'Preparación DELF',
+    precio: 'Mismo precio',
+    unidad: 'que privada o grupo',
+    detalle: 'Preparación y simulacros con el formato oficial.',
+    href: '/preparacion-delf',
+  },
+  {
+    servicio: 'Talleres en París',
+    precio: PENDIENTE.precioTalleres ?? 'Pendiente',
+    unidad: 'presencial',
+    detalle: 'Teatro y cocina. En construcción.',
+    href: '/talleres',
+    pendiente: !PENDIENTE.precioTalleres,
+  },
+  {
+    servicio: 'Tours en París',
+    precio: PENDIENTE.precioTours ?? 'Pendiente',
+    unidad: 'presencial',
+    detalle: 'También para familias y grupos de amigos.',
+    href: '/tours-en-paris',
+    pendiente: !PENDIENTE.precioTours,
+  },
+  {
+    servicio: 'Primera clase',
+    precio: 'Gratis',
+    unidad: '30 minutos',
+    detalle: 'Media hora, en línea.',
+    href: '/agenda',
+    destacada: true,
+  },
+];
+---
+
+<BaseLayout
+  title="Precios de las clases de francés, en euros"
+  description="Clase privada 35 € la hora, clase en grupo 20 € por persona, preparación DELF al mismo precio y primera clase gratis de 30 minutos. Bonos disponibles."
+  path="/precios"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit" data-reveal>Precios</p>
+      <h1 class="mt-5 max-w-[22ch] text-display-xl text-encre" data-reveal>
+        Todo lo que cuesta, en un solo sitio
+      </h1>
+      <p class="measure mt-7 text-body text-nuit" data-reveal>
+        Los precios están en euros. El sitio no cobra nada: aquí se agenda y el
+        pago se acuerda directamente conmigo, fuera de la web.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tabla de tarifas. Es una tabla de datos de verdad, asi que va marcada
+       como tabla y no como una reticula de divs. -->
+  <section class="bg-blanc" aria-labelledby="tarifas">
+    <div class="shell pb-section">
+      <h2 id="tarifas" class="sr-only">Tarifas por servicio</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[40rem] border-collapse text-left">
+          <thead>
+            <tr class="border-b border-encre">
+              <th scope="col" class="label py-4 pr-6 text-nuit">Servicio</th>
+              <th scope="col" class="label py-4 pr-6 text-nuit">Precio</th>
+              <th scope="col" class="label py-4 text-nuit">Qué es</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              TARIFAS.map((fila) => (
+                <tr class={`border-b border-pierre ${fila.destacada ? 'bg-papier' : ''}`}>
+                  <th scope="row" class="py-6 pr-6 align-top">
+                    <a
+                      href={fila.href}
+                      class="inline-flex min-h-11 items-center text-title text-encre underline underline-offset-4 hover:no-underline"
+                    >
+                      {fila.servicio}
+                    </a>
+                  </th>
+                  <td class="py-6 pr-6 align-top">
+                    <span
+                      class={`numerals block text-display-m ${
+                        fila.pendiente ? 'text-lie' : 'text-encre'
+                      }`}
+                    >
+                      {fila.precio}
+                    </span>
+                    <span class="text-body-s text-nuit">{fila.unidad}</span>
+                  </td>
+                  <td class="py-6 align-top text-body text-nuit">{fila.detalle}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      {/* TODO [PENDIENTE] Precio y formato de talleres y tours. */}
+      <p class="mt-8 max-w-[60ch] rounded-panel border border-corail/40 bg-papier px-5 py-4 text-body-s text-encre">
+        <span class="label mb-1 block text-lie">Pendiente</span>
+        Talleres y tours todavía no tienen precio cerrado. Cuando lo tengan,
+        aparecerá aquí. Mientras tanto puedes dejar tu correo en la lista de
+        espera.
+      </p>
+    </div>
+  </section>
+
+  <!-- Bonos -->
+  <section class="surface-dark" aria-labelledby="bonos">
+    <div class="shell py-section">
+      <p class="label text-ciel" data-reveal>Bonos</p>
+      <h2 id="bonos" class="mt-6 max-w-[24ch] text-display-l text-blanc" data-reveal>
+        Comprar varias clases sale más barato
+      </h2>
+
+      {
+        !BONOS.confirmado && (
+          /* TODO [PENDIENTE] Miguel confirma o ajusta estos numeros antes de
+             publicar. Hasta entonces se muestran como propuesta. */
+          <p
+            class="mt-6 inline-block rounded-panel border border-chair/50 px-4 py-2 text-body-s text-chair"
+            data-reveal
+          >
+            Pendiente de confirmar: estas cifras son la propuesta, todavía no el
+            precio final.
+          </p>
+        )
+      }
+
+      <div class="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <h3 class="text-display-m text-blanc" data-reveal>Clases privadas</h3>
+          <ul class="mt-8 flex flex-col">
+            {
+              BONOS.privada.map((bono) => (
+                <li
+                  class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-nuit py-5 first:border-t-0 first:pt-0"
+                  data-reveal
+                >
+                  <span class="text-body text-blanc">{bono.clases} clases</span>
+                  <span class="numerals text-display-m text-blanc">{bono.precio} €</span>
+                  <span class="w-full text-body-s text-ciel">
+                    Sale a {(bono.precio / bono.clases).toFixed(2).replace('.', ',')} € la
+                    hora. Vence en {bono.vence}.
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-display-m text-blanc" data-reveal>Clases en grupo</h3>
+          <ul class="mt-8 flex flex-col">
+            {
+              BONOS.grupo.map((bono) => (
+                <li
+                  class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-nuit py-5 first:border-t-0 first:pt-0"
+                  data-reveal
+                >
+                  <span class="text-body text-blanc">{bono.clases} clases</span>
+                  <span class="numerals text-display-m text-blanc">
+                    {bono.precio} € {bono.nota}
+                  </span>
+                  <span class="w-full text-body-s text-ciel">
+                    Sale a {(bono.precio / bono.clases).toFixed(2).replace('.', ',')} € la
+                    hora por persona. Vence en {bono.vence}.
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t-4 border-chair bg-papier" aria-labelledby="cierre">
+    <div class="shell flex flex-col items-start py-section">
+      <h2 id="cierre" class="max-w-[20ch] text-display-l text-encre" data-reveal>
+        Antes de pagar nada, media hora gratis
+      </h2>
+      <p class="measure mt-7 text-body text-encre" data-reveal>
+        Sirve para ver tu nivel y para decidir qué formato te conviene. A veces
+        el que conviene no es el que la gente venía pensando.
+      </p>
+      <div class="mt-10" data-reveal>
+        <Cta href="/agenda" variant="lie">{CTA.cierrePrecios}</Cta>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

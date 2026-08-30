@@ -1,0 +1,100 @@
+---
+import type { Pregunta } from '../data/faq';
+
+/**
+ * PREGUNTAS FRECUENTES.
+ *
+ * details/summary nativo: funciona sin JavaScript, es accesible por teclado de
+ * fabrica y el texto de la respuesta esta siempre en el DOM, asi que los
+ * buscadores lo leen aunque este plegado.
+ * Las tres primeras van abiertas para que la primera respuesta se vea entera.
+ */
+interface Props {
+  preguntas: Pregunta[];
+  titulo?: string;
+  /** Ancla del bloque, para enlazarlo desde otras paginas. */
+  id?: string;
+  /** Nivel del encabezado de cada pregunta, para no romper la jerarquia. */
+  nivel?: 'h3' | 'h4';
+}
+
+const {
+  preguntas,
+  titulo = 'Preguntas frecuentes',
+  id = 'preguntas',
+  nivel = 'h3',
+} = Astro.props;
+
+const Encabezado = nivel;
+---
+
+<section class="bg-blanc" aria-labelledby={`${id}-titulo`}>
+  <div class="shell grid gap-8 py-section lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-4">
+      <div class="lg:sticky lg:top-28">
+        <h2 id={`${id}-titulo`} class="text-display-l text-encre" data-reveal>
+          {titulo}
+        </h2>
+        <p class="mt-5 max-w-[34ch] text-body text-encre/70" data-reveal>
+          ¿Falta la tuya? <a
+            href="/contacto"
+            class="text-lie underline underline-offset-4 hover:no-underline">Escríbeme</a
+          >.
+        </p>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7 lg:col-start-6" id={id}>
+      {
+        preguntas.map((pregunta, i) => (
+          <details
+            class="faq-item border-t border-encre/10 first:border-t-0"
+            data-reveal
+          >
+            <summary class="faq-summary flex cursor-pointer list-none items-start justify-between gap-6 py-4">
+              <Encabezado class="text-title text-encre">{pregunta.q}</Encabezado>
+              <span class="faq-mark mt-1 shrink-0 text-corail" aria-hidden="true">
+                <svg viewBox="0 0 16 16" class="h-4 w-4" fill="none">
+                  <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+              </span>
+            </summary>
+
+            <div class="pb-5">
+              {pregunta.pendiente ? (
+                /* TODO [PENDIENTE] Falta la decision. No se inventa la respuesta:
+                   se publica el hueco marcado, que es preferible a una mentira. */
+                <p class="max-w-[62ch] rounded-panel border border-corail/40 bg-papier px-5 py-4 text-body text-encre">
+                  <span class="label mb-1 block text-lie">Pendiente</span>
+                  {pregunta.a.replace(/^PENDIENTE:\s*/, '')}
+                </p>
+              ) : (
+                <p class="max-w-[62ch] text-body text-encre/70">{pregunta.a}</p>
+              )}
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-mark svg {
+    transition: transform var(--duration-normal) var(--ease-smooth);
+  }
+
+  .faq-item[open] .faq-mark svg {
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-mark svg {
+      transition: none;
+    }
+  }
+</style>

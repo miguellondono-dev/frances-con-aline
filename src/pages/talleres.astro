@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Aperture from '../components/Aperture.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import { breadcrumb } from '../lib/schema';
+import { PENDIENTE } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Talleres', path: '/talleres' },
+];
+
+const schema = [breadcrumb(migas, Astro.site)];
+---
+
+<BaseLayout
+  title="Talleres de teatro y cocina en francés, en París"
+  description="Talleres presenciales en París: teatro en francés y cocina francesa explicada en español. Están en construcción. Deja tu correo en la lista de espera."
+  path="/talleres"
+  schema={schema}
+>
+  <section class="bg-blanc">
+    <div class="shell pb-section-sm pt-6">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
+      <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre" data-reveal>
+        Talleres de teatro y de cocina
+      </h1>
+      <p class="measure mt-7 text-body text-nuit" data-reveal>
+        Dos formas de usar el francés con las manos y con el cuerpo, no con un
+        cuaderno. Están en construcción: todavía no hay fechas ni precio cerrado,
+        así que por ahora solo abro la lista de espera.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-papier" aria-labelledby="talleres">
+    <div class="shell py-section">
+      <h2 id="talleres" class="sr-only">Los dos talleres</h2>
+
+      <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <article data-reveal>
+          {/* TODO [PENDIENTE: foto real] Ensayo de teatro. */}
+          <Aperture
+            alt="Ensayo de un taller de teatro en francés"
+            todo="Escena de taller de teatro"
+            ratio="aspect-[4/3]"
+            lidColor="papier"
+          />
+          <h3 class="mt-8 text-display-m text-encre">Teatro en francés</h3>
+          <p class="measure mt-4 text-body text-nuit">
+            Leer en voz alta, repetir una escena hasta que suene, equivocarse
+            delante de otros. El teatro obliga a algo que la clase no siempre
+            consigue: sostener el idioma con el cuerpo y con el volumen, no solo
+            con la cabeza.
+          </p>
+          <p class="measure mt-4 text-body text-nuit">
+            No hace falta haber actuado nunca. Sí hace falta tener algo de base
+            en francés, porque el taller no es una clase de idioma.
+          </p>
+        </article>
+
+        <article data-reveal>
+          {/* TODO [PENDIENTE: foto real] Taller de cocina. */}
+          <Aperture
+            alt="Manos preparando un plato en un taller de cocina francesa"
+            todo="Escena de taller de cocina"
+            ratio="aspect-[4/3]"
+            lidColor="papier"
+          />
+          <h3 class="mt-8 text-display-m text-encre">Cocina francesa</h3>
+          <p class="measure mt-4 text-body text-nuit">
+            Una receta, el vocabulario que la rodea y la razón cultural por la
+            que ese plato se come cuando se come. Se cocina de verdad y se come
+            al final.
+          </p>
+          <p class="measure mt-4 text-body text-nuit">
+            Las instrucciones van en francés y las explicaciones en español
+            cuando hace falta. Sirve desde un nivel bastante básico, porque el
+            plato va guiando.
+          </p>
+        </article>
+      </div>
+
+      <dl class="mt-16 grid gap-8 border-t border-encre/20 pt-10 sm:grid-cols-3" data-reveal>
+        <div>
+          <dt class="label text-nuit">Dónde</dt>
+          <dd class="mt-2 text-body text-encre">París, presencial.</dd>
+        </div>
+        <div>
+          <dt class="label text-nuit">Precio</dt>
+          {/* TODO [PENDIENTE] Precio y formato definitivo de los talleres. */}
+          <dd class="mt-2 text-body text-lie">
+            {PENDIENTE.precioTalleres ?? 'Pendiente de definir'}
+          </dd>
+        </div>
+        <div>
+          <dt class="label text-nuit">Fechas</dt>
+          {/* TODO [PENDIENTE] Calendario de talleres. */}
+          <dd class="mt-2 text-body text-lie">Pendiente de definir</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="surface-dark" aria-labelledby="lista">
+    <div class="shell py-section">
+      <h2 id="lista" class="max-w-[20ch] text-display-l text-blanc" data-reveal>
+        Avísame cuando haya fecha
+      </h2>
+      <p class="measure mt-7 text-body text-ciel" data-reveal>
+        Déjame tu correo y te escribo cuando el taller tenga fecha y precio. No
+        te voy a escribir por ninguna otra razón.
+      </p>
+      <div class="mt-10 max-w-3xl" data-reveal>
+        <WaitlistForm origen="talleres" oscuro id="lista-talleres" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

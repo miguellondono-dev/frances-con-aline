@@ -1,0 +1,77 @@
+---
+import Logo from './Logo.astro';
+import { SITE_NAME, NAV_FOOTER } from '../data/site';
+
+interface Props {
+  lastUpdated: string;
+}
+
+const { lastUpdated } = Astro.props;
+const OJO = '195 258 860 691';
+
+/* El enlace a /diario permanece oculto hasta que haya al menos 3 entradas.
+   Se controla desde aqui para no tener la regla repartida por el sitio. */
+const ENTRADAS_DIARIO = 0;
+const mostrarDiario = ENTRADAS_DIARIO >= 3;
+
+const columnas = [
+  { titulo: 'Clases', enlaces: NAV_FOOTER.clases },
+  {
+    titulo: 'Sobre',
+    enlaces: mostrarDiario
+      ? [...NAV_FOOTER.sobre, { href: '/diario', label: 'Diario' }]
+      : NAV_FOOTER.sobre,
+  },
+  { titulo: 'Más', enlaces: NAV_FOOTER.legal },
+];
+
+const fechaLegible = new Date(lastUpdated).toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<footer class="surface-dark">
+  <div class="shell grid gap-12 py-section-sm md:grid-cols-[1.2fr_repeat(3,1fr)] md:gap-10">
+    <div class="max-w-[34ch]">
+      <div class="flex items-center gap-3">
+        <Logo class="h-5 w-auto" viewBox={OJO} />
+        <span class="font-display text-[1.0625rem] font-medium tracking-[-0.02em]">
+          {SITE_NAME}
+        </span>
+      </div>
+    </div>
+
+    {
+      columnas.map((columna) => (
+        <nav aria-label={columna.titulo}>
+          {/* Etiqueta, no encabezado: cada nav ya se anuncia por su aria-label
+              y un h2 aqui solo ensuciaria la jerarquia de la pagina. */}
+          <p class="label text-ciel">{columna.titulo}</p>
+          <ul class="mt-5 flex flex-col gap-3">
+            {columna.enlaces.map((enlace) => (
+              <li>
+                <a
+                  href={enlace.href}
+                  class="text-body-s text-blanc underline-offset-4 transition-colors duration-fast hover:text-ciel hover:underline"
+                >
+                  {enlace.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="shell border-t border-nuit py-6">
+    <div class="flex flex-col gap-2 text-body-s text-ciel sm:flex-row sm:items-center sm:justify-between">
+      <p>Escrito por Aline.</p>
+      <p>
+        Última actualización: <time datetime={lastUpdated}>{fechaLegible}</time>
+      </p>
+    </div>
+  </div>
+</footer>
