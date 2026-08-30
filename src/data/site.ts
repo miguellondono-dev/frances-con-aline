@@ -11,6 +11,12 @@ export const SITE_DESCRIPTION =
   'Clases de francés en línea para hispanohablantes, con Aline, profesora francesa. Primera sesión gratuita de 30 minutos.';
 
 /**
+ * Correo publico. Es la salida cuando un formulario no puede enviar, asi que
+ * tiene que estar visible en el sitio y no solo en el mensaje de error.
+ */
+export const CORREO_CONTACTO = 'contacto@francesconaline.com';
+
+/**
  * PENDIENTES del brief. Se dejan en null a proposito.
  * Cada consumidor tiene que saber renderizar el hueco marcado.
  */

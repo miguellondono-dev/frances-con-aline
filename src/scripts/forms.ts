@@ -8,6 +8,8 @@
  * Los errores se muestran junto al campo y con texto, nunca solo con color.
  */
 
+import { CORREO_CONTACTO } from '../data/site';
+
 interface Respuesta {
   ok: boolean;
   mensaje: string;
@@ -83,9 +85,17 @@ function conectar(selector: string, salidaSelector: string) {
           salida?.focus();
         }
       } catch {
+        // El fallo tiene que llevar a algun sitio. Antes decia "escribeme
+        // directamente" sin dar donde, y quien llegaba aqui se quedaba
+        // colgado. El enlace se construye con createElement y no con HTML en
+        // cadena: por aqui no entra nada que no sea este texto.
         if (salida) {
-          salida.textContent =
-            'No pude enviarlo. Revisa tu conexión y vuelve a intentarlo, o escríbeme directamente.';
+          salida.textContent = 'No pude enviarlo. Vuelve a intentarlo o escríbeme a ';
+          const enlace = document.createElement('a');
+          enlace.href = `mailto:${CORREO_CONTACTO}`;
+          enlace.textContent = CORREO_CONTACTO;
+          enlace.className = 'underline underline-offset-4';
+          salida.append(enlace, '.');
         }
       } finally {
         if (boton) {

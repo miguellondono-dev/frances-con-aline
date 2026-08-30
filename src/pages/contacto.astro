@@ -1,4 +1,5 @@
 ---
+import { CORREO_CONTACTO } from '../data/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Cta from '../components/Cta.astro';
@@ -63,6 +64,18 @@ const schema = [breadcrumb(migas, Astro.site)];
               >
             </li>
           </ul>
+
+          {/* La via directa. El formulario es comodo, pero quien prefiera su
+              propio correo, o llegue aqui porque el formulario ha fallado,
+              tiene que poder escribir igual. */}
+          <p class="mt-8 text-body-s text-encre/70">
+            Si prefieres tu correo de siempre, escríbeme a{' '}
+            <a
+              href={`mailto:${CORREO_CONTACTO}`}
+              class="text-lie underline underline-offset-4 hover:no-underline"
+              >{CORREO_CONTACTO}</a
+            >.
+          </p>
         </div>
       </div>
 
