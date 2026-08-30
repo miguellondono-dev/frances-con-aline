@@ -7,6 +7,7 @@ import {
   limpiar,
   superaLimite,
   ipDe,
+  origenValido,
 } from '../../lib/notificar';
 
 export const prerender = false;
@@ -14,6 +15,14 @@ export const prerender = false;
 const NIVELES = new Set(['A1', 'A2', 'B1', 'B2', 'C1']);
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!origenValido(request)) {
+    return responder({
+      ok: false,
+      estado: 403,
+      mensaje: 'No pude verificar de dónde viene el envío. Recarga la página y vuelve a probar.',
+    });
+  }
+
   const datos = await request.formData();
 
   if (esRobot(datos)) {

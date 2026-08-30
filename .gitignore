@@ -9,3 +9,4 @@ npm-debug.log*
 
 # Paquete para subir a un alojamiento estatico. Se genera, no se versiona.
 aline-sitio.zip
+aline-proyecto.zip

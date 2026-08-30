@@ -19,6 +19,14 @@ const ORIGENES: Record<string, { tipo: TipoEnvio; hoja: string }> = {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!origenValido(request)) {
+    return responder({
+      ok: false,
+      estado: 403,
+      mensaje: 'No pude verificar de dónde viene el envío. Recarga la página y vuelve a probar.',
+    });
+  }
+
   const datos = await request.formData();
 
   // Campo trampa: se responde con éxito para no darle pistas al robot.

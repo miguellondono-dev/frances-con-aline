@@ -1,3 +1,5 @@
+import { CORREO_CONTACTO } from '../data/site';
+
 import crypto from 'node:crypto';
 
 /**
@@ -286,7 +288,7 @@ export async function procesar(envio: Envio): Promise<Resultado> {
       ok: false,
       estado: 500,
       mensaje:
-        'No pude registrar tu mensaje. Escríbeme directamente y lo resolvemos, que esto es un fallo mío y no tuyo.',
+        `No pude registrar tu mensaje. Escríbeme a ${CORREO_CONTACTO} y lo resolvemos, que esto es un fallo mío y no tuyo.`,
     };
   }
 
@@ -315,4 +317,33 @@ export function responder(resultado: Resultado): Response {
     status: resultado.estado,
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
+}
+
+/**
+ * Comprobacion de origen propia, en sustitucion de la de Astro.
+ *
+ * La de Astro compara la cabecera Origin contra `url.origin`, y con el
+ * adaptador de Node ese valor es siempre `http://localhost`, sin puerto:
+ * ignora tanto Host como X-Forwarded-Host. Comprobado con una sonda contra el
+ * servidor compilado. El resultado es que rechazaba el cien por cien de los
+ * envios legitimos, tambien en produccion.
+ *
+ * Esta compara contra una lista explicita. Sigue siendo proteccion real
+ * contra envios desde otro sitio, pero no depende de como el adaptador
+ * reconstruya la URL.
+ *
+ * Un POST sin cabecera Origin se rechaza: los navegadores la mandan siempre
+ * en peticiones de este tipo, asi que si falta no viene de un formulario.
+ */
+const ORIGENES_VALIDOS = [
+  'https://francesconaline.com',
+  'https://www.francesconaline.com',
+];
+
+export function origenValido(request: Request): boolean {
+  const origen = request.headers.get('origin');
+  if (!origen) return false;
+  if (ORIGENES_VALIDOS.includes(origen)) return true;
+  // En desarrollo el sitio se sirve desde localhost en cualquier puerto.
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origen);
 }
