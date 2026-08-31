@@ -4,14 +4,26 @@
 # La pagina de error del sitio, no la generica del alojamiento.
 ErrorDocument 404 /404.html
 
+# Nunca listar el contenido de una carpeta.
+Options -Indexes
+
+# El sitio genera los enlaces sin barra final. Apache, por su cuenta, redirige
+# /contacto a /contacto/ con un 301 antes de servir nada: un viaje de ida y
+# vuelta en cada clic, y ademas la URL que acaba viendose deja de coincidir
+# con la canonica que declara la propia pagina.
+#
+# DirectorySlash Off apaga esa redireccion. La regla de abajo es entonces la
+# que sirve el index.html de la carpeta, sin tocar la URL.
+#
+# El primer intento llevaba una condicion !-d, "solo si no es una carpeta",
+# que impedia que la regla entrase precisamente en el unico caso para el que
+# estaba escrita.
+DirectorySlash Off
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # El sitio genera los enlaces sin barra final. Sin esta regla Apache
-  # responde con una redireccion en cada visita a una pagina interna: se ve
-  # la barra aparecer en la URL y se paga un viaje de ida y vuelta de mas.
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
   RewriteRule ^(.+?)/?$ /$1/index.html [L]
 </IfModule>
