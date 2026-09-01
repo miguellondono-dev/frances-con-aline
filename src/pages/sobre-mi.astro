@@ -1,0 +1,579 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Aperture from '../components/Aperture.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Cta from '../components/Cta.astro';
+import EyeGlyph from '../components/EyeGlyph.astro';
+import { breadcrumb, alineId } from '../lib/schema';
+import { CTA } from '../data/site';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Sobre mí', path: '/sobre-mi' },
+];
+
+/**
+ * Person de Aline. Es el nodo que las demas paginas referencian como provider.
+ *
+ * TODO [PENDIENTE] alumniOf: falta el nombre de la institucion donde estudio
+ * Gestion de la Cultura. Hasta tenerlo, el titulo se declara con
+ * hasCredential, que no exige nombrar organizacion, en vez de inventar una.
+ */
+const persona = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': alineId(Astro.site),
+  name: 'Aline',
+  jobTitle: 'Profesora de francés',
+  description:
+    'Profesora francesa de francés para hispanohablantes. Estudió Gestión de la Cultura, habla cinco idiomas y lleva más de cinco años enseñando.',
+  nationality: { '@type': 'Country', name: 'Francia' },
+  knowsLanguage: [
+    { '@type': 'Language', name: 'Francés' },
+    { '@type': 'Language', name: 'Español' },
+    { '@type': 'Language', name: 'Inglés' },
+    { '@type': 'Language', name: 'Italiano' },
+    { '@type': 'Language', name: 'Griego' },
+  ],
+  hasCredential: {
+    '@type': 'EducationalOccupationalCredential',
+    credentialCategory: 'Estudios universitarios',
+    name: 'Gestión de la Cultura',
+  },
+  knowsAbout: [
+    'Enseñanza del francés como lengua extranjera',
+    'Gestión cultural',
+    'Preparación del examen DELF',
+    'Errores frecuentes de hispanohablantes en francés',
+  ],
+};
+
+const schema = [persona, breadcrumb(migas, Astro.site)];
+
+/**
+ * Lo que se puede pedir en Hablemos. El interes no es decoracion: es lo que
+ * permite saber que oferta trae a cada persona, y por tanto donde merece la
+ * pena invertir. Sin ese dato, cada mensaje es anonimo en cuanto a origen.
+ */
+const INTERESES = [
+  'Clases privadas',
+  'Clases en grupo',
+  'Preparación del DELF',
+  'Talleres en París',
+  'Tours por París',
+  'Otra cosa',
+];
+
+/** Bloque de datos verificables. Frases afirmativas y autonomas: cada una se
+ *  sostiene sola, fuera de contexto. Es lo que un modelo puede citar. */
+const DATOS = [
+  { clave: 'Nacionalidad', valor: 'Soy francesa.' },
+  { clave: 'Formación', valor: 'Estudié Gestión de la Cultura.' },
+  {
+    clave: 'Idiomas',
+    valor:
+      'Hablo francés, español, inglés, italiano y algo de griego. Todos menos el francés los aprendí siendo adulta.',
+  },
+  { clave: 'Experiencia', valor: 'Llevo más de cinco años enseñando idiomas.' },
+  {
+    clave: 'Latinoamérica',
+    valor:
+      'Viví más de un año en Latinoamérica. De ahí viene que trabaje con estudiantes hispanohablantes.',
+  },
+  {
+    clave: 'Selección',
+    valor:
+      'Una escuela europea de idiomas me seleccionó para enseñar a estudiantes en Canadá, Reino Unido y Francia.',
+  },
+  {
+    clave: 'Estudiantes',
+    valor:
+      'Doy clase a adultos hispanohablantes: personas que se mudan a Francia, que ya viven allí, que preparan el DELF o que van a viajar.',
+  },
+  {
+    clave: 'Formatos',
+    valor:
+      'Doy clases individuales en línea a 35 € la hora y clases en grupo de dos a cinco personas a 20 € la hora por persona. La primera clase, de 30 minutos, es gratis.',
+  },
+  {
+    clave: 'DELF',
+    valor:
+      'Preparo el DELF y hago simulacros con el formato oficial. No soy examinadora acreditada: preparo, no evalúo oficialmente.',
+  },
+  {
+    clave: 'Presencial',
+    valor:
+      'En París hago talleres de teatro y de cocina, y tours guiados en español. Están en construcción.',
+  },
+];
+---
+
+<BaseLayout
+  title="Sobre mí: francesa, gestora cultural, profesora de francés"
+  description="Soy francesa, estudié Gestión de la Cultura y aprendí español de adulta viviendo en Latinoamérica. Por eso sé dónde se traba un hispanohablante con el francés."
+  path="/sobre-mi"
+  schema={schema}
+>
+  <!-- Apertura -->
+  <section class="cabecera overflow-hidden">
+    <div
+      class="pad-shell-left grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+    >
+      <div class="pad-shell-right lg:pr-0">
+        <Breadcrumbs items={migas} />
+        <p class="label mt-8 text-nuit" data-reveal>Sobre mí</p>
+        <h1 class="mt-5 text-display-xl text-encre" data-reveal>
+          No soy una profesora de francés a la que le gusta la cultura
+        </h1>
+        <p class="measure mt-7 text-body text-nuit" data-reveal>
+          Soy una gestora cultural que enseña francés. Parece un juego de
+          palabras y no lo es: cambia de dónde sale el material de cada clase, en
+          qué orden aparece la gramática y qué considero que es haber aprendido
+          algo.
+        </p>
+      </div>
+
+      <div class="pad-shell-right lg:pr-0" data-reveal="fade">
+        {/* TODO [PENDIENTE: foto real] Retrato de Aline, vertical. Bloquea el lanzamiento. */}
+        <Aperture
+          alt="Retrato de Aline"
+          todo="Retrato de Aline, vertical"
+          ratio="aspect-[4/5]"
+          lids
+          lidColor="blanc"
+          eager
+          class="mx-auto w-full max-w-[24rem]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- La historia -->
+  <section class="historia" aria-labelledby="historia">
+    <div class="shell grid gap-12 py-section lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-4">
+        <h2 id="historia" class="text-display-l text-encre lg:sticky lg:top-28" data-reveal>
+          Aprendí español equivocándome en voz alta
+        </h2>
+      </div>
+
+      <div class="measure flex flex-col gap-6 text-body text-encre lg:col-span-7 lg:col-start-6">
+        <p data-reveal>
+          No aprendí español en un salón. Lo aprendí viviendo más de un año en
+          Latinoamérica, equivocándome en voz alta todos los días. Pidiendo mal
+          en un mercado, entendiendo la mitad de una conversación de sobremesa,
+          descubriendo que una palabra que creía neutra no lo era.
+        </p>
+        <p data-reveal>
+          Eso me dejó algo que no se estudia: sé cómo se siente por dentro no
+          poder decir lo que quieres decir. Y sé, muy concretamente, dónde se
+          traba un hispanohablante en francés. No son errores al azar, son los
+          mismos errores casi siempre, y vienen de que tu idioma resuelve unas
+          cosas de una manera y el francés las resuelve de otra.
+        </p>
+        <p data-reveal>
+          Por eso mis clases no empiezan por la gramática. Empiezan por una
+          situación real, y la gramática entra cuando hace falta para resolverla.
+          Cuando algo no entra, cambio al español, lo explico y volvemos. No te
+          dejo colgado en una explicación en francés que no entiendes, que es
+          justo lo que pasa en la clase donde la profesora nativa no habla tu
+          idioma.
+        </p>
+        <p data-reveal>
+          Antes de esto, una escuela europea de idiomas me seleccionó para
+          enseñar a estudiantes en Canadá, Reino Unido y Francia. Fue donde
+          aprendí que el mismo contenido funciona o no funciona según de dónde
+          viene quien escucha.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- La tesis cultural -->
+  <section class="tesis" aria-labelledby="tesis">
+    <div class="shell py-section">
+      <p class="label text-nuit" data-reveal>La tesis</p>
+      <h2 id="tesis" class="mt-6 max-w-[26ch] text-display-l text-encre" data-reveal>
+        La cultura no es el adorno de la clase. Es el método.
+      </h2>
+
+      <div class="tesis__lista mt-14">
+        <div class="tarjeta" data-reveal>
+          <h3 class="tarjeta__titulo">De dónde sale el material</h3>
+          <p class="tarjeta__texto">
+            De prensa, canciones, menús, formularios, carteles y escenas de
+            película. Cosas que existen fuera del aula y que te vas a encontrar
+            en la calle. No hay unidad tres que terminar.
+          </p>
+        </div>
+        <div class="tarjeta" data-reveal>
+          <h3 class="tarjeta__titulo">Por qué importa el orden</h3>
+          <p class="tarjeta__texto">
+            Un libro te da la gramática en el orden en que es cómoda de explicar.
+            Yo te la doy en el orden en que la vas a necesitar, que depende de si
+            te mudas, si viajas o si vas a un examen.
+          </p>
+        </div>
+        <div class="tarjeta" data-reveal>
+          <h3 class="tarjeta__titulo">Qué cuenta como aprender</h3>
+          <p class="tarjeta__texto">
+            Poder resolver algo. Entender por qué la panadería cierra a esa hora,
+            qué se discute en la mesa de al lado, qué te está preguntando el
+            funcionario. No completar un ejercicio.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bloque de datos verificables. Existe para que se pueda citar sin contexto. -->
+  <section class="surface-dark" aria-labelledby="datos">
+    <div class="shell py-section">
+      <div class="flex items-center gap-4" data-reveal>
+        <EyeGlyph class="h-3 w-6 text-corail" />
+        <p class="label text-ciel">Datos verificables</p>
+      </div>
+      <h2 id="datos" class="mt-6 max-w-[24ch] text-display-l text-blanc" data-reveal>
+        Todo lo que se puede comprobar, en un solo sitio
+      </h2>
+
+      <dl class="mt-12 grid gap-px overflow-hidden rounded-panel bg-nuit sm:grid-cols-2">
+        {
+          DATOS.map((dato) => (
+            <div class="bg-encre p-7" data-reveal>
+              <dt class="label text-ciel">{dato.clave}</dt>
+              <dd class="measure mt-3 text-body text-blanc">{dato.valor}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Hablemos: el contacto vive aqui, no en una pagina aparte -->
+  <section class="hablemos" id="hablemos" aria-labelledby="hablemos-titulo">
+    <div class="shell py-section">
+      <div class="hablemos__reparto">
+        <div class="hablemos__texto">
+          <p class="label text-lie" data-reveal>Hablemos</p>
+          <h2 id="hablemos-titulo" class="hablemos__titulo" data-reveal>
+            Si tienes una duda antes de empezar, escríbeme
+          </h2>
+          <p class="hablemos__apoyo" data-reveal>
+            Te contesto yo, no un formulario automático. Y si lo que quieres es
+            empezar, sáltate esto y coge hora directamente.
+          </p>
+
+          <div class="mt-8" data-reveal>
+            <Cta href="/agenda" variant="lie">{CTA.cierreQuienSoy}</Cta>
+          </div>
+        </div>
+
+        <form
+          class="hablemos__forma"
+          method="post"
+          action="/api/contacto"
+          data-contacto
+          data-reveal
+          novalidate
+        >
+          {/* Campo trampa. Invisible para personas, visible para robots. */}
+          <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            <label for="hablemos-empresa">No rellenes este campo</label>
+            <input id="hablemos-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="campo campo--mitad">
+            <label class="campo__etiqueta" for="hablemos-nombre">Nombre</label>
+            <input class="campo__caja" id="hablemos-nombre" name="nombre" type="text"
+              autocomplete="given-name" required />
+            <p class="campo__error" data-error-nombre role="alert"></p>
+          </div>
+
+          <div class="campo campo--mitad">
+            <label class="campo__etiqueta" for="hablemos-apellido">Apellido</label>
+            <input class="campo__caja" id="hablemos-apellido" name="apellido" type="text"
+              autocomplete="family-name" />
+          </div>
+
+          <div class="campo">
+            <label class="campo__etiqueta" for="hablemos-correo">Correo</label>
+            <input class="campo__caja" id="hablemos-correo" name="correo" type="email"
+              autocomplete="email" required />
+            <p class="campo__error" data-error-correo role="alert"></p>
+          </div>
+
+          <div class="campo">
+            <label class="campo__etiqueta" for="hablemos-interes">Qué te interesa</label>
+            <select class="campo__caja" id="hablemos-interes" name="interes" required>
+              <option value="">Elige una</option>
+              {INTERESES.map((i) => <option value={i}>{i}</option>)}
+            </select>
+          </div>
+
+          <div class="campo">
+            <label class="campo__etiqueta" for="hablemos-mensaje">Tu mensaje</label>
+            <textarea class="campo__caja campo__caja--alto" id="hablemos-mensaje"
+              name="mensaje" rows="4" required></textarea>
+            <p class="campo__error" data-error-mensaje role="alert"></p>
+          </div>
+
+          <div class="campo">
+            <button class="hablemos__boton" type="submit">Enviar</button>
+            <p class="campo__aviso" data-contacto-message role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /**
+   * El mismo lenguaje del inicio: degradados que entran y salen en blanco,
+   * esquinas de 26px, las sombras nuevas y los titulares en la tipografia de
+   * display con su escala.
+   */
+  .cabecera {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc)) 30%,
+      color-mix(in srgb, var(--color-papier) 20%, var(--color-blanc)) 72%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .historia {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 52%, var(--color-blanc)) 24%,
+      color-mix(in srgb, var(--color-papier) 66%, var(--color-blanc)) 56%,
+      color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc)) 86%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .tesis {
+    background-color: var(--color-blanc);
+  }
+
+  /* --- Las tres tarjetas de la tesis --- */
+
+  .tesis__lista {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (width >= 48rem) {
+    .tesis__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .tarjeta {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 1.75rem 1.5rem;
+    transition:
+      transform 520ms var(--ease-fluid),
+      box-shadow 520ms var(--ease-fluid);
+  }
+
+  .tarjeta:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .tarjeta__titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  .tarjeta__texto {
+    margin-top: 0.9rem;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 74%, transparent);
+  }
+
+  /* --- Hablemos --- */
+
+  .hablemos {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 48%, var(--color-blanc)) 26%,
+      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 62%,
+      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 88%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .hablemos__reparto {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (width >= 64rem) {
+    .hablemos__reparto {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: 4rem;
+    }
+
+    /* El texto se queda a la vista mientras se rellena el formulario. */
+    .hablemos__texto {
+      position: sticky;
+      top: 7rem;
+    }
+  }
+
+  .hablemos__titulo {
+    margin-top: 1.25rem;
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  .hablemos__apoyo {
+    margin-top: 1.25rem;
+    max-width: 42ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  /* --- El formulario --- */
+
+  .hablemos__forma {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 2rem 1.75rem;
+  }
+
+  .campo {
+    grid-column: 1 / -1;
+  }
+
+  /* Nombre y apellido comparten fila en cuanto hay sitio. */
+  @media (width >= 30rem) {
+    .campo--mitad {
+      grid-column: span 1;
+    }
+  }
+
+  .campo__etiqueta {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  .campo__caja {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition:
+      border-color var(--duration-fast) var(--ease-smooth),
+      background-color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .campo__caja--alto {
+    min-height: 7rem;
+    resize: vertical;
+  }
+
+  .campo__caja:focus {
+    outline: 2px solid var(--color-grenat);
+    outline-offset: 2px;
+    border-color: transparent;
+    background-color: var(--color-blanc);
+  }
+
+  /* El error se dice con texto, nunca solo con color. */
+  .campo__error:not(:empty) {
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--color-grenat);
+  }
+
+  .campo__aviso:not(:empty) {
+    margin-top: 0.9rem;
+    font-size: var(--text-body-s);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
+  }
+
+  .hablemos__boton {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    padding-inline: 2rem;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-blanc);
+    transition:
+      transform var(--duration-fast) var(--ease-smooth),
+      background-color var(--duration-fast) var(--ease-smooth),
+      box-shadow var(--duration-fast) var(--ease-smooth);
+  }
+
+  .hablemos__boton:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-lie);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .hablemos__boton:active {
+    transform: none;
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta,
+    .campo__caja,
+    .hablemos__boton {
+      transition: none;
+    }
+
+    .tarjeta:hover,
+    .hablemos__boton:hover {
+      transform: none;
+    }
+  }
+</style>

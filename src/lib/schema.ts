@@ -5,7 +5,7 @@
  *  - no se usa LocalBusiness: no hay local fisico;
  *  - no se usa Review ni AggregateRating: no hay resenas todavia, e inventarlas
  *    es penalizable;
- *  - Person de Aline vive en /quien-soy y las demas paginas la referencian por
+ *  - Person de Aline vive en /sobre-mi y las demas paginas la referencian por
  *    @id como provider, en vez de repetir sus datos.
  */
 
@@ -21,7 +21,7 @@ function base(site?: URL) {
  * con el sitio salvo el texto suelto de la pagina.
  *
  * Organization y no LocalBusiness: no hay local fisico. Y la fundadora
- * apunta por @id al Person que vive en /quien-soy, sin repetir sus datos.
+ * apunta por @id al Person que vive en /sobre-mi, sin repetir sus datos.
  */
 export function marca(site?: URL) {
   const raiz = base(site);
@@ -44,7 +44,7 @@ export function marca(site?: URL) {
 
 /** @id estable de Aline. Todas las paginas apuntan aqui. */
 export function alineId(site?: URL) {
-  return `${base(site)}/quien-soy#aline`;
+  return `${base(site)}/sobre-mi#aline`;
 }
 
 export function breadcrumb(

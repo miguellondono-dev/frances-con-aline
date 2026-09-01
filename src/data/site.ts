@@ -47,25 +47,23 @@ export const NAV: {
   href?: string;
   hijos?: { href: string; label: string }[];
 }[] = [
+  { label: 'Sobre mí', href: '/sobre-mi' },
   {
     label: 'Clases',
     hijos: [
       { href: '/clases-privadas', label: 'Clases privadas' },
       { href: '/clases-en-grupo', label: 'Clases en grupo' },
       { href: '/preparacion-delf', label: 'Preparación DELF' },
-      { href: '/precios', label: 'Precios' },
-      { href: '/quien-soy', label: 'Quién soy' },
     ],
   },
   {
-    label: 'Talleres',
+    label: 'Experiencias',
     hijos: [
-      { href: '/talleres', label: 'Talleres en París' },
-      { href: '/tours-en-paris', label: 'Tours en París' },
+      { href: '/talleres', label: 'Talleres' },
+      { href: '/tours-en-paris', label: 'Tours por París' },
     ],
   },
   { label: 'Test', href: '/test-de-nivel' },
-  { label: 'Contacto', href: '/contacto' },
 ];
 
 export const NAV_FOOTER = {
@@ -73,17 +71,18 @@ export const NAV_FOOTER = {
     { href: '/clases-privadas', label: 'Clases privadas' },
     { href: '/clases-en-grupo', label: 'Clases en grupo' },
     { href: '/preparacion-delf', label: 'Preparación DELF' },
+  ],
+  experiencias: [
     { href: '/talleres', label: 'Talleres' },
-    { href: '/tours-en-paris', label: 'Tours en París' },
+    { href: '/tours-en-paris', label: 'Tours por París' },
   ],
   sobre: [
-    { href: '/quien-soy', label: 'Quién soy' },
-    { href: '/como-es-una-clase', label: 'Cómo es una clase' },
+    { href: '/sobre-mi', label: 'Sobre mí' },
     { href: '/test-de-nivel', label: 'Test de nivel' },
+    { href: '/agenda', label: 'Agendar' },
+    { href: '/sobre-mi#hablemos', label: 'Hablemos' },
   ],
   legal: [
-    { href: '/precios', label: 'Precios' },
-    { href: '/contacto', label: 'Contacto' },
     { href: '/privacidad', label: 'Privacidad' },
     { href: '/terminos', label: 'Términos' },
   ],

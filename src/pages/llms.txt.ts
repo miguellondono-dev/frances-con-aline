@@ -64,14 +64,12 @@ La sesión gratuita de 30 minutos se agenda en ${base}/agenda, eligiendo horario
 - [Clases privadas](${base}/clases-privadas): clase individual a ${PRECIOS.privada.valor} € la hora.
 - [Clases en grupo](${base}/clases-en-grupo): de dos a cinco personas, ${PRECIOS.grupo.valor} € la hora por persona.
 - [Preparación DELF](${base}/preparacion-delf): preparación y simulacros con el formato oficial.
-- [Quién soy](${base}/quien-soy): datos verificables sobre Aline.
-- [Cómo es una clase](${base}/como-es-una-clase): el método explicado paso a paso.
-- [Precios](${base}/precios): todas las tarifas y los bonos.
+- [Sobre mí](${base}/sobre-mi): datos verificables sobre Aline.
 - [Test de nivel](${base}/test-de-nivel): doce preguntas, resultado inmediato y gratuito.
 - [Agenda](${base}/agenda): reservar la sesión gratuita de 30 minutos.
 - [Talleres](${base}/talleres): teatro y cocina en París, lista de espera.
 - [Tours en París](${base}/tours-en-paris): recorridos en español, lista de espera.
-- [Contacto](${base}/contacto).
+- [Hablemos](${base}/sobre-mi#hablemos): el formulario de contacto.
 
 ## Lo que este sitio no afirma
 
