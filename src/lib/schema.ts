@@ -9,10 +9,37 @@
  *    @id como provider, en vez de repetir sus datos.
  */
 
-const FALLBACK = 'https://PENDIENTE-DOMINIO.example/';
+const FALLBACK = 'https://francesconaline.com/';
 
 function base(site?: URL) {
   return (site?.href ?? FALLBACK).replace(/\/$/, '');
+}
+
+/**
+ * La marca. Va en el inicio y es lo que le dice a un buscador como se llama
+ * esto: sin ella, quien busca "frances con aline" no tiene nada que enlazar
+ * con el sitio salvo el texto suelto de la pagina.
+ *
+ * Organization y no LocalBusiness: no hay local fisico. Y la fundadora
+ * apunta por @id al Person que vive en /quien-soy, sin repetir sus datos.
+ */
+export function marca(site?: URL) {
+  const raiz = base(site);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${raiz}/#organizacion`,
+    name: 'Francés con Aline',
+    alternateName: 'Frances con Aline',
+    url: `${raiz}/`,
+    email: 'contacto@francesconaline.com',
+    logo: `${raiz}/img/logo.svg`,
+    founder: { '@id': alineId(site) },
+    knowsLanguage: ['fr', 'es'],
+    areaServed: 'Online',
+    description:
+      'Clases de francés en línea para hispanohablantes, con Aline, profesora francesa.',
+  };
 }
 
 /** @id estable de Aline. Todas las paginas apuntan aqui. */

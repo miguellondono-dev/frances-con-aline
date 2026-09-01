@@ -346,6 +346,47 @@ function setupHeader() {
 
 /** Menu movil: panel a pantalla completa, foco atrapado, Escape cierra. */
 function setupNav() {
+  /**
+   * Los desplegables de escritorio son elementos details, y un details no
+   * sabe nada de los demas: al abrir el segundo, el primero seguia abierto y
+   * los dos paneles se montaban uno encima de otro.
+   *
+   * Se cierran entre ellos al abrirse, y todos al pulsar fuera o Escape.
+   */
+  const menus = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-menu]'));
+
+  const cerrarMenus = (salvo?: HTMLDetailsElement) => {
+    menus.forEach((menu) => {
+      if (menu !== salvo) menu.open = false;
+    });
+  };
+
+  menus.forEach((menu) => {
+    // Se escucha el clic en el resumen y no el evento toggle: toggle se
+    // dispara de forma asincrona, asi que entre abrir uno y cerrar el otro
+    // habria un instante con los dos paneles montados. El clic es sincrono.
+    // Tambien cubre el teclado: Enter y Espacio sobre un summary disparan
+    // clic.
+    menu.querySelector('summary')?.addEventListener('click', () => {
+      if (!menu.open) cerrarMenus(menu);
+    });
+  });
+
+  if (menus.length) {
+    document.addEventListener('click', (evento) => {
+      const dentro = menus.some((menu) => menu.contains(evento.target as Node));
+      if (!dentro) cerrarMenus();
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key !== 'Escape') return;
+      const abierto = menus.find((menu) => menu.open);
+      if (!abierto) return;
+      abierto.open = false;
+      abierto.querySelector('summary')?.focus();
+    });
+  }
+
   const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
   const panel = document.querySelector<HTMLElement>('[data-nav-panel]');
   if (!toggle || !panel) return;

@@ -9,6 +9,7 @@ import FinalCta from '../components/home/FinalCta.astro';
 import Faq from '../components/Faq.astro';
 import { FAQ_HOME, faqSchema } from '../data/faq';
 import { SITE_NAME } from '../data/site';
+import { marca } from '../lib/schema';
 
 const site = Astro.site?.href ?? 'https://PENDIENTE-DOMINIO.example/';
 
@@ -29,12 +30,13 @@ const schema = [
     inLanguage: 'es',
     publisher: { '@id': `${site}quien-soy#aline` },
   },
+  marca(Astro.site),
   faqSchema(FAQ_HOME),
 ];
 ---
 
 <BaseLayout
-  title="Clases de francés en línea con Aline, profesora francesa"
+  title="Francés con Aline: clases en línea con profesora francesa"
   description="Clases de francés en línea para hispanohablantes. Soy francesa y aprendí español de adulta, así que sé dónde te vas a trabar. Primera clase gratis."
   path="/"
   rawTitle
