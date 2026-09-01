@@ -1,10 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import Cta from '../components/Cta.astro';
+import Logo from '../components/Logo.astro';
 import { breadcrumb } from '../lib/schema';
-import { PENDIENTE } from '../data/site';
+import { PENDIENTE, CORREO_CONTACTO, SITE_NAME } from '../data/site';
 
+/**
+ * AGENDAR.
+ *
+ * Aqui van nueve de los enlaces del sitio: es donde se decide el negocio.
+ *
+ * La composicion copia lo que hacen las herramientas de reserva serias: a la
+ * izquierda un panel de contexto que no cambia nunca (quien, que, cuanto
+ * dura, donde, que cuesta) y a la derecha el calendario, que es lo unico que
+ * avanza. Quien esta eligiendo hora no tiene que recordar a que se apunta.
+ *
+ * Las preguntas de cualificacion no van en esta pagina: van dentro del propio
+ * formulario de reserva, en el ultimo paso, cuando la persona ya ha elegido
+ * hora y esta decidida. Preguntar antes es poner un peaje delante del boton.
+ *
+ * Mientras no exista la cuenta de Cal.com el calendario no se puede montar, y
+ * en ese hueco no se pone una disculpa que mande a otro formulario: se pone
+ * la via que si funciona hoy, que es escribir.
+ */
 const migas = [
   { name: 'Inicio', path: '/' },
   { name: 'Agenda', path: '/agenda' },
@@ -12,25 +30,22 @@ const migas = [
 
 const schema = [breadcrumb(migas, Astro.site)];
 
-/**
- * AGENDAR.
- *
- * Quien llega aquí ya decidió. Lo único que necesita es elegir una hora, así
- * que el calendario va arriba y no hay nada entre el título y él.
- *
- * Fuera el filtro de tres preguntas que había antes: interrogar a alguien
- * justo cuando iba a reservar es la peor pantalla posible para preguntar, y
- * esas cosas se preguntan en la sesión, que para eso es una conversación.
- *
- * Lo demás son datos, no párrafos: cuánto dura, dónde es, qué cuesta, en qué
- * idioma. Es lo que la gente quiere saber antes de bloquear media hora.
- */
+/** Lo que alguien quiere saber antes de bloquear media hora de su semana. */
 const DATOS = [
   { clave: 'Duración', valor: '30 minutos' },
   { clave: 'Dónde', valor: 'En línea, por videollamada' },
   { clave: 'Precio', valor: 'Sin costo' },
   { clave: 'Idioma', valor: 'Español y francés' },
 ];
+
+/** Que pasa en esos treinta minutos. Tres lineas, no un parrafo. */
+const QUE_PASA = [
+  'Te escucho hablar un rato, sin corregirte.',
+  'Te digo qué nivel veo y por qué.',
+  'Salimos con un plan de por dónde empezar.',
+];
+
+const cal = PENDIENTE.calcom;
 ---
 
 <BaseLayout
@@ -39,60 +54,298 @@ const DATOS = [
   path="/agenda"
   schema={schema}
 >
-  <section class="bg-blanc">
-    <div class="shell pb-section-sm pt-6">
+  <section class="agenda">
+    <div class="shell pb-section pt-6">
       <Breadcrumbs items={migas} />
-      <p class="label mt-8 text-nuit">Tu primera sesión</p>
-      <h1 class="mt-5 max-w-[16ch] text-display-xl text-encre">Agenda tu sesión</h1>
-      <p class="mt-6 max-w-[52ch] text-body text-encre/70">
-        Media hora en línea conmigo para escucharte y salir con un plan claro de
-        por dónde empezar.
-      </p>
 
-      <dl class="mt-10 grid gap-x-8 gap-y-6 border-t border-encre/10 pt-8 sm:grid-cols-4">
-        {
-          DATOS.map((dato) => (
-            <div>
-              <dt class="label text-nuit">{dato.clave}</dt>
-              <dd class="mt-2 text-body text-encre">{dato.valor}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </section>
-
-  <!-- El calendario, sin nada delante. -->
-  <section class="bg-papier" aria-labelledby="calendario">
-    <div class="shell py-section">
-      <h2 id="calendario" class="text-display-l text-encre">Elige tu horario</h2>
-
-      {
-        PENDIENTE.calcom ? (
-          /* Aquí va el embebido de Cal.com cuando exista la cuenta. */
-          <div class="mt-10 min-h-[40rem] rounded-panel bg-blanc" data-cal-embed />
-        ) : (
-          /* TODO [PENDIENTE] Cuenta de Cal.com conectada al Google Calendar de
-             Aline, con la disponibilidad cargada y un evento gratuito de 30
-             minutos. Mientras tanto se ofrece la vía que sí funciona hoy. */
-          <div class="mt-10 max-w-2xl rounded-panel border border-corail/40 bg-blanc p-8">
-            <span class="label mb-3 block text-lie">Pendiente</span>
-            <p class="text-body text-encre">
-              El calendario todavía no está conectado, así que por ahora lo
-              cerramos por correo: dime dos o tres franjas que te sirvan y te
-              confirmo una.
-            </p>
-            <div class="mt-8">
-              <Cta href="/contacto">Escríbeme para agendar</Cta>
-            </div>
+      <div class="agenda__reparto">
+        {/* Contexto. Se queda fijo mientras el calendario avanza. */}
+        <aside class="ficha">
+          <div class="ficha__marca">
+            <span class="ficha__logo"><Logo viewBox="195 258 860 691" /></span>
+            <span>{SITE_NAME}</span>
           </div>
-        )
-      }
 
-      <p class="mt-10 max-w-[56ch] text-body text-encre/70">
-        Te escucho hablar un rato, te digo qué nivel veo y decidimos juntos con
-        qué frecuencia trabajar.
-      </p>
+          <h1 class="ficha__titulo">Tu primera sesión</h1>
+
+          <dl class="ficha__datos">
+            {
+              DATOS.map((dato) => (
+                <div class="ficha__dato">
+                  <dt>{dato.clave}</dt>
+                  <dd>{dato.valor}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <ul class="ficha__pasos">
+            {QUE_PASA.map((linea) => <li>{linea}</li>)}
+          </ul>
+        </aside>
+
+        {/* El calendario. Lo unico que cambia. */}
+        <div class="calendario">
+          {
+            cal ? (
+              <div class="calendario__caja" id="cal-embed" data-cal-embed data-cal-link={cal} />
+            ) : (
+              <div class="calendario__hueco">
+                <span class="label text-lie">Calendario en camino</span>
+                <p class="calendario__texto">
+                  Todavía estoy conectando el calendario. Mientras tanto lo
+                  cerramos en dos correos: escríbeme con dos o tres franjas que
+                  te sirvan y te confirmo una.
+                </p>
+                <a class="calendario__correo" href={`mailto:${CORREO_CONTACTO}?subject=Quiero agendar mi primera sesión`}>
+                  {CORREO_CONTACTO}
+                </a>
+              </div>
+            )
+          }
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
+
+{
+  cal && (
+    <script is:inline define:vars={{ cal }}>
+      /* Incrustado de Cal.com. El guion se pide una sola vez y se configura
+         con la marca del sitio, para que el calendario no llegue con los
+         colores de otra empresa. */
+      (function (C, A, L) {
+        let p = function (a, ar) {
+          a.q.push(ar);
+        };
+        let d = C.document;
+        C.Cal =
+          C.Cal ||
+          function () {
+            let cal = C.Cal;
+            let ar = arguments;
+            if (!cal.loaded) {
+              cal.ns = {};
+              cal.q = cal.q || [];
+              d.head.appendChild(d.createElement('script')).src = A;
+              cal.loaded = true;
+            }
+            if (ar[0] === L) {
+              const api = function () {
+                p(api, arguments);
+              };
+              const namespace = ar[1];
+              api.q = api.q || [];
+              typeof namespace === 'string'
+                ? (cal.ns[namespace] = api) && p(api, ar)
+                : p(cal, ar);
+              return;
+            }
+            p(cal, ar);
+          };
+      })(window, 'https://app.cal.com/embed/embed.js', 'init');
+
+      Cal('init', { origin: 'https://cal.com' });
+
+      Cal('inline', {
+        elementOrSelector: '#cal-embed',
+        calLink: cal,
+        layout: 'month_view',
+      });
+
+      Cal('ui', {
+        hideEventTypeDetails: true,
+        layout: 'month_view',
+        styles: { branding: { brandColor: '#CB1B16' } },
+      });
+    </script>
+  )
+}
+
+<style>
+  /* El mismo degradado calido que el resto de secciones nuevas. */
+  .agenda {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 26%,
+      color-mix(in srgb, var(--color-papier) 58%, var(--color-blanc)) 60%,
+      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 88%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .agenda__reparto {
+    display: grid;
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .agenda__reparto {
+      grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+      gap: 2rem;
+      align-items: start;
+    }
+  }
+
+  /* --- La ficha --- */
+
+  .ficha {
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 2rem 1.75rem;
+  }
+
+  @media (width >= 64rem) {
+    /* No se mueve mientras el calendario avanza: quien elige hora sigue
+       viendo a que se esta apuntando. */
+    .ficha {
+      position: sticky;
+      top: 6.5rem;
+    }
+  }
+
+  .ficha__marca {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  /* Los estilos con ambito no alcanzan al svg que inyecta Logo: viene como
+     HTML crudo y no lleva el atributo de ambito. El tamano se pone en el
+     envoltorio y el svg lo hereda. */
+  .ficha__logo {
+    display: block;
+    width: 1.6rem;
+    color: var(--color-encre);
+  }
+
+  .ficha__logo :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .ficha__titulo {
+    margin-top: 1.1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  .ficha__datos {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  .ficha__dato {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .ficha__dato dt {
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .ficha__dato dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    text-align: right;
+    color: var(--color-encre);
+  }
+
+  .ficha__pasos {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
+    font-size: var(--text-body-s);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  .ficha__pasos li {
+    display: grid;
+    grid-template-columns: 0.9rem 1fr;
+    gap: 0.65rem;
+    align-items: start;
+  }
+
+  /* Un guion, no un icono prestado. */
+  .ficha__pasos li::before {
+    content: '';
+    width: 0.65rem;
+    height: 1px;
+    margin-top: 0.7rem;
+    background-color: var(--color-grenat);
+  }
+
+  /* --- El calendario --- */
+
+  .calendario__caja {
+    min-height: 40rem;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    overflow: hidden;
+  }
+
+  .calendario__hueco {
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 2.5rem 2rem;
+  }
+
+  .calendario__texto {
+    margin-top: 0.9rem;
+    max-width: 46ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  .calendario__correo {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-grenat);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .calendario__correo:hover {
+    color: var(--color-lie);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .calendario__correo {
+      transition: none;
+    }
+  }
+</style>
