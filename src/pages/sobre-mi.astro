@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Aperture from '../components/Aperture.astro';
+import { Picture } from 'astro:assets';
+import retrato from '../assets/aline-retrato.png';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Cta from '../components/Cta.astro';
 import EyeGlyph from '../components/EyeGlyph.astro';
@@ -133,17 +134,30 @@ const DATOS = [
         </p>
       </div>
 
+      {/* El retrato viene recortado, sin fondo. Por eso no va dentro de un
+          marco: se apoya sobre una forma de color y la tapa por delante, que
+          es lo que le da profundidad a una foto sin fondo. */}
+      {/* El envoltorio devuelve el relleno de la derecha, que la rejilla solo
+          pone a la izquierda: sin el, en movil la foto quedaba doce puntos
+          descentrada. En pantalla ancha se quita para que la forma pueda
+          salirse por el canto. */}
       <div class="pad-shell-right lg:pr-0" data-reveal="fade">
-        {/* TODO [PENDIENTE: foto real] Retrato de Aline, vertical. Bloquea el lanzamiento. */}
-        <Aperture
-          alt="Retrato de Aline"
-          todo="Retrato de Aline, vertical"
-          ratio="aspect-[4/5]"
-          lids
-          lidColor="blanc"
-          eager
-          class="mx-auto w-full max-w-[24rem]"
-        />
+        <div class="retrato">
+          <span class="retrato__forma" aria-hidden="true"></span>
+          <Picture
+            src={retrato}
+            formats={['avif', 'webp']}
+            {/* El respaldo tambien en webp: por defecto Astro lo deja en el
+                formato de origen, y ahi eran 1,4 MB de PNG que nadie llega a
+                descargar pero que quedan en el paquete. */}
+            fallbackFormat="webp"
+            widths={[420, 620, 840]}
+            sizes="(min-width: 64rem) 26rem, (min-width: 48rem) 22rem, 78vw"
+            alt="Aline, profesora de francés"
+            loading="eager"
+            class="retrato__img"
+          />
+        </div>
       </div>
     </div>
   </section>
@@ -358,6 +372,52 @@ const DATOS = [
 
   .tesis {
     background-color: var(--color-blanc);
+  }
+
+  /* --- El retrato --- */
+
+  /**
+   * La foto viene sin fondo, asi que no se enmarca: se apoya sobre una forma
+   * calida y la tapa por delante. La cabeza queda por encima de la forma y el
+   * cuerpo la corta por el medio: eso es lo que da profundidad a un recorte.
+   *
+   * La forma es mas ancha que la foto a proposito. Con el 92 por ciento que
+   * tenia antes quedaba mas estrecha que sus hombros, escondida detras de
+   * ella entera, y no se leia. Ahora asoma unos treinta y cinco puntos por
+   * cada lado.
+   */
+  .retrato {
+    position: relative;
+    display: grid;
+    place-items: end center;
+    width: min(26rem, 100%);
+    margin-inline: auto;
+  }
+
+  .retrato__forma {
+    position: absolute;
+    left: 50%;
+    bottom: 6%;
+    z-index: 0;
+    width: 118%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    translate: -50% 0;
+    background-image: radial-gradient(
+      circle at 42% 34%,
+      color-mix(in srgb, var(--color-chair) 46%, transparent) 0%,
+      color-mix(in srgb, var(--color-papier) 72%, transparent) 52%,
+      color-mix(in srgb, var(--color-papier) 30%, transparent) 82%,
+      transparent 100%
+    );
+  }
+
+  .retrato__img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   /* --- Las tres tarjetas de la tesis --- */
