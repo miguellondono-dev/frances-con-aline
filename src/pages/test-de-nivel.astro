@@ -1,11 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import Cta from '../components/Cta.astro';
 import { breadcrumb } from '../lib/schema';
-import { CTA } from '../data/site';
-import test from '../data/test-nivel.json';
+import { CORREO_CONTACTO } from '../data/site';
+import { PREGUNTAS } from '../data/test-nivel';
 
+/**
+ * TEST DE NIVEL.
+ *
+ * Tres pantallas: la portada, el test y el cierre.
+ *
+ * Los enunciados no se imprimen aqui. Los pinta el guion uno a uno, porque
+ * son veinticinco y en el HTML quedarian todos a la vista de golpe. Lo unico
+ * que va en el marcado es el andamio: la barra, la zona donde caen las
+ * preguntas y los dos botones.
+ *
+ * Al final no se ensena el nivel. Se piden nombre, apellido y correo, y el
+ * resultado llega por ahi. Es deliberado: ver un nivel en pantalla y
+ * marcharse no deja nada, y ademas las tres redacciones las tiene que leer
+ * Aline antes de confirmar nada.
+ */
 const migas = [
   { name: 'Inicio', path: '/' },
   { name: 'Test de nivel', path: '/test-de-nivel' },
@@ -13,201 +27,170 @@ const migas = [
 
 const schema = [breadcrumb(migas, Astro.site)];
 
-/* Solo viajan al cliente las respuestas correctas y los textos de nivel.
-   Los enunciados ya estan en el HTML: no hace falta duplicarlos en JSON. */
-const datosCliente = {
-  correctas: test.preguntas.map((p) => ({
-    id: p.id,
-    nivel: p.nivel,
-    correcta: p.correcta,
-  })),
-  niveles: test.niveles,
-};
+/** Lo que alguien quiere saber antes de empezar. */
+const DATOS = [
+  { clave: 'Preguntas', valor: String(PREGUNTAS.length) },
+  { clave: 'Tiempo', valor: 'Entre 10 y 15 minutos' },
+  { clave: 'Niveles', valor: 'De A1 a C1' },
+  { clave: 'Precio', valor: 'Sin costo' },
+];
 ---
 
 <BaseLayout
-  title="Test de nivel de francés gratis, 12 preguntas"
-  description="Doce preguntas, tres minutos y sabes tu nivel estimado de francés. El resultado se muestra al terminar, sin pedirte el correo."
+  title="Test de nivel de francés gratis, de A1 a C1"
+  description="Veinticinco preguntas y unos doce minutos para saber en qué punto estás de verdad. Gramática, lectura, escucha y escritura. El resultado te llega al correo."
   path="/test-de-nivel"
   schema={schema}
 >
-  <section class="bg-blanc">
-    <div class="shell pb-section-sm pt-6">
+  <section class="test-pagina">
+    <div class="shell pb-section pt-6">
       <Breadcrumbs items={migas} />
-      <p class="label mt-8 text-nuit">Test de nivel</p>
-      <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre">
-        Doce preguntas, tres minutos
-      </h1>
-      <p class="measure mt-7 text-body text-nuit">
-        Van de menos a más difícil. Al terminar te digo tu nivel estimado y qué
-        significa en la vida real, no en una tabla. No te pido el correo para
-        darte el resultado.
-      </p>
 
-      {
-        test._pendiente && (
-          /* TODO [PENDIENTE] Las 12 preguntas definitivas las redacta Aline.
-             Se editan en src/data/test-nivel.json, sin tocar codigo. */
-          <p class="measure mt-8 rounded-panel border border-corail/40 bg-papier px-5 py-4 text-body-s text-encre">
-            <span class="label mb-1 block text-lie">Pendiente</span>
-            Las preguntas que ves son de ejemplo y están marcadas como
-            PLACEHOLDER. Las definitivas las redacta Aline y se editan en un solo
-            archivo, sin tocar el código.
-          </p>
-        )
-      }
-    </div>
-  </section>
+      <!-- Portada -->
+      <div class="portada" data-test-intro>
+        <p class="label mt-8 text-lie" data-reveal>Test de nivel</p>
+        <h1 class="portada__titulo" data-reveal>
+          Descubre tu nivel de francés en solo
+          <span class="portada__acento">diez minutos</span>
+        </h1>
+        <p class="portada__apoyo" data-reveal>
+          No es un cuestionario de tres preguntas. Son veinticinco, de A1 a C1,
+          con gramática, lectura, escucha y escritura. Por eso el resultado
+          sirve para algo.
+        </p>
 
-  <section class="bg-papier">
-    <div class="shell py-section">
-      <script type="application/json" id="test-datos" set:html={JSON.stringify(datosCliente)} is:inline
-      ></script>
-
-      <form data-test class="mx-auto max-w-3xl" novalidate>
-        <!-- Progreso. Oculto para lectores de pantalla porque el cambio ya se
-             anuncia por texto en [data-anuncio]. -->
-        <div class="flex items-center gap-4" aria-hidden="true">
-          <div class="h-1.5 flex-1 overflow-hidden rounded-pill bg-encre/15">
-            <div
-              data-progreso-barra
-              class="progreso h-full origin-left rounded-pill bg-grenat"
-            >
-            </div>
-          </div>
-          <span data-progreso-texto class="numerals shrink-0 text-body-s text-encre">
-            1 de {test.preguntas.length}
-          </span>
-        </div>
-
-        <p data-anuncio class="sr-only" role="status" aria-live="polite"></p>
-
-        <ol class="mt-10">
+        <dl class="portada__datos" data-reveal>
           {
-            test.preguntas.map((pregunta, i) => (
-              <li data-paso class="paso" data-indice={i}>
-                <fieldset class="border-0 p-0">
-                  <legend class="font-display text-display-m text-encre">
-                    <span class="label mb-3 block text-nuit">
-                      Pregunta {i + 1} de {test.preguntas.length}
-                    </span>
-                    {pregunta.enunciado}
-                  </legend>
-
-                  <div class="mt-8 flex flex-col gap-3">
-                    {pregunta.opciones.map((opcion, j) => (
-                      <label class="opcion flex min-h-[3.25rem] cursor-pointer items-center gap-4 rounded-panel border border-encre/20 bg-blanc px-5 py-3 text-body text-encre transition-colors duration-fast hover:border-encre">
-                        <input
-                          type="radio"
-                          name={`q${pregunta.id}`}
-                          value={j}
-                          class="h-5 w-5 shrink-0 accent-grenat"
-                        />
-                        <span>{opcion}</span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              </li>
+            DATOS.map((dato) => (
+              <div class="portada__dato">
+                <dt>{dato.clave}</dt>
+                <dd>{dato.valor}</dd>
+              </div>
             ))
           }
-        </ol>
+        </dl>
 
-        <!-- Navegacion: solo aparece cuando el JS ha tomado el control. -->
-        <div data-test-nav hidden class="mt-10 flex items-center justify-between gap-4">
-          <button
-            type="button"
-            data-anterior
-            class="inline-flex min-h-11 items-center gap-2 rounded-panel px-4 py-2 text-body-s text-nuit underline underline-offset-4 hover:no-underline disabled:opacity-40 disabled:no-underline"
-          >
-            Anterior
+        <div class="mt-9" data-reveal>
+          <button class="test-boton test-boton--grande" type="button" data-test-empezar>
+            Empezar el test
           </button>
-          <Cta type="button" data-siguiente>Siguiente</Cta>
         </div>
 
-        <!-- Sin JavaScript: las 12 preguntas quedan visibles y se explica que
-             el resultado automatico no esta disponible. -->
-        <p
-          data-sin-js
-          class="mt-10 rounded-panel border border-corail/40 bg-blanc px-5 py-4 text-body-s text-encre"
-        >
-          El resultado automático necesita JavaScript. Si lo tienes desactivado,
-          puedes responder las preguntas por tu cuenta y luego agendar la clase
-          gratis: en media hora te digo tu nivel con más precisión que este test.
-        </p>
-      </form>
+        {/* Sin JavaScript el test no puede funcionar: son veinticinco pantallas
+            que se pintan una a una. Se dice, en vez de dejar un boton muerto. */}
+        <noscript>
+          <p class="portada__noscript">
+            El test necesita JavaScript para funcionar. Si no puedes activarlo,
+            escríbeme a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+            y lo vemos en una sesión.
+          </p>
+        </noscript>
+      </div>
 
-      <!-- Resultado -->
-      <div data-resultado hidden class="mx-auto max-w-3xl">
-        <p class="label text-nuit">Tu resultado</p>
-        <h2 tabindex="-1" class="mt-4 text-display-l text-encre">
-          Tu nivel estimado es
-          <span data-resultado-nivel class="numerals text-grenat">B1</span>
-        </h2>
-        <p data-resultado-texto class="measure mt-6 text-body text-nuit"></p>
+      <!-- El test -->
+      <div class="prueba" data-test hidden>
+        <div class="prueba__cabecera">
+          <div
+            class="prueba__barra"
+            data-test-barra
+            role="progressbar"
+            aria-label="Progreso del test"
+            aria-valuemin="1"
+            aria-valuemax={PREGUNTAS.length}
+          >
+            <span class="prueba__avance"></span>
+          </div>
+          <p class="prueba__cuenta" data-test-cuenta aria-live="polite"></p>
+        </div>
 
-        <p class="measure mt-6 text-body-s text-nuit">
-          Es una estimación a partir de doce preguntas escritas. No mide cómo
-          hablas, que es la mitad del asunto.
-        </p>
+        <div class="prueba__zona" data-test-zona tabindex="-1"></div>
 
-        <!-- Momento de captura: el correo se pide aqui, a cambio del plan. -->
-        <div class="mt-12 rounded-panel bg-ciel p-8 sm:p-10">
-          <h3 class="text-display-m text-encre">¿Quieres el plan?</h3>
-          <p class="measure mt-4 text-body text-encre">
-            Te mando por dónde empezar desde tu nivel y qué puedes esperar en los
-            próximos tres meses. Escrito por mí, no automático.
+        <div class="prueba__pasos">
+          <button class="test-boton test-boton--suave" type="button" data-test-atras>
+            Atrás
+          </button>
+          <button class="test-boton" type="button" data-test-seguir>Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Cierre -->
+      <div class="cierre" data-test-cierre hidden>
+        <div class="cierre__caja">
+          <p class="label text-lie">Ya está</p>
+          <h2 class="cierre__titulo" tabindex="-1">
+            Te envío tu resultado al correo
+          </h2>
+          <p class="cierre__apoyo">
+            Leo tus tres textos escritos, confirmo el nivel y te mando el
+            resultado con lo que ya sabes hacer y lo que te falta para el
+            siguiente escalón. No es un número automático.
           </p>
 
-          <form class="mt-8" method="post" action="/api/plan" data-plan novalidate>
-            <input type="hidden" name="origen" value="test" />
-            <input type="hidden" name="nivel" data-resultado-input value="" />
-
+          <form
+            class="cierre__forma"
+            method="post"
+            action="/api/plan"
+            data-plan
+            novalidate
+          >
+            {/* Campo trampa. Invisible para personas, visible para robots. */}
             <div
               class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
               aria-hidden="true"
             >
-              <label for="plan-empresa">No rellenes este campo</label>
-              <input id="plan-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
+              <label for="test-empresa">No rellenes este campo</label>
+              <input id="test-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
             </div>
 
-            <div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-              <div class="flex flex-col gap-2">
-                <label for="plan-correo" class="label text-nuit">
-                  Tu correo <span aria-hidden="true">*</span>
-                </label>
-                <input
-                  id="plan-correo"
-                  name="correo"
-                  type="email"
-                  required
-                  aria-required="true"
-                  autocomplete="email"
-                  placeholder="nombre@correo.com"
-                  class="min-h-[52px] rounded-panel border border-encre/25 bg-blanc px-4 py-3 text-body-s text-encre"
-                />
-              </div>
-              <Cta type="submit" class="sm:h-[52px] sm:py-0">Envíamelo</Cta>
+            {/* El resultado completo viaja aqui: nivel, porcentaje por bloque,
+                las tres redacciones y todas las respuestas. */}
+            <input type="hidden" name="resultado" data-test-carga />
+            <input type="hidden" name="origen" value="test-de-nivel" />
+
+            <div class="campo campo--mitad">
+              <label class="campo__etiqueta" for="test-nombre">Nombre</label>
+              <input
+                class="campo__caja"
+                id="test-nombre"
+                name="nombre"
+                type="text"
+                autocomplete="given-name"
+                required
+              />
+              <p class="campo__error" data-error-nombre role="alert"></p>
             </div>
 
-            <p
-              data-plan-message
-              role="status"
-              aria-live="polite"
-              class="mt-4 text-body-s text-encre"
-            >
-            </p>
+            <div class="campo campo--mitad">
+              <label class="campo__etiqueta" for="test-apellido">Apellido</label>
+              <input
+                class="campo__caja"
+                id="test-apellido"
+                name="apellido"
+                type="text"
+                autocomplete="family-name"
+              />
+            </div>
+
+            <div class="campo">
+              <label class="campo__etiqueta" for="test-correo">Correo</label>
+              <input
+                class="campo__caja"
+                id="test-correo"
+                name="correo"
+                type="email"
+                autocomplete="email"
+                required
+              />
+              <p class="campo__error" data-error-correo role="alert"></p>
+            </div>
+
+            <div class="campo">
+              <button class="test-boton test-boton--grande" type="submit">
+                Enviarme el resultado
+              </button>
+              <p class="campo__aviso" data-plan-message role="status" aria-live="polite"></p>
+            </div>
           </form>
-        </div>
-
-        <div class="mt-12 border-t border-pierre pt-10">
-          <p class="measure text-body text-nuit">
-            O sáltate el correo: en media hora de clase gratis te digo tu nivel
-            con más precisión que cualquier test escrito.
-          </p>
-          <div class="mt-6">
-            <Cta href="/agenda">{CTA.trasTest}</Cta>
-          </div>
         </div>
       </div>
     </div>
@@ -215,77 +198,574 @@ const datosCliente = {
 </BaseLayout>
 
 <style>
-  .progreso {
-    transform: scaleX(0.0833);
-    transition: transform var(--duration-normal) var(--ease-smooth);
+  .test-pagina {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 24%,
+      color-mix(in srgb, var(--color-papier) 60%, var(--color-blanc)) 58%,
+      color-mix(in srgb, var(--color-papier) 32%, var(--color-blanc)) 86%,
+      var(--color-blanc) 100%
+    );
   }
 
-  /* Solo en modo paso a paso se oculta el resto: sin JS se ven las 12. */
-  .paso {
-    padding-block: 0;
+  /* --- Portada --- */
+
+  .portada__titulo {
+    margin-top: 1.25rem;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 15ch;
+    text-wrap: balance;
   }
 
-  [data-modo='paso'] .paso[hidden] {
-    display: none;
+  .portada__acento {
+    display: block;
+    color: var(--color-grenat);
   }
 
-  [data-modo='paso'] .paso[data-entrada='adelante'],
-  [data-modo='paso'] .paso[data-entrada='atras'] {
-    animation: paso-entra 180ms var(--ease-smooth);
+  .portada__apoyo {
+    margin-top: 1.5rem;
+    max-width: 52ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
   }
 
-  [data-modo='paso'] .paso[data-entrada='atras'] {
-    animation-name: paso-entra-atras;
+  /* La cabecera es sticky, asi que el desplazamiento tiene que dejarle sitio
+     o la tarjeta aparece cortada por arriba. */
+  .prueba,
+  .cierre {
+    scroll-margin-top: 6.5rem;
   }
 
-  /* Sin JS las preguntas se separan entre si para poder leerlas de corrido. */
-  form:not([data-modo]) .paso + .paso {
-    margin-top: 3rem;
-    border-top: 1px solid var(--color-encre);
-    padding-top: 3rem;
+  .portada__datos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+    max-width: 42rem;
   }
 
-  .opcion:focus-within {
-    border-color: var(--color-encre);
+  @media (width >= 40rem) {
+    .portada__datos {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
   }
 
-  .opcion:has(input:checked) {
+  .portada__dato {
+    border-radius: 18px;
+    background-color: color-mix(in srgb, var(--color-blanc) 84%, transparent);
+    box-shadow: var(--shadow-flota);
+    padding: 1rem 1.1rem;
+  }
+
+  .portada__dato dt {
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .portada__dato dd {
+    margin: 0.3rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  .portada__noscript {
+    margin-top: 1.5rem;
+    max-width: 46ch;
+    font-size: var(--text-body-s);
+    color: var(--color-lie);
+  }
+
+  /* --- El test --- */
+
+  .prueba {
+    margin-top: 2.5rem;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    max-width: 46rem;
+  }
+
+  .prueba__cabecera {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .prueba__barra {
+    position: relative;
+    flex: 1;
+    height: 6px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  /* Solo transform: la barra crece sin recalcular la maquetacion. */
+  .prueba__avance {
+    position: absolute;
+    inset: 0;
+    transform-origin: left;
+    transform: scaleX(0);
+    border-radius: inherit;
+    background-color: var(--color-grenat);
+    transition: transform 420ms var(--ease-fluid);
+  }
+
+  .prueba__barra {
+    --avance: 0%;
+  }
+
+  .prueba__avance {
+    transform: scaleX(calc(var(--avance) / 100%));
+  }
+
+  .prueba__cuenta {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: color-mix(in srgb, var(--color-encre) 60%, transparent);
+    white-space: nowrap;
+  }
+
+  .prueba__zona {
+    margin-top: 2rem;
+    min-height: 18rem;
+    outline: none;
+  }
+
+  .prueba__pasos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  /* --- Las preguntas --- */
+
+  :global(.test-enunciado) {
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1rem + 0.7vw, 1.4375rem);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--color-encre);
+    white-space: pre-line;
+    text-wrap: pretty;
+  }
+
+  :global(.test-opciones){
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+  }
+
+  :global(.test-opciones--fichas){
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  :global(.test-opcion){
+    display: block;
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
+    background-color: var(--color-blanc);
+    padding: 0.85rem 1.1rem;
+    text-align: left;
+    font-size: var(--text-body-s);
+    line-height: 1.4;
+    color: var(--color-encre);
+    transition:
+      border-color 200ms var(--ease-smooth),
+      background-color 200ms var(--ease-smooth),
+      transform 200ms var(--ease-smooth);
+  }
+
+  :global(.test-opcion:hover){
+    border-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
+    transform: translateY(-1px);
+  }
+
+  /* Elegida: se marca con relleno y con el borde, no solo con color. */
+  .test-opcion[aria-pressed='true'] {
     border-color: var(--color-grenat);
+    background-color: color-mix(in srgb, var(--color-grenat) 8%, var(--color-blanc));
+    color: var(--color-lie);
+    font-weight: 600;
+  }
+
+  :global(.test-opcion--corta){
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    width: auto;
+    padding: 0.5rem 1.1rem;
+    text-align: center;
+  }
+
+  :global(.test-afirmaciones){
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  :global(.test-afirmacion){
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--color-papier) 32%, var(--color-blanc));
+    padding: 0.9rem 1rem;
+  }
+
+  :global(.test-afirmacion p){
+    flex: 1 1 14rem;
+    font-size: var(--text-body-s);
+    line-height: 1.4;
+    color: var(--color-encre);
+  }
+
+  :global(.test-vf){
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  :global(.test-huecos){
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1.5rem;
+    font-size: var(--text-body-s);
+    line-height: 2.2;
+    color: var(--color-encre);
+  }
+
+  :global(.test-huecos--columna){
+    display: grid;
+    gap: 1rem;
+    line-height: 1.4;
+  }
+
+  :global(.test-huecos__texto){
+    white-space: pre-line;
+  }
+
+  :global(.test-campo){
+    min-width: 7rem;
+    min-height: 2.75rem;
+    border: 0;
+    border-bottom: 2px solid var(--color-grenat);
+    background-color: color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc));
+    border-radius: 8px 8px 0 0;
+    padding: 0.3rem 0.6rem;
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+  }
+
+  :global(.test-campo:focus){
+    outline: 2px solid var(--color-grenat);
+    outline-offset: 2px;
+  }
+
+  :global(.test-campo--largo){
+    width: 100%;
+    min-height: 9rem;
+    margin-top: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    line-height: 1.5;
+    resize: vertical;
+  }
+
+  :global(.test-subpregunta){
+    display: grid;
+    gap: 0.4rem;
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+  }
+
+  :global(.test-contador){
+    margin-top: 0.6rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  :global(.test-contador[data-suficiente='true']){
+    color: var(--color-lie);
+  }
+
+  :global(.test-frase){
+    margin-top: 1.5rem;
+    min-height: 3.5rem;
+    border-radius: 14px;
+    border: 1px dashed color-mix(in srgb, var(--color-encre) 22%, transparent);
+    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
+    padding: 0.9rem 1rem;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: var(--color-encre);
+  }
+
+  :global(.test-frase[data-vacia='true']){
+    color: color-mix(in srgb, var(--color-encre) 45%, transparent);
+    font-style: italic;
+  }
+
+  :global(.test-ficha){
+    display: inline-flex;
+    align-items: center;
+    /* 44px es el minimo para tocar sin fallar en movil. */
+    min-height: 2.75rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    background-color: var(--color-blanc);
+    padding: 0.4rem 1rem;
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition:
+      transform 200ms var(--ease-smooth),
+      opacity 200ms var(--ease-smooth);
+  }
+
+  :global(.test-ficha:hover:not(:disabled)){
+    transform: translateY(-2px);
+    border-color: var(--color-grenat);
+  }
+
+  :global(.test-ficha:disabled){
+    opacity: 0.3;
+  }
+
+  :global(.test-deshacer){
+    /* Fila propia: entre las fichas parecia una palabra mas. */
+    flex-basis: 100%;
+    margin-top: 0.35rem;
+    text-align: right;
+    font-size: 0.8125rem;
+    color: var(--color-lie);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  :global(.test-deshacer:disabled){
+    opacity: 0.35;
+    text-decoration: none;
+  }
+
+  :global(.test-audio){
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    padding: 0.7rem 1.4rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-blanc);
+    transition: background-color 200ms var(--ease-smooth);
+  }
+
+  :global(.test-audio:hover){
+    background-color: var(--color-nuit);
+  }
+
+  /* Si el navegador no sabe leer en voz alta, se da el texto: peor, pero se
+     puede responder. */
+  .test-aviso {
+    margin-top: 1rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
+    padding: 0.9rem 1rem;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: var(--color-encre);
+  }
+
+  /* --- Botones --- */
+
+  .test-boton {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    padding-inline: 1.75rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-blanc);
+    transition:
+      transform 200ms var(--ease-smooth),
+      background-color 200ms var(--ease-smooth),
+      opacity 200ms var(--ease-smooth);
+  }
+
+  .test-boton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background-color: var(--color-lie);
+  }
+
+  .test-boton:disabled {
+    opacity: 0.35;
+  }
+
+  .test-boton--grande {
+    min-height: 3.5rem;
+    padding-inline: 2.25rem;
+    font-size: 1.0625rem;
+  }
+
+  .test-boton--suave {
+    background-color: transparent;
+    border: 1px solid color-mix(in srgb, var(--color-encre) 20%, transparent);
+    color: var(--color-encre);
+  }
+
+  .test-boton--suave:hover:not(:disabled) {
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+  }
+
+  /* --- Cierre --- */
+
+  .cierre {
+    margin-top: 2.5rem;
+    max-width: 46rem;
+  }
+
+  .cierre__caja {
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: clamp(1.75rem, 1rem + 3vw, 2.75rem);
+  }
+
+  .cierre__titulo {
+    margin-top: 1.1rem;
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+    max-width: 18ch;
+    text-wrap: balance;
+    outline: none;
+  }
+
+  .cierre__apoyo {
+    margin-top: 1.25rem;
+    max-width: 48ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  .cierre__forma {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .campo {
+    grid-column: 1 / -1;
+  }
+
+  @media (width >= 30rem) {
+    .campo--mitad {
+      grid-column: span 1;
+    }
+  }
+
+  .campo__etiqueta {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  .campo__caja {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+  }
+
+  .campo__caja:focus {
+    outline: 2px solid var(--color-grenat);
+    outline-offset: 2px;
     background-color: var(--color-blanc);
   }
 
-  @keyframes paso-entra {
-    from {
-      opacity: 0;
-      transform: translateX(16px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  .campo__error:not(:empty) {
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--color-grenat);
   }
 
-  @keyframes paso-entra-atras {
-    from {
-      opacity: 0;
-      transform: translateX(-16px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  .campo__aviso:not(:empty) {
+    margin-top: 0.9rem;
+    font-size: var(--text-body-s);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .progreso {
+    .prueba__avance,
+    :global(.test-opcion),
+    :global(.test-ficha),
+    :global(.test-audio),
+    .test-boton {
       transition: none;
     }
-    [data-modo='paso'] .paso[data-entrada] {
-      animation: none !important;
+
+    :global(.test-opcion:hover),
+    :global(.test-ficha:hover:not(:disabled)),
+    .test-boton:hover:not(:disabled) {
+      transform: none;
     }
   }
 </style>
 
 <script>
-  import '../scripts/test-nivel.ts';
+  import { iniciarTest } from '../scripts/test-nivel';
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciarTest, { once: true });
+  } else {
+    iniciarTest();
+  }
 </script>
