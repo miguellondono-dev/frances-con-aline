@@ -12,10 +12,65 @@ import {
 
 export const prerender = false;
 
-const ORIGENES: Record<string, { tipo: TipoEnvio; hoja: string }> = {
-  talleres: { tipo: 'Talleres', hoja: 'Talleres' },
-  tours: { tipo: 'Tours', hoja: 'Tours' },
-  ambos: { tipo: 'Talleres', hoja: 'Talleres' },
+/**
+ * Cada origen trae su propia autorespuesta. El taller de teatro ya tiene fecha
+ * y precio, asi que soltarle un "te aviso cuando haya fecha" a quien acaba de
+ * inscribirse seria mentirle en el primer correo que recibe.
+ */
+type Origen = {
+  tipo: TipoEnvio;
+  hoja: string;
+  asunto: string;
+  texto: (nombre: string) => string;
+};
+
+const saludo = (nombre: string) => (nombre ? `Hola, ${nombre}:` : 'Hola:');
+
+const ESPERA = (nombre: string) => `${saludo(nombre)}
+
+Te anoté en la lista de espera. Te escribo en cuanto haya fecha y precio, y no por ninguna otra razón.
+
+Si mientras tanto quieres empezar con el francés, la primera sesión dura media hora y no tiene costo.
+
+Aline
+Francés con Aline`;
+
+const ORIGENES: Record<string, Origen> = {
+  talleres: {
+    tipo: 'Talleres',
+    hoja: 'Talleres',
+    asunto: 'Te anoté en la lista de espera',
+    texto: ESPERA,
+  },
+  tours: {
+    tipo: 'Tours',
+    hoja: 'Tours',
+    asunto: 'Te anoté en la lista de espera',
+    texto: ESPERA,
+  },
+  ambos: {
+    tipo: 'Talleres',
+    hoja: 'Talleres',
+    asunto: 'Te anoté en la lista de espera',
+    texto: ESPERA,
+  },
+  'taller-teatro': {
+    tipo: 'Talleres',
+    hoja: 'Taller de teatro',
+    asunto: 'Te guardé una plaza en el taller de teatro',
+    texto: (nombre) => `${saludo(nombre)}
+
+Te guardé una plaza en el taller de teatro. Apunta las fechas:
+
+Sábados 10, 17, 24 y 31 de octubre, de 11:00 a 12:30. Cuatro sesiones de hora y media, en París. El taller completo cuesta 65 euros.
+
+Te escribo en los próximos días para confirmarte el sitio exacto y cómo se paga.
+
+Si al final no puedes venir, dímelo y libero la plaza para otra persona.
+
+Aline
+Francés con Aline`,
+  },
 };
 
 export const POST: APIRoute = async ({ request }) => {
@@ -52,6 +107,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const origen = limpiar(datos.get('origen'), 20) || 'ambos';
+  const nombre = limpiar(datos.get('nombre'), 120);
   const interes = limpiar(datos.get('interes'), 20) || origen;
   const config = ORIGENES[origen] ?? ORIGENES.ambos;
 
@@ -59,19 +115,12 @@ export const POST: APIRoute = async ({ request }) => {
     await procesar({
       tipo: config.tipo,
       hoja: config.hoja,
-      fila: [correo, interes, origen],
-      resumen: `Correo: ${correo}\nInterés: ${interes}\nDesde: ${origen}`,
+      fila: [correo, nombre, interes, origen],
+      resumen: `Correo: ${correo}\nNombre: ${nombre || 'sin dar'}\nInterés: ${interes}\nDesde: ${origen}`,
       correoUsuario: correo,
       autorespuesta: {
-        asunto: 'Te anoté en la lista de espera',
-        texto: `Hola:
-
-Te anoté en la lista de espera. Te escribo en cuanto haya fecha y precio, y no por ninguna otra razón.
-
-Si mientras tanto quieres empezar con el francés, la primera sesión dura media hora y no tiene costo.
-
-Aline
-Francés con Aline`,
+        asunto: config.asunto,
+        texto: config.texto(nombre),
       },
     }),
   );

@@ -2,25 +2,78 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Aperture from '../components/Aperture.astro';
+import EyeGlyph from '../components/EyeGlyph.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
-import { breadcrumb } from '../lib/schema';
-import { PENDIENTE } from '../data/site';
+import { breadcrumb, taller } from '../lib/schema';
+import { CORREO_CONTACTO } from '../data/site';
 
 const migas = [
   { name: 'Inicio', path: '/' },
   { name: 'Talleres', path: '/talleres' },
 ];
 
-const schema = [breadcrumb(migas, Astro.site)];
+/**
+ * El taller de teatro ya esta cerrado: fechas, hora, sitio y precio. Los datos
+ * viven aqui arriba y no repartidos por el marcado, porque los consume tres
+ * veces la pagina y una cuarta el schema, y una fecha que se escribe cuatro
+ * veces a mano se desincroniza a la primera correccion.
+ */
+const TEATRO = {
+  sabados: [10, 17, 24, 31],
+  mes: 'octubre',
+  ano: 2026,
+  horario: 'De 11:00 a 12:30',
+  sesiones: 4,
+  minutosPorSesion: 90,
+  precio: 65,
+  nivel: 'Desde A1 o A2',
+  donde: 'París, presencial',
+  cierre: '8 de octubre',
+};
+
+const fechasLegibles = `Sábados ${TEATRO.sabados.slice(0, -1).join(', ')} y ${
+  TEATRO.sabados.at(-1)
+} de ${TEATRO.mes} de ${TEATRO.ano}`;
+
+const ficha = [
+  { clave: 'Cuándo', valor: fechasLegibles },
+  { clave: 'Horario', valor: TEATRO.horario },
+  { clave: 'Duración', valor: `${TEATRO.sesiones} sesiones de hora y media, 6 horas en total` },
+  { clave: 'Nivel', valor: TEATRO.nivel },
+  { clave: 'Dónde', valor: TEATRO.donde },
+  { clave: 'Precio', valor: `${TEATRO.precio} € el taller completo` },
+  { clave: 'Inscripción', valor: `Hasta el ${TEATRO.cierre}` },
+];
+
+const schema = [
+  breadcrumb(migas, Astro.site),
+  taller({
+    name: 'Taller de teatro en francés',
+    description:
+      'Cuatro sábados de octubre para perder la vergüenza de hablar francés: ejercicios de voz, trabalenguas, escenas en grupo, interpretación e improvisación. Presencial en París, desde nivel A1 o A2.',
+    path: '/talleres',
+    site: Astro.site,
+    inicia: '2026-10-10T11:00:00+02:00',
+    termina: '2026-10-31T12:30:00+01:00',
+    horario: 'Sábados de 11:00 a 12:30',
+    sesiones: TEATRO.sesiones,
+    minutosPorSesion: TEATRO.minutosPorSesion,
+    precio: TEATRO.precio,
+    moneda: 'EUR',
+    ciudad: 'París',
+    pais: 'FR',
+    cierreInscripcion: '2026-10-08',
+  }),
+];
 ---
 
 <BaseLayout
-  title="Talleres de teatro y cocina en francés, en París"
-  description="Talleres presenciales en París: teatro en francés y cocina francesa explicada en español. Están en construcción. Deja tu correo en la lista de espera."
+  title="Taller de teatro en francés en París, cuatro sábados de octubre"
+  description="Cuatro sesiones de hora y media para perder la vergüenza de hablar francés. Sábados 10, 17, 24 y 31 de octubre, de 11:00 a 12:30, en París. Desde A1 o A2. 65 € el taller completo."
   path="/talleres"
   schema={schema}
 >
-  <section class="bg-blanc">
+  <section class="cabecera">
     <div class="shell pb-section-sm pt-6">
       <Breadcrumbs items={migas} />
       <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
@@ -28,40 +81,170 @@ const schema = [breadcrumb(migas, Astro.site)];
         Talleres de teatro y de cocina
       </h1>
       <p class="measure mt-7 text-body text-nuit" data-reveal>
-        Dos formas de usar el francés con las manos y con el cuerpo, no con un
-        cuaderno. Están en construcción: todavía no hay fechas ni precio cerrado,
-        así que por ahora solo abro la lista de espera.
+        Dos formas de usar el francés con el cuerpo y con las manos, no con un
+        cuaderno. El de teatro ya tiene fechas: cuatro sábados de {TEATRO.mes}.
+        El de cocina todavía no.
       </p>
     </div>
   </section>
 
-  <section class="bg-papier" aria-labelledby="talleres">
+  <!-- El taller que ya se puede reservar -->
+  <section class="teatro" aria-labelledby="teatro">
     <div class="shell py-section">
-      <h2 id="talleres" class="sr-only">Los dos talleres</h2>
+      <div class="flex items-center gap-4" data-reveal>
+        <EyeGlyph class="h-3 w-6 text-grenat" />
+        <p class="label text-lie">Ya tiene fecha</p>
+      </div>
 
-      <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
-        <article data-reveal>
-          {/* TODO [PENDIENTE: foto real] Ensayo de teatro. */}
-          <Aperture
-            alt="Ensayo de un taller de teatro en francés"
-            todo="Escena de taller de teatro"
-            ratio="aspect-[4/3]"
-            lidColor="papier"
-          />
-          <h3 class="mt-8 text-display-m text-encre">Teatro en francés</h3>
-          <p class="measure mt-4 text-body text-nuit">
-            Leer en voz alta, repetir una escena hasta que suene, equivocarse
-            delante de otros. El teatro obliga a algo que la clase no siempre
-            consigue: sostener el idioma con el cuerpo y con el volumen, no solo
-            con la cabeza.
-          </p>
-          <p class="measure mt-4 text-body text-nuit">
-            No hace falta haber actuado nunca. Sí hace falta tener algo de base
-            en francés, porque el taller no es una clase de idioma.
-          </p>
-        </article>
+      <h2 id="teatro" class="mt-6 max-w-[22ch] text-display-l text-encre" data-reveal>
+        Cuatro sábados para perder la vergüenza de hablar
+      </h2>
 
-        <article data-reveal>
+      <div class="teatro__reparto mt-14">
+        <div class="teatro__texto">
+          <div data-reveal>
+            {/* TODO [PENDIENTE: foto real] Ensayo de teatro. */}
+            <Aperture
+              alt="Ensayo de un taller de teatro en francés"
+              todo="Escena de taller de teatro"
+              ratio="aspect-[4/3]"
+              lidColor="blanc"
+            />
+          </div>
+
+          <p class="measure mt-9 text-body text-encre" data-reveal>
+            Hablar en francés delante de otra gente da vergüenza, y esa
+            vergüenza no se quita estudiando más gramática. Se quita repitiendo
+            una escena hasta que suena, y descubriendo que equivocarse en voz
+            alta no tiene consecuencias.
+          </p>
+          <p class="measure mt-5 text-body text-encre" data-reveal>
+            Trabajamos con ejercicios de voz, trabalenguas, expresiones
+            francesas de las que no salen en los libros, escenas cortas en
+            grupo, interpretación e improvisación. El cuerpo y la escena hacen
+            el trabajo que un cuaderno no puede hacer.
+          </p>
+          <p class="measure mt-5 text-body text-encre" data-reveal>
+            No hace falta haber actuado nunca. Sí hace falta un A1 o un A2 de
+            base, porque el taller no es una clase de idioma: es un sitio para
+            usar el francés que ya tienes.
+          </p>
+        </div>
+
+        <aside class="teatro__ficha" data-reveal="fade" aria-label="Datos del taller">
+          <dl class="ficha">
+            {
+              ficha.map((dato) => (
+                <div class="ficha__fila">
+                  <dt class="ficha__clave">{dato.clave}</dt>
+                  <dd class="ficha__valor">{dato.valor}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="ficha__pie">
+            <p class="ficha__precio">
+              <span class="numerals">{TEATRO.precio} €</span>
+            </p>
+            <p class="ficha__nota">el taller completo, las cuatro sesiones</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reserva de plaza. No se cobra aqui: se cierra por correo. -->
+  <section class="reserva" id="plaza" aria-labelledby="plaza-titulo">
+    <div class="shell py-section">
+      <div class="reserva__caja">
+        <div class="reserva__texto">
+          <h2 id="plaza-titulo" class="text-display-m text-encre" data-reveal>
+            Guarda tu plaza
+          </h2>
+          <p class="measure mt-5 text-body text-nuit" data-reveal>
+            Déjame tu nombre y tu correo. Te escribo con la dirección exacta y
+            con la forma de pago, y te confirmo la plaza. Aquí no se paga nada.
+          </p>
+          <p class="measure mt-4 text-body-s text-nuit" data-reveal>
+            El grupo es pequeño para que a todos les toque hablar, así que las
+            plazas se cierran el {TEATRO.cierre}.
+          </p>
+        </div>
+
+        <form
+          class="reserva__forma"
+          method="post"
+          action="/api/lista-espera"
+          data-waitlist
+          data-origen="taller-teatro"
+          data-reveal
+          novalidate
+        >
+          <input type="hidden" name="origen" value="taller-teatro" />
+          <input type="hidden" name="interes" value="teatro" />
+
+          {/* Campo trampa. Invisible para personas, visible para robots. */}
+          <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            <label for="plaza-empresa">No rellenes este campo</label>
+            <input id="plaza-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="campo">
+            <label class="campo__etiqueta" for="plaza-nombre">Tu nombre</label>
+            <input
+              class="campo__caja"
+              id="plaza-nombre"
+              name="nombre"
+              type="text"
+              autocomplete="given-name"
+            />
+          </div>
+
+          <div class="campo">
+            <label class="campo__etiqueta" for="plaza-correo">
+              Tu correo <span aria-hidden="true">*</span>
+            </label>
+            <input
+              class="campo__caja"
+              id="plaza-correo"
+              name="correo"
+              type="email"
+              required
+              aria-required="true"
+              autocomplete="email"
+              placeholder="nombre@correo.com"
+            />
+          </div>
+
+          <button class="reserva__boton" type="submit">Guardar mi plaza</button>
+
+          <p class="campo__aviso" data-waitlist-message role="status" aria-live="polite"></p>
+
+          {/*
+            Salida visible, no solo en el mensaje de error. Las plazas se
+            cierran el 8 de octubre: si el envio falla, quien queria venir
+            tiene que poder escribir igual, sin tener que buscar el correo.
+          */}
+          <p class="reserva__salida">
+            O escríbeme directamente a{' '}
+            <a href={`mailto:${CORREO_CONTACTO}?subject=Quiero una plaza en el taller de teatro`}>{CORREO_CONTACTO}</a>.
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- El taller que todavia no tiene fecha -->
+  <section class="cocina" aria-labelledby="cocina">
+    <div class="shell py-section">
+      <p class="label text-nuit" data-reveal>Todavía sin fecha</p>
+      <h2 id="cocina" class="mt-6 max-w-[24ch] text-display-l text-encre" data-reveal>
+        Cocina francesa
+      </h2>
+
+      <div class="cocina__reparto mt-12">
+        <div data-reveal>
           {/* TODO [PENDIENTE: foto real] Taller de cocina. */}
           <Aperture
             alt="Manos preparando un plato en un taller de cocina francesa"
@@ -69,45 +252,32 @@ const schema = [breadcrumb(migas, Astro.site)];
             ratio="aspect-[4/3]"
             lidColor="papier"
           />
-          <h3 class="mt-8 text-display-m text-encre">Cocina francesa</h3>
-          <p class="measure mt-4 text-body text-nuit">
-            Una receta, el vocabulario que la rodea y la razón cultural por la
-            que ese plato se come cuando se come. Se cocina de verdad y se come
-            al final.
+        </div>
+
+        <div>
+          <p class="measure text-body text-encre" data-reveal>
+            Una receta, el vocabulario que la rodea y la razón por la que ese
+            plato se come cuando se come. Se cocina de verdad y se come al
+            final.
           </p>
-          <p class="measure mt-4 text-body text-nuit">
+          <p class="measure mt-5 text-body text-encre" data-reveal>
             Las instrucciones van en francés y las explicaciones en español
             cuando hace falta. Sirve desde un nivel bastante básico, porque el
             plato va guiando.
           </p>
-        </article>
+          <p class="measure mt-5 text-body text-lie" data-reveal>
+            Todavía no tiene fecha ni precio cerrado. Te aviso en cuanto los
+            tenga.
+          </p>
+        </div>
       </div>
-
-      <dl class="mt-16 grid gap-8 border-t border-encre/20 pt-10 sm:grid-cols-3" data-reveal>
-        <div>
-          <dt class="label text-nuit">Dónde</dt>
-          <dd class="mt-2 text-body text-encre">París, presencial.</dd>
-        </div>
-        <div>
-          <dt class="label text-nuit">Precio</dt>
-          {/* TODO [PENDIENTE] Precio y formato definitivo de los talleres. */}
-          <dd class="mt-2 text-body text-lie">
-            {PENDIENTE.precioTalleres ?? 'Pendiente de definir'}
-          </dd>
-        </div>
-        <div>
-          <dt class="label text-nuit">Fechas</dt>
-          {/* TODO [PENDIENTE] Calendario de talleres. */}
-          <dd class="mt-2 text-body text-lie">Pendiente de definir</dd>
-        </div>
-      </dl>
     </div>
   </section>
 
   <section class="surface-dark" aria-labelledby="lista">
     <div class="shell py-section">
-      <h2 id="lista" class="max-w-[20ch] text-display-l text-blanc" data-reveal>
-        Avísame cuando haya fecha
+      <h2 id="lista" class="max-w-[24ch] text-display-l text-blanc" data-reveal>
+        Avísame cuando el de cocina tenga fecha
       </h2>
       <p class="measure mt-7 text-body text-ciel" data-reveal>
         Déjame tu correo y te escribo cuando el taller tenga fecha y precio. No
@@ -119,3 +289,240 @@ const schema = [breadcrumb(migas, Astro.site)];
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /**
+   * El mismo lenguaje del inicio: degradados que entran y salen en blanco,
+   * esquinas de 26px, la sombra flotante y los titulares en la tipografia de
+   * display.
+   */
+
+  .cabecera {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc)) 32%,
+      color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc)) 74%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .teatro {
+    background-color: var(--color-blanc);
+  }
+
+  .reserva {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 58%, var(--color-blanc)) 40%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 70%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .cocina {
+    background-color: var(--color-blanc);
+  }
+
+  /* --- El taller de teatro --- */
+
+  .teatro__reparto {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .cocina__reparto {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .teatro__reparto {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 4rem;
+    }
+
+    .cocina__reparto {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      align-items: center;
+      gap: 4rem;
+    }
+
+    /* La ficha acompana la lectura del texto largo en vez de quedarse arriba. */
+    .teatro__ficha {
+      position: sticky;
+      top: 7rem;
+      align-self: start;
+    }
+  }
+
+  .ficha {
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 0.5rem 1.75rem;
+  }
+
+  .ficha__fila {
+    display: grid;
+    gap: 0.2rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-pierre) 90%, transparent);
+    padding: 1.05rem 0;
+  }
+
+  .ficha__fila:last-child {
+    border-bottom: 0;
+  }
+
+  .ficha__clave {
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
+  }
+
+  .ficha__valor {
+    margin: 0;
+    font-size: var(--text-body-s);
+    line-height: 1.45;
+    color: var(--color-encre);
+  }
+
+  /* El precio se separa de la lista: es el dato que se busca, no uno mas. */
+  .ficha__pie {
+    margin-top: 1.25rem;
+    border-radius: 26px;
+    background-color: var(--color-encre);
+    padding: 1.5rem 1.75rem;
+  }
+
+  .ficha__precio {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-blanc);
+  }
+
+  .ficha__nota {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-body-s);
+    color: var(--color-ciel);
+  }
+
+  /* --- Reserva de plaza --- */
+
+  .reserva__caja {
+    display: grid;
+    gap: 2.5rem;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 2.25rem 1.75rem;
+  }
+
+  @media (width >= 64rem) {
+    .reserva__caja {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 4rem;
+      padding: 3.25rem 3rem;
+    }
+  }
+
+  .reserva__forma {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .campo__etiqueta {
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-nuit);
+  }
+
+  .campo__caja {
+    min-height: 3.25rem;
+    border: 1px solid var(--color-pierre);
+    border-radius: var(--radius-panel);
+    background-color: color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc));
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition: border-color 240ms var(--ease-smooth);
+  }
+
+  .campo__caja:focus {
+    border-color: var(--color-grenat);
+    outline: 2px solid color-mix(in srgb, var(--color-grenat) 40%, transparent);
+    outline-offset: 2px;
+  }
+
+  .campo__aviso {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: var(--color-nuit);
+  }
+
+  .campo__aviso:empty {
+    display: none;
+  }
+
+  .reserva__salida {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  .reserva__salida a {
+    color: var(--color-lie);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .reserva__boton {
+    min-height: 3.25rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    padding: 0.9rem 1.75rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-blanc);
+    transition:
+      background-color 240ms var(--ease-smooth),
+      transform 240ms var(--ease-smooth);
+  }
+
+  .reserva__boton:hover:not(:disabled) {
+    background-color: var(--color-lie);
+    transform: translateY(-2px);
+  }
+
+  .reserva__boton:disabled {
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .campo__caja,
+    .reserva__boton {
+      transition: none;
+    }
+
+    .reserva__boton:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+</style>

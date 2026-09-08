@@ -120,3 +120,96 @@ export function course(
     },
   };
 }
+
+/**
+ * Un taller con fecha, sitio y precio cerrados.
+ *
+ * No reutiliza course(): aquel describe un servicio en linea y abierto, y esto
+ * es una tanda concreta, presencial y con plazas. La diferencia importa,
+ * porque un CourseInstance sin fechas ni lugar no le sirve de nada a un
+ * buscador que quiere mostrar cuando empieza y cuanto cuesta.
+ */
+export function taller({
+  name,
+  description,
+  path,
+  site,
+  inicia,
+  termina,
+  horario,
+  sesiones,
+  minutosPorSesion,
+  precio,
+  moneda,
+  ciudad,
+  pais,
+  cierreInscripcion,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  site?: URL;
+  /** ISO 8601, con hora local de inicio de la primera sesion. */
+  inicia: string;
+  /** ISO 8601, fin de la ultima sesion. */
+  termina: string;
+  /** Repeticion legible: "Sábados de 11:00 a 12:30". */
+  horario: string;
+  sesiones: number;
+  minutosPorSesion: number;
+  precio: number;
+  moneda: string;
+  ciudad: string;
+  pais: string;
+  /** ISO 8601. Hasta cuando se puede reservar plaza. */
+  cierreInscripcion: string;
+}) {
+  const url = `${base(site)}${path}`;
+  const totalMinutos = sesiones * minutosPorSesion;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name,
+    description,
+    url,
+    inLanguage: 'es',
+    teaches: 'Expresión oral en francés',
+    provider: { '@id': alineId(site) },
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      name,
+      courseMode: 'offline',
+      courseSchedule: {
+        '@type': 'Schedule',
+        repeatFrequency: 'P1W',
+        byDay: 'https://schema.org/Saturday',
+        repeatCount: sesiones,
+        duration: `PT${minutosPorSesion}M`,
+        description: horario,
+      },
+      courseWorkload: `PT${totalMinutos}M`,
+      startDate: inicia,
+      endDate: termina,
+      inLanguage: 'fr',
+      location: {
+        '@type': 'Place',
+        name: ciudad,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: ciudad,
+          addressCountry: pais,
+        },
+      },
+      offers: {
+        '@type': 'Offer',
+        price: precio,
+        priceCurrency: moneda,
+        availability: 'https://schema.org/InStock',
+        validThrough: cierreInscripcion,
+        url,
+        category: 'Taller completo, las cuatro sesiones',
+      },
+    },
+  };
+}
