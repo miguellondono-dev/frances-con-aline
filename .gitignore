@@ -10,3 +10,8 @@ npm-debug.log*
 # Paquete para subir a un alojamiento estatico. Se genera, no se versiona.
 aline-sitio.zip
 aline-proyecto.zip
+
+# Material de origen que Miguel deja en la carpeta para que yo lo lea. Se
+# porta al proyecto y se queda en su disco: versionar un binario que no se
+# puede leer ni comparar no aporta nada, y el codigo portado ya lo recoge.
+test-de-francés-interactivo.zip
