@@ -4,7 +4,6 @@ import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato.png';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Cta from '../components/Cta.astro';
-import EyeGlyph from '../components/EyeGlyph.astro';
 import { breadcrumb, alineId } from '../lib/schema';
 import { CTA } from '../data/site';
 
@@ -27,14 +26,14 @@ const persona = {
   name: 'Aline',
   jobTitle: 'Profesora de francés',
   description:
-    'Profesora francesa de francés para hispanohablantes. Estudió Gestión de la Cultura, habla cinco idiomas y lleva más de cinco años enseñando.',
+    'Profesora francesa de francés para hispanohablantes. Formada en pedagogía y métodos de aprendizaje, habla cinco idiomas y lleva más de cinco años enseñando.',
   nationality: { '@type': 'Country', name: 'Francia' },
   knowsLanguage: [
     { '@type': 'Language', name: 'Francés' },
     { '@type': 'Language', name: 'Español' },
     { '@type': 'Language', name: 'Inglés' },
     { '@type': 'Language', name: 'Italiano' },
-    { '@type': 'Language', name: 'Griego' },
+    { '@type': 'Language', name: 'Portugués' },
   ],
   hasCredential: {
     '@type': 'EducationalOccupationalCredential',
@@ -43,9 +42,10 @@ const persona = {
   },
   knowsAbout: [
     'Enseñanza del francés como lengua extranjera',
-    'Gestión cultural',
     'Preparación del examen DELF',
-    'Errores frecuentes de hispanohablantes en francés',
+    'Expediente Campus France',
+    'Redacción y corrección de CV en francés',
+    'Gestión cultural',
   ],
 };
 
@@ -68,12 +68,15 @@ const INTERESES = [
 /** Bloque de datos verificables. Frases afirmativas y autonomas: cada una se
  *  sostiene sola, fuera de contexto. Es lo que un modelo puede citar. */
 const DATOS = [
-  { clave: 'Nacionalidad', valor: 'Soy francesa.' },
-  { clave: 'Formación', valor: 'Estudié Gestión de la Cultura.' },
+  { clave: 'Nacionalidad', valor: 'Soy francesa y bilingüe en español.' },
+  {
+    clave: 'Formación',
+    valor:
+      'Estudié Gestión de la Cultura y me formé en pedagogía y métodos de aprendizaje.',
+  },
   {
     clave: 'Idiomas',
-    valor:
-      'Hablo francés, español, inglés, italiano y algo de griego. Todos menos el francés los aprendí siendo adulta.',
+    valor: 'Hablo francés, español, inglés, italiano y portugués.',
   },
   { clave: 'Experiencia', valor: 'Llevo más de cinco años enseñando idiomas.' },
   {
@@ -87,19 +90,18 @@ const DATOS = [
       'Una escuela europea de idiomas me seleccionó para enseñar a estudiantes en Canadá, Reino Unido y Francia.',
   },
   {
-    clave: 'Estudiantes',
-    valor:
-      'Doy clase a adultos hispanohablantes: personas que se mudan a Francia, que ya viven allí, que preparan el DELF o que van a viajar.',
-  },
-  {
     clave: 'Formatos',
     valor:
       'Doy clases individuales en línea a 35 € la hora y clases en grupo de dos a cinco personas a 20 € la hora por persona. La primera clase, de 30 minutos, es gratis.',
   },
   {
     clave: 'DELF',
+    valor: 'Preparo el DELF y hago simulacros con el formato oficial.',
+  },
+  {
+    clave: 'Trámites',
     valor:
-      'Preparo el DELF y hago simulacros con el formato oficial. No soy examinadora acreditada: preparo, no evalúo oficialmente.',
+      'Preparo contigo el expediente de Campus France, y redacto y corrijo tu CV en francés.',
   },
   {
     clave: 'Presencial',
@@ -107,11 +109,34 @@ const DATOS = [
       'En París hago talleres de teatro y de acuarela en francés, y tours guiados en español.',
   },
 ];
+
+/** Los idiomas, para la tira de la cabecera. */
+const IDIOMAS = ['Francés', 'Español', 'Inglés', 'Italiano', 'Portugués'];
+
+/**
+ * La clase se monta sobre lo que le gusta a cada quien. Los ejemplos son
+ * ejemplos: por eso el ultimo abre la puerta en vez de cerrar la lista.
+ */
+const AFICIONES = [
+  {
+    pregunta: '¿Te gusta la poesía?',
+    respuesta: 'Trabajamos con poemas franceses conocidos.',
+  },
+  {
+    pregunta: '¿La fotografía?',
+    respuesta: 'Te doy las bases para hablar de ella en francés.',
+  },
+  {
+    pregunta: '¿El teatro, la pintura, el cine?',
+    respuesta: 'Igual. El tema lo pones tú y yo monto la clase encima.',
+  },
+];
+
 ---
 
 <BaseLayout
-  title="Sobre mí: francesa, gestora cultural, profesora de francés"
-  description="Soy francesa, estudié Gestión de la Cultura y aprendí español de adulta viviendo en Latinoamérica. Por eso sé dónde se traba un hispanohablante con el francés."
+  title="Sobre mí: profesora francesa de francés, y cinco idiomas"
+  description="El francés es mi lengua y hablo cinco idiomas. Me formé en pedagogía y monto cada clase alrededor de lo que te gusta. También te acompaño con Campus France y con tu CV en francés."
   path="/sobre-mi"
   schema={schema}
 >
@@ -124,14 +149,17 @@ const DATOS = [
         <Breadcrumbs items={migas} />
         <p class="label mt-8 text-nuit" data-reveal>Sobre mí</p>
         <h1 class="mt-5 text-display-xl text-encre" data-reveal>
-          No soy una profesora de francés a la que le gusta la cultura
+          El francés es mi lengua. Aprender idiomas, mi pasión.
         </h1>
         <p class="measure mt-7 text-body text-nuit" data-reveal>
-          Soy una gestora cultural que enseña francés. Parece un juego de
-          palabras y no lo es: cambia de dónde sale el material de cada clase, en
-          qué orden aparece la gramática y qué considero que es haber aprendido
-          algo.
+          Me formé en pedagogía y en métodos de aprendizaje para poder
+          compartirla. Aprendí a hablar cinco idiomas, y eso me llevó a viajar y
+          a enseñar francés a estudiantes de medio mundo.
         </p>
+
+        <ul class="idiomas" data-reveal>
+          {IDIOMAS.map((idioma) => <li class="idiomas__uno">{idioma}</li>)}
+        </ul>
       </div>
 
       {/* El retrato viene recortado, sin fondo. Por eso no va dentro de un
@@ -162,79 +190,55 @@ const DATOS = [
     </div>
   </section>
 
-  <!-- La historia -->
-  <section class="historia" aria-labelledby="historia">
-    <div class="shell grid gap-12 py-section lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-4">
-        <h2 id="historia" class="text-display-l text-encre lg:sticky lg:top-28" data-reveal>
-          Aprendí español equivocándome en voz alta
-        </h2>
-      </div>
+  <!-- Como es una clase. El tema lo pone quien aprende. -->
+  <section class="clases" aria-labelledby="clases">
+    <div class="shell py-section">
+      <div class="clases__reparto">
+        <div>
+          <h2 id="clases" class="text-display-l text-encre" data-reveal>
+            La clase se monta alrededor de lo que te gusta
+          </h2>
+          <p class="measure mt-6 text-body text-encre" data-reveal>
+            Mejoras tu francés con actividades dinámicas y hechas a tu medida.
+            Trabajo sobre todo con gente que habla español o inglés, así que
+            cuando algo se atasca cambio a tu idioma, lo aclaramos y seguimos.
+          </p>
+          <p class="measure mt-5 text-body text-encre" data-reveal>
+            Escríbeme y miramos juntos qué necesitas, tanto si empiezas de cero
+            como si quieres pulir el francés que ya tienes.
+          </p>
+        </div>
 
-      <div class="measure flex flex-col gap-6 text-body text-encre lg:col-span-7 lg:col-start-6">
-        <p data-reveal>
-          No aprendí español en un salón. Lo aprendí viviendo más de un año en
-          Latinoamérica, equivocándome en voz alta todos los días. Pidiendo mal
-          en un mercado, entendiendo la mitad de una conversación de sobremesa,
-          descubriendo que una palabra que creía neutra no lo era.
-        </p>
-        <p data-reveal>
-          Eso me dejó algo que no se estudia: sé cómo se siente por dentro no
-          poder decir lo que quieres decir. Y sé, muy concretamente, dónde se
-          traba un hispanohablante en francés. No son errores al azar, son los
-          mismos errores casi siempre, y vienen de que tu idioma resuelve unas
-          cosas de una manera y el francés las resuelve de otra.
-        </p>
-        <p data-reveal>
-          Por eso mis clases no empiezan por la gramática. Empiezan por una
-          situación real, y la gramática entra cuando hace falta para resolverla.
-          Cuando algo no entra, cambio al español, lo explico y volvemos. No te
-          dejo colgado en una explicación en francés que no entiendes, que es
-          justo lo que pasa en la clase donde la profesora nativa no habla tu
-          idioma.
-        </p>
-        <p data-reveal>
-          Antes de esto, una escuela europea de idiomas me seleccionó para
-          enseñar a estudiantes en Canadá, Reino Unido y Francia. Fue donde
-          aprendí que el mismo contenido funciona o no funciona según de dónde
-          viene quien escucha.
-        </p>
+        <dl class="aficiones" data-reveal>
+          {
+            AFICIONES.map((a) => (
+              <div class="aficiones__par">
+                <dt class="aficiones__pregunta">{a.pregunta}</dt>
+                <dd class="aficiones__respuesta">{a.respuesta}</dd>
+              </div>
+            ))
+          }
+        </dl>
       </div>
     </div>
   </section>
 
-  <!-- La tesis cultural -->
-  <section class="tesis" aria-labelledby="tesis">
-    <div class="shell py-section">
-      <p class="label text-nuit" data-reveal>La tesis</p>
-      <h2 id="tesis" class="mt-6 max-w-[26ch] text-display-l text-encre" data-reveal>
-        La cultura no es el adorno de la clase. Es el método.
-      </h2>
-
-      <div class="tesis__lista mt-14">
-        <div class="tarjeta" data-reveal>
-          <h3 class="tarjeta__titulo">De dónde sale el material</h3>
-          <p class="tarjeta__texto">
-            De prensa, canciones, menús, formularios, carteles y escenas de
-            película. Cosas que existen fuera del aula y que te vas a encontrar
-            en la calle. No hay unidad tres que terminar.
+  <!-- Los tramites. Es lo que mas alivia a quien se muda a Francia. -->
+  <section class="tramites" aria-labelledby="tramites">
+    <div class="shell py-section-sm">
+      <div class="tramites__caja">
+        <div>
+          <h2 id="tramites" class="text-display-m text-encre" data-reveal>
+            También te acompaño con los papeles
+          </h2>
+          <p class="measure mt-5 text-body text-nuit" data-reveal>
+            Preparamos juntos el expediente de Campus France, y redacto y corrijo
+            tu CV en francés. Es la parte que suele dar más miedo y la que más se
+            agradece tener resuelta.
           </p>
         </div>
-        <div class="tarjeta" data-reveal>
-          <h3 class="tarjeta__titulo">Por qué importa el orden</h3>
-          <p class="tarjeta__texto">
-            Un libro te da la gramática en el orden en que es cómoda de explicar.
-            Yo te la doy en el orden en que la vas a necesitar, que depende de si
-            te mudas, si viajas o si vas a un examen.
-          </p>
-        </div>
-        <div class="tarjeta" data-reveal>
-          <h3 class="tarjeta__titulo">Qué cuenta como aprender</h3>
-          <p class="tarjeta__texto">
-            Poder resolver algo. Entender por qué la panadería cierra a esa hora,
-            qué se discute en la mesa de al lado, qué te está preguntando el
-            funcionario. No completar un ejercicio.
-          </p>
+        <div class="tramites__accion" data-reveal>
+          <Cta href="/agenda" variant="lie">{CTA.cierreQuienSoy}</Cta>
         </div>
       </div>
     </div>
@@ -243,10 +247,7 @@ const DATOS = [
   <!-- Bloque de datos verificables. Existe para que se pueda citar sin contexto. -->
   <section class="surface-dark" aria-labelledby="datos">
     <div class="shell py-section">
-      <div class="flex items-center gap-4" data-reveal>
-        <EyeGlyph class="h-3 w-6 text-corail" />
-        <p class="label text-ciel">Datos verificables</p>
-      </div>
+      <p class="label text-ciel" data-reveal>Datos verificables</p>
       <h2 id="datos" class="mt-6 max-w-[24ch] text-display-l text-blanc" data-reveal>
         Todo lo que se puede comprobar, en un solo sitio
       </h2>
@@ -274,8 +275,8 @@ const DATOS = [
             Si tienes una duda antes de empezar, escríbeme
           </h2>
           <p class="hablemos__apoyo" data-reveal>
-            Te contesto yo, no un formulario automático. Y si lo que quieres es
-            empezar, sáltate esto y coge hora directamente.
+            Te contesto yo, en persona. Y si lo que quieres es empezar ya,
+            sáltate esto y coge hora directamente.
           </p>
 
           <div class="mt-8" data-reveal>
@@ -359,19 +360,113 @@ const DATOS = [
     );
   }
 
-  .historia {
+  .clases {
     background-image: linear-gradient(
       to bottom,
       var(--color-blanc) 0%,
-      color-mix(in srgb, var(--color-papier) 52%, var(--color-blanc)) 24%,
-      color-mix(in srgb, var(--color-papier) 66%, var(--color-blanc)) 56%,
-      color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc)) 86%,
+      color-mix(in srgb, var(--color-papier) 52%, var(--color-blanc)) 30%,
+      color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc)) 70%,
       var(--color-blanc) 100%
     );
   }
 
-  .tesis {
+  .tramites {
     background-color: var(--color-blanc);
+  }
+
+  /* --- Los idiomas --- */
+
+  .idiomas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .idiomas__uno {
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    background-color: color-mix(in srgb, var(--color-blanc) 70%, transparent);
+    padding: 0.4rem 0.95rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  /* --- Como es una clase --- */
+
+  .clases__reparto {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .clases__reparto {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 4rem;
+    }
+  }
+
+  .aficiones {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    align-content: start;
+  }
+
+  .aficiones__par {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
+    padding: 1.25rem 0;
+  }
+
+  .aficiones__par:last-child {
+    border-bottom: 0;
+  }
+
+  .aficiones__pregunta {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  .aficiones__respuesta {
+    margin: 0.4rem 0 0;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  /* --- Los tramites --- */
+
+  .tramites__caja {
+    display: grid;
+    gap: 2rem;
+    border-radius: 26px;
+    background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
+    padding: 2.25rem 1.75rem;
+  }
+
+  @media (width >= 64rem) {
+    .tramites__caja {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      align-items: center;
+      gap: 3rem;
+      padding: 2.75rem 3rem;
+    }
+  }
+
+  .tramites__accion {
+    justify-self: start;
+  }
+
+  @media (width >= 64rem) {
+    .tramites__accion {
+      justify-self: end;
+    }
   }
 
   /* --- El retrato --- */
@@ -412,60 +507,24 @@ const DATOS = [
     );
   }
 
+  /**
+   * El recorte termina de golpe a media camiseta y esa linea recta se ve.
+   * Con la mascara el ultimo tramo se disuelve en el fondo en vez de cortarse.
+   * Empieza al 74 por ciento, por debajo del colgante, para no comerselo.
+   */
   .retrato__img {
     position: relative;
     z-index: 1;
     display: block;
     width: 100%;
     height: auto;
-  }
-
-  /* --- Las tres tarjetas de la tesis --- */
-
-  .tesis__lista {
-    display: grid;
-    gap: 1.25rem;
-  }
-
-  @media (width >= 48rem) {
-    .tesis__lista {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  .tarjeta {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    border-radius: 26px;
-    background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    padding: 1.75rem 1.5rem;
-    transition:
-      transform 520ms var(--ease-fluid),
-      box-shadow 520ms var(--ease-fluid);
-  }
-
-  .tarjeta:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-alta);
-  }
-
-  .tarjeta__titulo {
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--color-encre);
-    text-wrap: balance;
-  }
-
-  .tarjeta__texto {
-    margin-top: 0.9rem;
-    font-size: var(--text-body-s);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 74%, transparent);
+    mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 74%,
+      color-mix(in srgb, black 55%, transparent) 89%,
+      transparent 100%
+    );
   }
 
   /* --- Hablemos --- */
@@ -625,13 +684,11 @@ const DATOS = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tarjeta,
     .campo__caja,
     .hablemos__boton {
       transition: none;
     }
 
-    .tarjeta:hover,
     .hablemos__boton:hover {
       transform: none;
     }

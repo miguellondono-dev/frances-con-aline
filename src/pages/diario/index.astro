@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Cta from '../../components/Cta.astro';
-import EyeGlyph from '../../components/EyeGlyph.astro';
 import { breadcrumb } from '../../lib/schema';
 
 const migas = [
@@ -52,10 +51,7 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
           /* Estado vacio: explica qué pasó y qué hacer, en la voz del sitio.
              El enlace del menu principal sigue oculto hasta que haya tres. */
           <div class="mx-auto max-w-2xl rounded-panel border border-encre/20 bg-blanc p-10 text-center">
-            <div class="flex justify-center">
-              <EyeGlyph class="h-4 w-8 text-corail" />
-            </div>
-            <h2 class="mt-6 text-display-m text-encre">Todavía no hay entradas</h2>
+            <h2 class="text-display-m text-encre">Todavía no hay entradas</h2>
             <p class="measure mx-auto mt-4 text-body text-nuit">
               Estoy grabando las primeras. Mientras tanto, lo que iba a contar
               aquí te lo cuento en la clase gratis, que además dura media hora y
