@@ -62,9 +62,24 @@ const ORIGENES: Record<string, Origen> = {
 
 Te guardé una plaza en el taller de teatro. Apunta las fechas:
 
-Sábados 10, 17, 24 y 31 de octubre, de 11:00 a 12:30. Cuatro sesiones de hora y media, en París. El taller completo cuesta 65 euros.
+Sábados 10, 17, 24 y 31 de octubre, de 11:00 a 12:30, en París.
 
-Te escribo en los próximos días para confirmarte el sitio exacto y cómo se paga.
+Te escribo en los próximos días para confirmarte la dirección exacta y cómo se paga. Son 65 euros las cuatro sesiones.
+
+Si al final no puedes venir, dímelo y libero la plaza para otra persona.
+
+Aline
+Francés con Aline`,
+  },
+  'taller-acuarela': {
+    tipo: 'Talleres',
+    hoja: 'Taller de acuarela',
+    asunto: 'Te guardé una plaza en el taller de acuarela',
+    texto: (nombre) => `${saludo(nombre)}
+
+Te guardé una plaza en el taller de acuarela. Es el domingo 18 de octubre, de 11:00 a 13:30, en París.
+
+Te escribo en los próximos días para confirmarte la dirección exacta, qué material hace falta traer y cómo se paga. Son 30 euros la sesión.
 
 Si al final no puedes venir, dímelo y libero la plaza para otra persona.
 

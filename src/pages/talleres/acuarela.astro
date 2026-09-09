@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TallerLanding from '../../components/TallerLanding.astro';
+import { breadcrumb, taller } from '../../lib/schema';
+import { porSlug, type Medio } from '../../data/talleres';
+
+import lamina from '../../assets/talleres/acuarela-lamina.jpg';
+import mesa from '../../assets/talleres/acuarela-mesa.jpg';
+import mesaAncha from '../../assets/talleres/acuarela-mesa-ancha.jpg';
+import paleta from '../../assets/talleres/acuarela-paleta.jpg';
+
+const t = porSlug('acuarela');
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Talleres', path: '/talleres' },
+  { name: t.nombre, path: '/talleres/acuarela' },
+];
+
+const medios: Medio[] = [
+  {
+    tipo: 'foto',
+    src: mesaAncha,
+    alt: 'La mesa de trabajo vista a lo largo, con paletas abiertas, cuadernos y varias láminas empezadas',
+    ancho: 2,
+  },
+  {
+    tipo: 'foto',
+    src: lamina,
+    alt: 'Una mano sostiene una lámina terminada con un pájaro azul pintado en acuarela',
+  },
+  {
+    tipo: 'foto',
+    src: paleta,
+    alt: 'Paleta de acuarelas abierta junto a una lámina con un pájaro azul y un caracol pintado a la derecha',
+  },
+  {
+    tipo: 'foto',
+    src: mesa,
+    alt: 'Dos personas pintan en el mismo lado de la mesa, con los pinceles y los cuadernos abiertos',
+    ancho: 2,
+  },
+];
+
+const schema = [
+  breadcrumb(migas, Astro.site),
+  taller({
+    name: 'Taller de acuarela en francés',
+    description:
+      'Un domingo de octubre pintando en acuarela mientras se habla en francés: mezcla de color, bocetos del natural y el vocabulario del color y de la luz. Te vas con una lámina terminada. Presencial en París.',
+    path: '/talleres/acuarela',
+    site: Astro.site,
+    inicia: t.iso.inicia,
+    termina: t.iso.termina,
+    horario: `Domingo de ${t.hora}`,
+    dia: 'Sunday',
+    sesiones: t.sesiones,
+    minutosPorSesion: t.minutosPorSesion,
+    precio: t.precio,
+    moneda: 'EUR',
+    ciudad: t.ciudad,
+    pais: 'FR',
+    cierreInscripcion: t.iso.cierre,
+  }),
+];
+---
+
+<BaseLayout
+  title="Taller de acuarela en francés en París, un domingo de octubre"
+  description="Un domingo pintando en acuarela y hablando en francés. Domingo 18 de octubre, de 11:00 a 13:30, en París. 30 € la sesión, con una lámina terminada para llevarte."
+  path="/talleres/acuarela"
+  schema={schema}
+>
+  <TallerLanding
+    taller={t}
+    portada={lamina}
+    portadaAlt="Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo"
+    medios={medios}
+  />
+</BaseLayout>

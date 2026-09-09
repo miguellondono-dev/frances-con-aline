@@ -1,0 +1,671 @@
+---
+import { Picture } from 'astro:assets';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Cta from './Cta.astro';
+import { CORREO_CONTACTO } from '../data/site';
+import { hechos, type Medio, type Taller } from '../data/talleres';
+
+/**
+ * La pagina de un taller. Teatro y acuarela son el mismo producto con otra
+ * materia, asi que comparten plantilla: si el orden de la informacion cambia,
+ * cambia en los dos a la vez y no se pueden desalinear.
+ */
+
+interface Props {
+  taller: Taller;
+  /** La foto del encabezado. La mas fuerte que haya. */
+  portada: ImageMetadata;
+  portadaAlt: string;
+  /** Galeria. Los videos van con poster y sin precarga. */
+  medios: Medio[];
+}
+
+const { taller: t, portada, portadaAlt, medios } = Astro.props;
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Talleres', path: '/talleres' },
+  { name: t.nombre, path: `/talleres/${t.slug}` },
+];
+
+const idForma = `plaza-${t.slug}`;
+
+/*
+ * Todo el material es vertical 9:16, asi que cada medio va en una caja con su
+ * forma. Meter un video vertical en una celda apaisada lo deja con dos franjas
+ * negras que ocupan la mitad del ancho, y esa mitad no la mira nadie.
+ */
+const videos = medios.filter((m) => m.tipo === 'video');
+const fotos = medios.filter((m) => m.tipo === 'foto');
+---
+
+<section class="cabecera">
+  <div class="shell pt-6 pb-section-sm">
+    <Breadcrumbs items={migas} />
+
+    <div class="cabecera__reparto">
+      <div class="cabecera__texto">
+        <p class="label mt-8 text-lie" data-reveal>{t.donde}</p>
+        <h1 class="cabecera__titulo" data-reveal>{t.titular}</h1>
+
+        <p class="measure mt-7 text-body text-nuit" data-reveal>
+          {t.parrafos[0]}
+        </p>
+
+        {/*
+          Los mismos tres hechos que en la rejilla y en el mismo orden. Quien
+          llega desde la tarjeta encuentra los datos donde ya los vio.
+        */}
+        <dl class="hechos" data-reveal>
+          {
+            hechos(t).map((h) => (
+              <div class="hechos__par">
+                <dt class="hechos__clave">{h.clave}</dt>
+                <dd class="hechos__valor">{h.valor}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div class="cabecera__acciones" data-reveal>
+          <Cta href={`#${idForma}`} variant="grenat">Guardar mi plaza</Cta>
+          <p class="cabecera__cierre">
+            Las plazas se cierran el {t.cierre}
+          </p>
+        </div>
+      </div>
+
+      <div class="cabecera__foto" data-reveal="fade">
+        <Picture
+          src={portada}
+          alt={portadaAlt}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[420, 640, 900]}
+          sizes="(min-width: 64rem) 28rem, 92vw"
+          class="cabecera__img"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Que se practica. Cosas nombrables, no promesas. -->
+<section class="practica" aria-labelledby="practica">
+  <div class="shell py-section">
+    <div class="practica__reparto">
+      <div>
+        <h2 id="practica" class="text-display-l text-encre" data-reveal>
+          Qué se hace
+        </h2>
+        <p class="measure mt-6 text-body text-encre" data-reveal>
+          {t.parrafos[1]}
+        </p>
+      </div>
+
+      <ul class="lista" data-reveal>
+        {
+          t.practica.map((cosa) => (
+            <li class="lista__punto">
+              <span class="lista__marca" aria-hidden="true" />
+              {cosa}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- La galeria. Todo cabe en pantalla, sin carrusel ni desplazamiento lateral. -->
+<section class="galeria-zona" aria-labelledby="galeria">
+  <div class="shell py-section">
+    <p class="label text-nuit" data-reveal>Del taller anterior</p>
+    <h2 id="galeria" class="mt-5 max-w-[24ch] text-display-l text-encre" data-reveal>
+      Así se ve por dentro
+    </h2>
+
+    {/*
+      Con video, las fotos suben a la columna izquierda: si no, el pie de dos
+      lineas deja medio metro de blanco al lado de un bloque de video de 670px
+      de alto y la seccion se parte por la mitad.
+    */}
+    <div class={videos.length > 0 ? 'medios medios--con-video mt-12' : 'medios mt-12'}>
+      <div class="medios__izquierda">
+        <p class="medios__pie" data-reveal>
+          {
+            videos.length > 0
+              ? 'Grabado en el taller anterior, sin montar. El primero es una escena entera, tal y como salió.'
+              : 'Fotos del taller anterior, sin montar.'
+          }
+        </p>
+
+        <ul class="fotos">
+          {
+            fotos.map((m) => (
+              <li data-reveal>
+                <Picture
+                  src={m.src}
+                  alt={m.alt}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  widths={[280, 420, 640]}
+                  sizes="(min-width: 64rem) 15rem, (min-width: 40rem) 24vw, 45vw"
+                  class="fotos__img"
+                  loading="lazy"
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      {
+        videos.length > 0 && (
+          <ul class="videos">
+            {videos.map((m) => (
+              <li data-reveal>
+                {/*
+                  preload="none" a proposito: el navegador no baja un solo byte
+                  del video hasta que alguien le da al play. Con el poster se ve
+                  igual y la pagina no carga megas que casi nadie va a mirar.
+                */}
+                <video
+                  class="videos__video"
+                  src={m.src}
+                  poster={m.poster.src}
+                  controls
+                  preload="none"
+                  playsinline
+                  aria-label={m.alt}
+                />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Reserva. No se cobra aqui: se cierra por correo. -->
+<section class="reserva" id={idForma} aria-labelledby={`${idForma}-titulo`}>
+  <div class="shell py-section">
+    <div class="reserva__caja">
+      <div>
+        <h2 id={`${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
+          Guarda tu plaza
+        </h2>
+        <p class="measure mt-5 text-body text-nuit" data-reveal>
+          Déjame tu nombre y tu correo. Te escribo con la dirección exacta y con
+          la forma de pago, y te confirmo la plaza. Aquí no se paga nada.
+        </p>
+
+        <p class="reserva__resumen" data-reveal>
+          <span class="reserva__precio numerals">{t.precio} €</span>
+          <span class="reserva__detalle">
+            {t.sesiones > 1 ? `las ${t.sesiones} sesiones, no cada una` : 'la sesión'}
+          </span>
+        </p>
+      </div>
+
+      <form
+        class="reserva__forma"
+        method="post"
+        action="/api/lista-espera"
+        data-waitlist
+        data-reveal
+        novalidate
+      >
+        <input type="hidden" name="origen" value={`taller-${t.slug}`} />
+        <input type="hidden" name="interes" value={t.slug} />
+
+        {/* Campo trampa. Invisible para personas, visible para robots. */}
+        <div
+          class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+          aria-hidden="true"
+        >
+          <label for={`${idForma}-empresa`}>No rellenes este campo</label>
+          <input
+            id={`${idForma}-empresa`}
+            name="empresa"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="campo">
+          <label class="campo__etiqueta" for={`${idForma}-nombre`}>Tu nombre</label>
+          <input
+            class="campo__caja"
+            id={`${idForma}-nombre`}
+            name="nombre"
+            type="text"
+            autocomplete="given-name"
+          />
+        </div>
+
+        <div class="campo">
+          <label class="campo__etiqueta" for={`${idForma}-correo`}>
+            Tu correo <span aria-hidden="true">*</span>
+          </label>
+          <input
+            class="campo__caja"
+            id={`${idForma}-correo`}
+            name="correo"
+            type="email"
+            required
+            aria-required="true"
+            autocomplete="email"
+            placeholder="nombre@correo.com"
+          />
+        </div>
+
+        <button class="reserva__boton" type="submit">Guardar mi plaza</button>
+
+        <p class="campo__aviso" data-waitlist-message role="status" aria-live="polite"></p>
+
+        {/*
+          Salida visible, no solo dentro del mensaje de error. Si el envio
+          falla, quien queria venir tiene que poder escribir sin buscar nada.
+        */}
+        <p class="reserva__salida">
+          O escríbeme a <a
+            href={`mailto:${CORREO_CONTACTO}?subject=Quiero una plaza en el taller de ${t.slug}`}
+            >{CORREO_CONTACTO}</a
+          >.
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* --- Fondos: el mismo lenguaje del inicio --- */
+
+  .cabecera {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 40%,
+      color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc)) 78%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .practica {
+    background-color: var(--color-blanc);
+  }
+
+  .galeria-zona {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc)) 45%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .reserva {
+    background-color: var(--color-blanc);
+  }
+
+  /* --- Cabecera --- */
+
+  .cabecera__reparto {
+    display: grid;
+    gap: 3rem;
+  }
+
+  @media (width >= 64rem) {
+    .cabecera__reparto {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 4rem;
+    }
+  }
+
+  .cabecera__titulo {
+    margin-top: 1.25rem;
+    max-width: 18ch;
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: var(--text-display-xl--font-weight);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    text-wrap: balance;
+    color: var(--color-encre);
+  }
+
+  .cabecera__foto {
+    overflow: hidden;
+    border-radius: 26px;
+    box-shadow: var(--shadow-alta);
+  }
+
+  .cabecera__img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .cabecera__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .cabecera__cierre {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  /* --- Los tres hechos --- */
+
+  .hechos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, auto));
+    justify-content: start;
+    gap: 2rem;
+    margin: 2.5rem 0 0;
+    border-top: 1px solid var(--color-pierre);
+    padding-top: 1.5rem;
+  }
+
+  .hechos__par {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .hechos__clave {
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .hechos__valor {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-encre);
+  }
+
+  /* --- Que se hace --- */
+
+  .practica__reparto {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .practica__reparto {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 4rem;
+    }
+  }
+
+  .lista {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-content: start;
+  }
+
+  .lista__punto {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    border-bottom: 1px solid var(--color-pierre);
+    padding: 1rem 0;
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+  }
+
+  .lista__punto:last-child {
+    border-bottom: 0;
+  }
+
+  .lista__marca {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+  }
+
+  /* --- Galeria --- */
+
+  .medios {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .medios--con-video {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      align-items: start;
+      gap: 2rem;
+    }
+  }
+
+  .medios__izquierda {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+
+  .medios__pie {
+    margin: 0;
+    max-width: 42ch;
+    font-size: var(--text-body-s);
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--color-encre) 68%, transparent);
+  }
+
+  .fotos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Sin video las fotos se reparten a lo ancho; con video van de dos en dos
+     dentro de su columna. */
+  @media (width >= 40rem) {
+    .medios:not(.medios--con-video) .fotos {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .fotos {
+      gap: 1rem;
+    }
+  }
+
+  .fotos__img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 18px;
+    background-color: color-mix(in srgb, var(--color-encre) 8%, transparent);
+    object-fit: cover;
+  }
+
+  .videos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 64rem) {
+    .videos {
+      gap: 1rem;
+    }
+  }
+
+  /* 9/16 exacto: es la forma en la que vienen grabados, asi que ni se recortan
+     ni les sobra fondo negro por los lados. */
+  .videos__video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    border-radius: 18px;
+    background-color: var(--color-encre);
+    object-fit: cover;
+  }
+
+  /* --- Reserva --- */
+
+  .reserva__caja {
+    display: grid;
+    gap: 2.5rem;
+    border-radius: 26px;
+    background-color: color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc));
+    padding: 2.25rem 1.75rem;
+  }
+
+  @media (width >= 64rem) {
+    .reserva__caja {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 4rem;
+      padding: 3.25rem 3rem;
+    }
+  }
+
+  /* El precio sale una sola vez en toda la pagina, y sale aqui: pegado al
+     boton, que es donde se decide. En la cabecera va como dato, no repetido. */
+  .reserva__resumen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin: 2rem 0 0;
+  }
+
+  .reserva__precio {
+    font-size: var(--text-display-m);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-encre);
+  }
+
+  .reserva__detalle {
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  .reserva__forma {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .campo__etiqueta {
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-nuit);
+  }
+
+  .campo__caja {
+    min-height: 3.25rem;
+    border: 1px solid var(--color-pierre);
+    border-radius: var(--radius-panel);
+    background-color: var(--color-blanc);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition: border-color 240ms var(--ease-smooth);
+  }
+
+  .campo__caja:focus {
+    border-color: var(--color-grenat);
+    outline: 2px solid color-mix(in srgb, var(--color-grenat) 40%, transparent);
+    outline-offset: 2px;
+  }
+
+  .campo__aviso {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: var(--color-nuit);
+  }
+
+  .campo__aviso:empty {
+    display: none;
+  }
+
+  .reserva__boton {
+    min-height: 3.25rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    padding: 0.9rem 1.75rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-blanc);
+    transition:
+      background-color 240ms var(--ease-smooth),
+      transform 240ms var(--ease-smooth);
+  }
+
+  .reserva__boton:hover:not(:disabled) {
+    background-color: var(--color-lie);
+    transform: translateY(-2px);
+  }
+
+  .reserva__boton:disabled {
+    opacity: 0.6;
+  }
+
+  .reserva__salida {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  .reserva__salida a {
+    color: var(--color-lie);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .campo__caja,
+    .reserva__boton {
+      transition: none;
+    }
+
+    .reserva__boton:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+</style>

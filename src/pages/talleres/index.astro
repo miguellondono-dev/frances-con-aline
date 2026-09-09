@@ -1,0 +1,314 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { breadcrumb } from '../../lib/schema';
+import { TALLERES, hechos } from '../../data/talleres';
+
+import teatroPortada from '../../assets/talleres/teatro-escena-ancha.jpg';
+import acuarelaPortada from '../../assets/talleres/acuarela-lamina.jpg';
+
+const migas = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Talleres', path: '/talleres' },
+];
+
+const portadas: Record<string, ImageMetadata> = {
+  teatro: teatroPortada,
+  acuarela: acuarelaPortada,
+};
+
+const alt: Record<string, string> = {
+  teatro:
+    'Dos alumnas representan una escena sobre el escenario, con vestuario y luces de colores',
+  acuarela:
+    'Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo',
+};
+
+/**
+ * Aqui no va schema de cada taller: cada uno lo lleva en su pagina, que es su
+ * URL canonica. Repetirlo en el indice le daria dos Course con la misma ficha
+ * a un buscador y ninguno de los dos ganaria.
+ */
+const schema = [breadcrumb(migas, Astro.site)];
+---
+
+<BaseLayout
+  title="Talleres de francés en París: teatro y acuarela"
+  description="Dos talleres presenciales en París para usar el francés fuera del cuaderno. Teatro, cuatro sábados de octubre, 65 €. Acuarela, un domingo, 30 €."
+  path="/talleres"
+  schema={schema}
+>
+  <section class="cabecera">
+    <div class="shell pt-6 pb-10">
+      <Breadcrumbs items={migas} />
+      <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
+      <h1 class="mt-5 max-w-[16ch] text-display-xl text-encre" data-reveal>
+        Talleres
+      </h1>
+      <p class="measure mt-6 text-body text-nuit" data-reveal>
+        Usar el francés con el cuerpo y con las manos, no con un cuaderno. Los
+        dos son en octubre y los dos tienen plaza.
+      </p>
+    </div>
+  </section>
+
+  {/*
+    La rejilla es el arreglo de fondo. Antes los talleres iban apilados uno
+    detras de otro y habia que bajar por el primero entero para enterarse de
+    que existia el segundo: no se podian ver juntos ni comparar. Ahora los dos
+    caben en la misma pantalla y ensenan los mismos tres datos en el mismo
+    orden, que es lo unico que hace comparable a dos productos.
+  */}
+  <section class="rejilla-zona" aria-labelledby="cartel">
+    <div class="shell pb-section">
+      <h2 id="cartel" class="sr-only">Los talleres de octubre</h2>
+
+      <ul class="rejilla">
+        {
+          TALLERES.map((t) => (
+            <li class="tarjeta" data-reveal>
+              <a class="tarjeta__enlace" href={`/talleres/${t.slug}`}>
+                <span class="tarjeta__foto">
+                  <Picture
+                    src={portadas[t.slug]}
+                    alt={alt[t.slug]}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    widths={[400, 640, 900]}
+                    sizes="(min-width: 64rem) 30rem, (min-width: 40rem) 45vw, 92vw"
+                    class="tarjeta__img"
+                    loading="eager"
+                  />
+                </span>
+
+                <span class="tarjeta__cuerpo">
+                  <span class="tarjeta__nombre">{t.nombre}</span>
+                  <span class="tarjeta__resumen">{t.resumen}</span>
+
+                  {/* Los mismos tres hechos, en el mismo orden, en las dos. */}
+                  <span class="hechos">
+                    {hechos(t).map((h) => (
+                      <span class="hechos__par">
+                        <span class="hechos__clave">{h.clave}</span>
+                        <span class="hechos__valor">{h.valor}</span>
+                      </span>
+                    ))}
+                  </span>
+
+                  <span class="tarjeta__accion">
+                    Ver el taller
+                    <svg
+                      class="tarjeta__flecha"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M2 8h11M9 4l4 4-4 4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cabecera {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 42%, var(--color-blanc)) 55%,
+      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 100%
+    );
+  }
+
+  .rejilla-zona {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--color-papier) 12%, var(--color-blanc)) 40%,
+      var(--color-blanc) 100%
+    );
+  }
+
+  .rejilla {
+    display: grid;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .rejilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  .tarjeta {
+    display: flex;
+  }
+
+  .tarjeta__enlace {
+    display: grid;
+    /* La foto manda su alto y el cuerpo ocupa el resto: asi las dos tarjetas
+       terminan a la misma altura y los precios quedan alineados. */
+    grid-template-rows: auto 1fr;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    transition:
+      transform 520ms var(--ease-fluid),
+      box-shadow 520ms var(--ease-fluid);
+  }
+
+  .tarjeta__enlace:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .tarjeta__foto {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (width >= 48rem) {
+    .tarjeta__foto {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .tarjeta__img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    transition: scale 720ms var(--ease-fluid);
+  }
+
+  .tarjeta__enlace:hover .tarjeta__img {
+    scale: 1.04;
+  }
+
+  .tarjeta__cuerpo {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 1.5rem 1.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .tarjeta__cuerpo {
+      padding: 2rem 2rem 1.75rem;
+    }
+  }
+
+  .tarjeta__nombre {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+  }
+
+  .tarjeta__resumen {
+    margin-top: 0.75rem;
+    max-width: 34ch;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  /* --- Los tres hechos --- */
+
+  .hechos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, auto));
+    justify-content: start;
+    gap: 1.5rem;
+    /* margin-top auto empuja los hechos y el boton al fondo de la tarjeta,
+       para que caigan a la misma altura aunque un resumen ocupe dos lineas. */
+    margin-top: auto;
+    padding-top: 1.75rem;
+  }
+
+  .hechos__par {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .hechos__clave {
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .hechos__valor {
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-encre);
+  }
+
+  .tarjeta__accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--color-pierre);
+    padding-top: 1.25rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-grenat);
+  }
+
+  .tarjeta__flecha {
+    width: 1rem;
+    height: 1rem;
+    transition: translate 300ms var(--ease-smooth);
+  }
+
+  .tarjeta__enlace:hover .tarjeta__flecha {
+    translate: 3px 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta__enlace,
+    .tarjeta__img,
+    .tarjeta__flecha {
+      transition: none;
+    }
+
+    .tarjeta__enlace:hover {
+      transform: none;
+    }
+
+    .tarjeta__enlace:hover .tarjeta__img {
+      scale: 1;
+    }
+
+    .tarjeta__enlace:hover .tarjeta__flecha {
+      translate: 0;
+    }
+  }
+</style>

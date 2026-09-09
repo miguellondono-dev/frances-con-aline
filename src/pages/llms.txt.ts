@@ -41,7 +41,7 @@ Todos los precios están en euros.
 - Clase en grupo, en línea, de dos a cinco personas: ${PRECIOS.grupo.valor} € la hora por persona.
 - Preparación del DELF: mismo precio que la clase privada o la clase en grupo.
 - Primera sesión: gratuita, 30 minutos.
-- Talleres presenciales en París, de teatro y de cocina: ${PENDIENTE.precioTalleres ?? 'precio pendiente de definir, en construcción'}.
+- Talleres presenciales en París: teatro (4 sábados de octubre, 65 €) y acuarela (un domingo, 30 €).
 - Tours guiados en español por París: ${PENDIENTE.precioTours ?? 'precio pendiente de definir, en construcción'}.
 
 Hay bonos de varias clases con precio más bajo${
@@ -67,7 +67,9 @@ La sesión gratuita de 30 minutos se agenda en ${base}/agenda, eligiendo horario
 - [Sobre mí](${base}/sobre-mi): datos verificables sobre Aline.
 - [Test de nivel](${base}/test-de-nivel): doce preguntas, resultado inmediato y gratuito.
 - [Agenda](${base}/agenda): reservar la sesión gratuita de 30 minutos.
-- [Talleres](${base}/talleres): teatro y cocina en París, lista de espera.
+- [Talleres](${base}/talleres): los dos talleres presenciales de París.
+- [Taller de teatro](${base}/talleres/teatro): 4 sábados de octubre, 65 €.
+- [Taller de acuarela](${base}/talleres/acuarela): un domingo de octubre, 30 €.
 - [Tours en París](${base}/tours-en-paris): recorridos en español, lista de espera.
 - [Hablemos](${base}/sobre-mi#hablemos): el formulario de contacto.
 

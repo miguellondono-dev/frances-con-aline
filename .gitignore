@@ -15,3 +15,9 @@ aline-proyecto.zip
 # porta al proyecto y se queda en su disco: versionar un binario que no se
 # puede leer ni comparar no aporta nada, y el codigo portado ya lo recoge.
 test-de-francés-interactivo.zip
+
+# Material original de los talleres que Miguel deja en la carpeta. Las fotos
+# van optimizadas a src/assets/talleres y los videos comprimidos a
+# public/video: el original de 80 MB no tiene por que estar en el repositorio.
+Media Taller Teatro/
+Media Taller acuarela/

@@ -137,6 +137,7 @@ export function taller({
   inicia,
   termina,
   horario,
+  dia,
   sesiones,
   minutosPorSesion,
   precio,
@@ -155,6 +156,8 @@ export function taller({
   termina: string;
   /** Repeticion legible: "Sábados de 11:00 a 12:30". */
   horario: string;
+  /** Dia de la semana en schema.org. Solo cuenta si hay varias sesiones. */
+  dia: string;
   sesiones: number;
   minutosPorSesion: number;
   precio: number;
@@ -166,6 +169,25 @@ export function taller({
 }) {
   const url = `${base(site)}${path}`;
   const totalMinutos = sesiones * minutosPorSesion;
+
+  /**
+   * Un taller de una sola sesion no tiene repeticion. Declarar un Schedule
+   * semanal con repeatCount 1 le dice a un buscador que se repite cada semana
+   * y no se repite ninguna: mejor no decir nada que decirlo mal.
+   */
+  const agenda =
+    sesiones > 1
+      ? {
+          courseSchedule: {
+            '@type': 'Schedule',
+            repeatFrequency: 'P1W',
+            byDay: `https://schema.org/${dia}`,
+            repeatCount: sesiones,
+            duration: `PT${minutosPorSesion}M`,
+            description: horario,
+          },
+        }
+      : {};
 
   return {
     '@context': 'https://schema.org',
@@ -180,14 +202,7 @@ export function taller({
       '@type': 'CourseInstance',
       name,
       courseMode: 'offline',
-      courseSchedule: {
-        '@type': 'Schedule',
-        repeatFrequency: 'P1W',
-        byDay: 'https://schema.org/Saturday',
-        repeatCount: sesiones,
-        duration: `PT${minutosPorSesion}M`,
-        description: horario,
-      },
+      ...agenda,
       courseWorkload: `PT${totalMinutos}M`,
       startDate: inicia,
       endDate: termina,
@@ -208,7 +223,8 @@ export function taller({
         availability: 'https://schema.org/InStock',
         validThrough: cierreInscripcion,
         url,
-        category: 'Taller completo, las cuatro sesiones',
+        category:
+          sesiones > 1 ? `Taller completo, las ${sesiones} sesiones` : 'Sesión única',
       },
     },
   };
