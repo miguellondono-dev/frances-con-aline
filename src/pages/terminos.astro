@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { breadcrumb } from '../lib/schema';
 
 const migas = [
@@ -51,8 +50,7 @@ const PENDIENTES = [
   schema={schema}
 >
   <section class="bg-blanc">
-    <div class="shell pb-section-sm pt-6">
-      <Breadcrumbs items={migas} />
+    <div class="shell pb-section-sm pt-14">
       <h1 class="mt-8 max-w-[20ch] text-display-xl text-encre">
         Términos y condiciones
       </h1>

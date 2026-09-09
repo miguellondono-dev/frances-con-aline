@@ -2,7 +2,6 @@
 import Aperture from './Aperture.astro';
 import Cta from './Cta.astro';
 import Faq from './Faq.astro';
-import Breadcrumbs from './Breadcrumbs.astro';
 import type { Pregunta } from '../data/faq';
 
 /**
@@ -63,7 +62,7 @@ const {
      derecha, para que las dos paginas no se lean como la misma maqueta. -->
 <section class="overflow-hidden bg-blanc">
   <div
-    class="pad-shell-right grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-16"
+    class="pad-shell-right grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-16"
   >
     <div class="pad-shell-left order-2 lg:order-1 lg:pl-0" data-reveal="fade">
       <Aperture
@@ -78,7 +77,6 @@ const {
     </div>
 
     <div class="pad-shell-left order-1 lg:order-2 lg:pl-0">
-      <Breadcrumbs items={breadcrumb} />
       <p class="label mt-8 text-nuit" data-reveal>{label}</p>
       <h1 class="mt-5 text-display-xl text-encre" data-reveal>{titulo}</h1>
       <p class="measure mt-7 text-body text-nuit" data-reveal>{intro}</p>

@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato.png';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Cta from '../components/Cta.astro';
 import { breadcrumb, alineId } from '../lib/schema';
 import { CTA } from '../data/site';
@@ -100,10 +99,9 @@ const FORMATOS = [
   <!-- Apertura -->
   <section class="cabecera overflow-hidden">
     <div
-      class="pad-shell-left grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+      class="pad-shell-left grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
     >
       <div class="pad-shell-right lg:pr-0">
-        <Breadcrumbs items={migas} />
         <h1 class="mt-5 text-display-xl text-encre" data-reveal>
           El francés es mi lengua. Aprender idiomas, mi pasión.
         </h1>

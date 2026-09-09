@@ -1,6 +1,5 @@
 ---
 import { Picture } from 'astro:assets';
-import Breadcrumbs from './Breadcrumbs.astro';
 import Cta from './Cta.astro';
 import { CORREO_CONTACTO } from '../data/site';
 import { hechos, type Medio, type Taller } from '../data/talleres';
@@ -40,8 +39,7 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
 ---
 
 <section class="cabecera">
-  <div class="shell pt-6 pb-section-sm">
-    <Breadcrumbs items={migas} />
+  <div class="shell pt-14 pb-section-sm">
 
     <div class="cabecera__reparto">
       <div class="cabecera__texto">

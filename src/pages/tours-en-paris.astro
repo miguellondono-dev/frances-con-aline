@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Aperture from '../components/Aperture.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import { breadcrumb } from '../lib/schema';
@@ -22,10 +21,9 @@ const schema = [breadcrumb(migas, Astro.site)];
 >
   <section class="overflow-hidden bg-blanc">
     <div
-      class="pad-shell-left grid items-center gap-12 pb-section pt-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+      class="pad-shell-left grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
     >
       <div class="pad-shell-right lg:pr-0">
-        <Breadcrumbs items={migas} />
         <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
         <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre" data-reveal>
           París contado por quien estudió cómo se cuenta

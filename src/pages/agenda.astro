@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Logo from '../components/Logo.astro';
 import { breadcrumb } from '../lib/schema';
 import { PENDIENTE, CORREO_CONTACTO, SITE_NAME } from '../data/site';
@@ -55,8 +54,7 @@ const cal = PENDIENTE.calcom;
   schema={schema}
 >
   <section class="agenda">
-    <div class="shell pb-section pt-6">
-      <Breadcrumbs items={migas} />
+    <div class="shell pb-section pt-14">
 
       <div class="agenda__reparto">
         {/* Contexto. Se queda fijo mientras el calendario avanza. */}

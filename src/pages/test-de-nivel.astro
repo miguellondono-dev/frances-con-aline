@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { breadcrumb } from '../lib/schema';
 import { CORREO_CONTACTO } from '../data/site';
 import { PREGUNTAS } from '../data/test-nivel';
@@ -43,8 +42,7 @@ const DATOS = [
   schema={schema}
 >
   <section class="test-pagina">
-    <div class="shell pb-section pt-6">
-      <Breadcrumbs items={migas} />
+    <div class="shell pb-section pt-14">
 
       <!-- Portada -->
       <div class="portada" data-test-intro>

@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Cta from '../../components/Cta.astro';
 import { breadcrumb } from '../../lib/schema';
 
@@ -31,7 +30,6 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
 >
   <section class="bg-blanc">
     <div class="shell pb-section-sm pt-6">
-      <Breadcrumbs items={migas} />
       <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre">
         Vídeos sobre el idioma y lo que lo rodea
       </h1>

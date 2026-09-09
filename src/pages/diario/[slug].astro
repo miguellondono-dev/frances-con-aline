@@ -2,7 +2,6 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Cta from '../../components/Cta.astro';
 import { breadcrumb, alineId } from '../../lib/schema';
 
@@ -55,7 +54,6 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
   <article>
     <section class="bg-blanc">
       <div class="shell pb-section-sm pt-6">
-        <Breadcrumbs items={migas} />
 
         <p class="mt-8 text-body-s text-nuit">
           <time datetime={fechaIso}>{formatoFecha.format(entrada.data.fecha)}</time>
