@@ -1,6 +1,6 @@
 ---
 import Logo from './Logo.astro';
-import { SITE_NAME, NAV_FOOTER, CORREO_CONTACTO } from '../data/site';
+import { SITE_NAME, NAV_FOOTER, CORREO_CONTACTO, CTA_AGENDA } from '../data/site';
 
 interface Props {
   lastUpdated: string;
@@ -14,6 +14,14 @@ const OJO = '195 258 860 691';
 const ENTRADAS_DIARIO = 0;
 const mostrarDiario = ENTRADAS_DIARIO >= 3;
 
+/**
+ * Tres columnas de enlaces, no cuatro.
+ *
+ * Antes eran cuatro y la rejilla solo declaraba sitio para tres: la de legal
+ * se caia a una segunda fila, debajo del logo, y dejaba los dos tercios de la
+ * derecha en blanco. Privacidad y Términos bajan a la barra inferior, que es
+ * donde los busca todo el mundo y donde no compiten con la navegacion real.
+ */
 const columnas = [
   { titulo: 'Clases', enlaces: NAV_FOOTER.clases },
   { titulo: 'Experiencias', enlaces: NAV_FOOTER.experiencias },
@@ -23,7 +31,6 @@ const columnas = [
       ? [...NAV_FOOTER.sobre, { href: '/diario', label: 'Diario' }]
       : NAV_FOOTER.sobre,
   },
-  { titulo: 'Más', enlaces: NAV_FOOTER.legal },
 ];
 
 const fechaLegible = new Date(lastUpdated).toLocaleDateString('es-ES', {
@@ -31,55 +38,257 @@ const fechaLegible = new Date(lastUpdated).toLocaleDateString('es-ES', {
   month: 'long',
   year: 'numeric',
 });
+
+const ano = new Date(lastUpdated).getFullYear();
 ---
 
 <footer class="surface-dark">
-  <div class="shell grid gap-12 py-section-sm md:grid-cols-[1.2fr_repeat(3,1fr)] md:gap-10">
-    <div class="max-w-[34ch]">
+  <div class="shell pie">
+    {/*
+      La columna de marca no es solo el logo colgado. Dice que es esto para
+      quien cae en una pagina interior desde un buscador, deja el correo a la
+      vista y ofrece la unica accion que importa. Un pie sin accion desperdicia
+      lo ultimo que mira una persona antes de irse.
+    */}
+    <div class="pie__marca">
       <div class="flex items-center gap-3">
         <Logo class="h-5 w-auto" viewBox={OJO} />
-        <span class="font-display text-[1.0625rem] font-medium tracking-[-0.02em]">
+        <span class="font-display text-[1.0625rem] font-medium tracking-[-0.02em] text-blanc">
           {SITE_NAME}
         </span>
       </div>
+
+      <p class="pie__frase">
+        Clases de francés en línea para hispanohablantes, y talleres
+        presenciales en París.
+      </p>
+
+      <a class="pie__correo" href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+
+      {/*
+        En contorno y no en rojo. Toda pagina cierra con su propio boton rojo
+        sobre este mismo fondo oscuro, y otro identico pegado debajo se lee
+        como un duplicado y le quita fuerza a los dos. Aqui basta con que la
+        accion siga disponible.
+      */}
+      <a class="pie__boton" href={CTA_AGENDA.href}>{CTA_AGENDA.label}</a>
     </div>
 
-    {
-      columnas.map((columna) => (
-        <nav aria-label={columna.titulo}>
-          {/* Etiqueta, no encabezado: cada nav ya se anuncia por su aria-label
-              y un h2 aqui solo ensuciaria la jerarquia de la pagina. */}
-          <p class="label text-ciel">{columna.titulo}</p>
-          <ul class="mt-5 flex flex-col gap-3">
-            {columna.enlaces.map((enlace) => (
-              <li>
-                <a
-                  href={enlace.href}
-                  class="text-body-s text-blanc underline-offset-4 transition-colors duration-fast hover:text-ciel hover:underline"
-                >
-                  {enlace.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ))
-    }
+    <div class="pie__enlaces">
+      {
+        columnas.map((columna) => (
+          <nav aria-label={columna.titulo}>
+            {/* Etiqueta, no encabezado: cada nav ya se anuncia por su aria-label
+                y un h2 aqui solo ensuciaria la jerarquia de la pagina. */}
+            <p class="label text-ciel">{columna.titulo}</p>
+            <ul class="pie__lista">
+              {columna.enlaces.map((enlace) => (
+                <li>
+                  <a class="pie__enlace" href={enlace.href}>
+                    {enlace.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
   </div>
 
-  <div class="shell border-t border-nuit py-6">
-    <div class="flex flex-col gap-2 text-body-s text-ciel sm:flex-row sm:items-center sm:justify-between">
-      <p>Escrito por Aline.</p>
-      <p>
-        <a
-          href={`mailto:${CORREO_CONTACTO}`}
-          class="underline underline-offset-4 transition-colors duration-fast hover:text-blanc"
-          >{CORREO_CONTACTO}</a
-        >
-      </p>
-      <p>
-        Última actualización: <time datetime={lastUpdated}>{fechaLegible}</time>
-      </p>
-    </div>
+  <div class="shell pie__barra">
+    <p class="pie__firma">© {ano} {SITE_NAME}</p>
+
+    <ul class="pie__legal">
+      {
+        NAV_FOOTER.legal.map((enlace) => (
+          <li>
+            <a class="pie__enlace pie__enlace--tenue" href={enlace.href}>
+              {enlace.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <span class="pie__fecha">
+          Actualizado el <time datetime={lastUpdated}>{fechaLegible}</time>
+        </span>
+      </li>
+    </ul>
   </div>
 </footer>
+
+<style>
+  .pie {
+    display: grid;
+    gap: 3rem;
+    padding-block: var(--spacing-section-sm);
+  }
+
+  /* La marca ocupa algo mas que cada columna de enlaces: lleva frase, correo
+     y boton, y con el mismo ancho que una lista de tres enlaces se ahoga. */
+  @media (width >= 64rem) {
+    .pie {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      gap: 4rem;
+    }
+  }
+
+  .pie__marca {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 1.25rem;
+    max-width: 34ch;
+  }
+
+  .pie__frase {
+    margin: 0;
+    font-size: var(--text-body-s);
+    line-height: 1.55;
+    color: var(--color-ciel);
+  }
+
+  .pie__correo {
+    font-size: var(--text-body-s);
+    color: var(--color-blanc);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .pie__correo:hover {
+    color: var(--color-ciel);
+  }
+
+  .pie__boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    margin-top: 0.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-blanc) 45%, transparent);
+    border-radius: var(--radius-pill);
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-blanc);
+    transition:
+      background-color var(--duration-fast) var(--ease-smooth),
+      border-color var(--duration-fast) var(--ease-smooth),
+      color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .pie__boton:hover {
+    border-color: var(--color-blanc);
+    background-color: var(--color-blanc);
+    color: var(--color-encre);
+  }
+
+  /* --- Las columnas de enlaces --- */
+
+  .pie__enlaces {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+  }
+
+  @media (width >= 48rem) {
+    .pie__enlaces {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  .pie__lista {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .pie__lista {
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+  }
+
+  .pie__enlace {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--text-body-s);
+    color: var(--color-blanc);
+    text-underline-offset: 4px;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  @media (width >= 48rem) {
+    .pie__enlace {
+      min-height: 0;
+    }
+  }
+
+  .pie__enlace:hover {
+    color: var(--color-ciel);
+    text-decoration: underline;
+  }
+
+  .pie__enlace--tenue {
+    color: var(--color-ciel);
+  }
+
+  .pie__enlace--tenue:hover {
+    color: var(--color-blanc);
+  }
+
+  /* --- La barra de abajo --- */
+
+  .pie__barra {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-top: 1px solid var(--color-nuit);
+    padding-block: 1.5rem;
+  }
+
+  @media (width >= 48rem) {
+    .pie__barra {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .pie__firma {
+    margin: 0;
+    font-size: var(--text-body-s);
+    color: var(--color-ciel);
+  }
+
+  .pie__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pie__fecha {
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-ciel) 76%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pie__correo,
+    .pie__enlace,
+    .pie__boton {
+      transition: none;
+    }
+  }
+</style>

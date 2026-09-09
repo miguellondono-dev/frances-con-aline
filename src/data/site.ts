@@ -76,6 +76,8 @@ export const NAV_FOOTER = {
   ],
   experiencias: [
     { href: '/talleres', label: 'Talleres' },
+    { href: '/talleres/teatro', label: 'Teatro en francés' },
+    { href: '/talleres/acuarela', label: 'Acuarela en francés' },
     { href: '/tours-en-paris', label: 'Tours por París' },
   ],
   sobre: [
