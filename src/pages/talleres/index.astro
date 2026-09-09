@@ -1,7 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { breadcrumb } from '../../lib/schema';
 import { TALLERES, hechos } from '../../data/talleres';
 
@@ -29,6 +28,11 @@ const alt: Record<string, string> = {
  * Aqui no va schema de cada taller: cada uno lo lleva en su pagina, que es su
  * URL canonica. Repetirlo en el indice le daria dos Course con la misma ficha
  * a un buscador y ninguno de los dos ganaria.
+ *
+ * La miga de pan sigue en el schema aunque ya no se pinte: es de ahi de donde
+ * un buscador saca la ruta que enseña debajo del resultado. En pantalla
+ * sobraba, porque la ultima miga decia "Talleres" justo encima de un titular
+ * que dice "Talleres".
  */
 const schema = [breadcrumb(migas, Astro.site)];
 ---
@@ -40,8 +44,7 @@ const schema = [breadcrumb(migas, Astro.site)];
   schema={schema}
 >
   <section class="cabecera">
-    <div class="shell pt-6 pb-10">
-      <Breadcrumbs items={migas} />
+    <div class="shell pt-12 pb-10">
       <p class="label mt-8 text-nuit" data-reveal>Presencial, en París</p>
       <h1 class="mt-5 max-w-[16ch] text-display-xl text-encre" data-reveal>
         Talleres
@@ -67,52 +70,35 @@ const schema = [breadcrumb(migas, Astro.site)];
       <ul class="rejilla">
         {
           TALLERES.map((t) => (
-            <li class="tarjeta" data-reveal>
-              <a class="tarjeta__enlace" href={`/talleres/${t.slug}`}>
-                <span class="tarjeta__foto">
+            <li>
+              <a class="ficha" href={`/talleres/${t.slug}`}>
+                <span class="ficha__foto">
                   <Picture
                     src={portadas[t.slug]}
                     alt={alt[t.slug]}
                     formats={['avif', 'webp']}
                     fallbackFormat="webp"
-                    widths={[400, 640, 900]}
-                    sizes="(min-width: 64rem) 30rem, (min-width: 40rem) 45vw, 92vw"
-                    class="tarjeta__img"
+                    widths={[320, 480, 720]}
+                    sizes="(min-width: 48rem) 21rem, 92vw"
+                    class="ficha__img"
                     loading="eager"
                   />
                 </span>
 
-                <span class="tarjeta__cuerpo">
-                  <span class="tarjeta__nombre">{t.nombre}</span>
-                  <span class="tarjeta__resumen">{t.resumen}</span>
+                <span class="ficha__cuerpo">
+                  <span class="ficha__nombre">{t.nombre}</span>
 
-                  {/* Los mismos tres hechos, en el mismo orden, en las dos. */}
-                  <span class="hechos">
-                    {hechos(t).map((h) => (
-                      <span class="hechos__par">
-                        <span class="hechos__clave">{h.clave}</span>
-                        <span class="hechos__valor">{h.valor}</span>
-                      </span>
-                    ))}
+                  {/* Cuando y hora, en el mismo orden que en la pagina del
+                      taller. Quien llega desde aqui los busca donde ya los vio. */}
+                  <span class="ficha__meta">
+                    {t.cuando} · {t.hora}
                   </span>
 
-                  <span class="tarjeta__accion">
-                    Ver el taller
-                    <svg
-                      class="tarjeta__flecha"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <path
-                        d="M2 8h11M9 4l4 4-4 4"
-                        stroke="currentColor"
-                        stroke-width="1.6"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
+                  <span class="ficha__precio">
+                    <span class="ficha__cifra numerals">{t.precio} €</span>
+                    <span class="ficha__unidad">
+                      {t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión'}
+                    </span>
                   </span>
                 </span>
               </a>
@@ -143,172 +129,105 @@ const schema = [breadcrumb(migas, Astro.site)];
     );
   }
 
+  /**
+   * Fichas pequenas y sueltas, no dos bloques enormes. Con auto-fill la
+   * rejilla crece sola segun cuantos talleres haya, sin tocar nada: hoy son
+   * dos, manana seran cuatro.
+   */
   .rejilla {
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 21rem));
     gap: 1.5rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  @media (width >= 48rem) {
-    .rejilla {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 2rem;
-    }
-  }
-
-  .tarjeta {
-    display: flex;
-  }
-
-  .tarjeta__enlace {
+  .ficha {
     display: grid;
-    /* La foto manda su alto y el cuerpo ocupa el resto: asi las dos tarjetas
-       terminan a la misma altura y los precios quedan alineados. */
     grid-template-rows: auto 1fr;
-    width: 100%;
+    height: 100%;
     overflow: hidden;
-    border-radius: 26px;
+    border: 1px solid var(--color-pierre);
+    border-radius: 18px;
     background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
     transition:
-      transform 520ms var(--ease-fluid),
-      box-shadow 520ms var(--ease-fluid);
+      transform 420ms var(--ease-fluid),
+      border-color 420ms var(--ease-fluid),
+      box-shadow 420ms var(--ease-fluid);
   }
 
-  .tarjeta__enlace:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-alta);
+  .ficha:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-encre) 22%, transparent);
+    box-shadow: var(--shadow-flota);
   }
 
-  .tarjeta__foto {
+  .ficha__foto {
     display: block;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
   }
 
-  @media (width >= 48rem) {
-    .tarjeta__foto {
-      aspect-ratio: 4 / 3;
-    }
-  }
-
-  .tarjeta__img {
+  .ficha__img {
     display: block;
     height: 100%;
     width: 100%;
     object-fit: cover;
-    transition: scale 720ms var(--ease-fluid);
   }
 
-  .tarjeta__enlace:hover .tarjeta__img {
-    scale: 1.04;
-  }
-
-  .tarjeta__cuerpo {
+  .ficha__cuerpo {
     display: flex;
     flex-direction: column;
-    padding: 1.75rem 1.5rem 1.5rem;
+    gap: 0.4rem;
+    padding: 1.1rem 1.15rem 1.25rem;
   }
 
-  @media (width >= 64rem) {
-    .tarjeta__cuerpo {
-      padding: 2rem 2rem 1.75rem;
-    }
-  }
-
-  .tarjeta__nombre {
+  .ficha__nombre {
     font-family: var(--font-display);
-    font-size: var(--text-display-m);
-    font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--color-encre);
-  }
-
-  .tarjeta__resumen {
-    margin-top: 0.75rem;
-    max-width: 34ch;
-    font-size: var(--text-body-s);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
-  }
-
-  /* --- Los tres hechos --- */
-
-  .hechos {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, auto));
-    justify-content: start;
-    gap: 1.5rem;
-    /* margin-top auto empuja los hechos y el boton al fondo de la tarjeta,
-       para que caigan a la misma altura aunque un resumen ocupe dos lineas. */
-    margin-top: auto;
-    padding-top: 1.75rem;
-  }
-
-  .hechos__par {
-    display: grid;
-    gap: 0.3rem;
-  }
-
-  .hechos__clave {
-    font-size: var(--text-label);
-    font-weight: var(--text-label--font-weight);
-    letter-spacing: var(--text-label--letter-spacing);
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
-  }
-
-  .hechos__valor {
-    font-family: var(--font-display);
-    font-size: var(--text-body-s);
+    font-size: var(--text-title);
     font-weight: 600;
     line-height: 1.25;
+    letter-spacing: -0.01em;
     color: var(--color-encre);
   }
 
-  .tarjeta__accion {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--color-pierre);
-    padding-top: 1.25rem;
-    font-family: var(--font-display);
-    font-size: var(--text-body-s);
+  .ficha__meta {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  /* El precio abajo del todo y alineado en todas las fichas: es el dato que
+     se compara, y comparar exige que este siempre en el mismo sitio. */
+  .ficha__precio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-top: auto;
+    padding-top: 0.9rem;
+  }
+
+  .ficha__cifra {
+    font-size: 1.375rem;
     font-weight: 600;
-    color: var(--color-grenat);
+    line-height: 1;
+    color: var(--color-encre);
   }
 
-  .tarjeta__flecha {
-    width: 1rem;
-    height: 1rem;
-    transition: translate 300ms var(--ease-smooth);
-  }
-
-  .tarjeta__enlace:hover .tarjeta__flecha {
-    translate: 3px 0;
+  .ficha__unidad {
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tarjeta__enlace,
-    .tarjeta__img,
-    .tarjeta__flecha {
+    .ficha {
       transition: none;
     }
 
-    .tarjeta__enlace:hover {
+    .ficha:hover {
       transform: none;
-    }
-
-    .tarjeta__enlace:hover .tarjeta__img {
-      scale: 1;
-    }
-
-    .tarjeta__enlace:hover .tarjeta__flecha {
-      translate: 0;
     }
   }
 </style>

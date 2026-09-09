@@ -428,6 +428,15 @@ const FORMATOS = [
     place-items: end center;
     width: min(26rem, 100%);
     margin-inline: auto;
+    /* Corta antes del colgante, que es personal, y se lleva por delante el
+       circulo de fondo en el mismo gesto. */
+    mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 50%,
+      color-mix(in srgb, black 62%, transparent) 65%,
+      transparent 76%
+    );
   }
 
   .retrato__forma {
@@ -448,24 +457,12 @@ const FORMATOS = [
     );
   }
 
-  /**
-   * El recorte termina de golpe a media camiseta y esa linea recta se ve.
-   * Con la mascara el ultimo tramo se disuelve en el fondo en vez de cortarse.
-   * Empieza al 74 por ciento, por debajo del colgante, para no comerselo.
-   */
   .retrato__img {
     position: relative;
     z-index: 1;
     display: block;
     width: 100%;
     height: auto;
-    mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 74%,
-      color-mix(in srgb, black 55%, transparent) 89%,
-      transparent 100%
-    );
   }
 
   /* --- Hablemos --- */
