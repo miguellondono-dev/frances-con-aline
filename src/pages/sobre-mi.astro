@@ -65,72 +65,29 @@ const INTERESES = [
   'Otra cosa',
 ];
 
-/** Bloque de datos verificables. Frases afirmativas y autonomas: cada una se
- *  sostiene sola, fuera de contexto. Es lo que un modelo puede citar. */
-const DATOS = [
-  { clave: 'Nacionalidad', valor: 'Soy francesa y bilingüe en español.' },
-  {
-    clave: 'Formación',
-    valor:
-      'Estudié Gestión de la Cultura y me formé en pedagogía y métodos de aprendizaje.',
-  },
-  {
-    clave: 'Idiomas',
-    valor: 'Hablo francés, español, inglés, italiano y portugués.',
-  },
-  { clave: 'Experiencia', valor: 'Llevo más de cinco años enseñando idiomas.' },
-  {
-    clave: 'Latinoamérica',
-    valor:
-      'Viví más de un año en Latinoamérica. De ahí viene que trabaje con estudiantes hispanohablantes.',
-  },
-  {
-    clave: 'Selección',
-    valor:
-      'Una escuela europea de idiomas me seleccionó para enseñar a estudiantes en Canadá, Reino Unido y Francia.',
-  },
-  {
-    clave: 'Formatos',
-    valor:
-      'Doy clases individuales en línea a 35 € la hora y clases en grupo de dos a cinco personas a 20 € la hora por persona. La primera clase, de 30 minutos, es gratis.',
-  },
-  {
-    clave: 'DELF',
-    valor: 'Preparo el DELF y hago simulacros con el formato oficial.',
-  },
-  {
-    clave: 'Trámites',
-    valor:
-      'Preparo contigo el expediente de Campus France, y redacto y corrijo tu CV en francés.',
-  },
-  {
-    clave: 'Presencial',
-    valor:
-      'En París hago talleres de teatro y de acuarela en francés, y tours guiados en español.',
-  },
-];
 
 /** Los idiomas, para la tira de la cabecera. */
 const IDIOMAS = ['Francés', 'Español', 'Inglés', 'Italiano', 'Portugués'];
 
 /**
- * La clase se monta sobre lo que le gusta a cada quien. Los ejemplos son
- * ejemplos: por eso el ultimo abre la puerta en vez de cerrar la lista.
+ * Los dos formatos, tratados igual: mismo tamano, mismo sitio, misma
+ * estructura de frase. Antes la pagina soltaba "poesia", "fotografia" y
+ * luego "teatro, pintura, cine" agrupados, y esa asimetria hacia parecer que
+ * unos temas contaban mas que otros.
  */
-const AFICIONES = [
+const FORMATOS = [
   {
-    pregunta: '¿Te gusta la poesía?',
-    respuesta: 'Trabajamos con poemas franceses conocidos.',
+    nombre: 'Clases privadas',
+    texto:
+      'Adapto el contenido a tus preferencias y a tus objetivos. La poesía, la fotografía, el teatro, la pintura, el cine o el tema que te mueva: te doy las bases para hablar de ello en francés.',
   },
   {
-    pregunta: '¿La fotografía?',
-    respuesta: 'Te doy las bases para hablar de ella en francés.',
-  },
-  {
-    pregunta: '¿El teatro, la pintura, el cine?',
-    respuesta: 'Igual. El tema lo pones tú y yo monto la clase encima.',
+    nombre: 'Clases en grupo',
+    texto:
+      'Avanzamos por niveles, con acompañamiento y con el progreso a la vista. Cada persona sabe en qué punto está y qué viene después.',
   },
 ];
+
 
 ---
 
@@ -147,7 +104,6 @@ const AFICIONES = [
     >
       <div class="pad-shell-right lg:pr-0">
         <Breadcrumbs items={migas} />
-        <p class="label mt-8 text-nuit" data-reveal>Sobre mí</p>
         <h1 class="mt-5 text-display-xl text-encre" data-reveal>
           El francés es mi lengua. Aprender idiomas, mi pasión.
         </h1>
@@ -190,31 +146,34 @@ const AFICIONES = [
     </div>
   </section>
 
-  <!-- Como es una clase. El tema lo pone quien aprende. -->
+  <!-- Como ensena. Los dos formatos, con el mismo peso. -->
   <section class="clases" aria-labelledby="clases">
     <div class="shell py-section">
       <div class="clases__reparto">
         <div>
           <h2 id="clases" class="text-display-l text-encre" data-reveal>
-            La clase se monta alrededor de lo que te gusta
+            Enseño francés como lengua extranjera
           </h2>
           <p class="measure mt-6 text-body text-encre" data-reveal>
-            Mejoras tu francés con actividades dinámicas y hechas a tu medida.
-            Trabajo sobre todo con gente que habla español o inglés, así que
-            cuando algo se atasca cambio a tu idioma, lo aclaramos y seguimos.
+            Me formé en pedagogía y en métodos de aprendizaje, y llevo más de
+            cinco años dando clase. Trabajo sobre todo con gente que habla
+            español o inglés, con talleres de conversación y clases hechas a la
+            medida de cada quien.
           </p>
           <p class="measure mt-5 text-body text-encre" data-reveal>
-            Escríbeme y miramos juntos qué necesitas, tanto si empiezas de cero
-            como si quieres pulir el francés que ya tienes.
+            Cuando algo se atasca cambio a tu idioma, lo aclaramos y seguimos.
+            Una escuela europea de idiomas me seleccionó para enseñar a
+            estudiantes en Canadá, Reino Unido y Francia, y ahí aprendí que el
+            mismo contenido llega distinto según de dónde viene quien escucha.
           </p>
         </div>
 
-        <dl class="aficiones" data-reveal>
+        <dl class="formatos" data-reveal>
           {
-            AFICIONES.map((a) => (
-              <div class="aficiones__par">
-                <dt class="aficiones__pregunta">{a.pregunta}</dt>
-                <dd class="aficiones__respuesta">{a.respuesta}</dd>
+            FORMATOS.map((f) => (
+              <div class="formatos__uno">
+                <dt class="formatos__nombre">{f.nombre}</dt>
+                <dd class="formatos__texto">{f.texto}</dd>
               </div>
             ))
           }
@@ -229,7 +188,7 @@ const AFICIONES = [
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="text-display-m text-encre" data-reveal>
-            También te acompaño con los papeles
+            También te ayudo a preparar tus documentos profesionales
           </h2>
           <p class="measure mt-5 text-body text-nuit" data-reveal>
             Preparamos juntos el expediente de Campus France, y redacto y corrijo
@@ -241,27 +200,6 @@ const AFICIONES = [
           <Cta href="/agenda" variant="lie">{CTA.cierreQuienSoy}</Cta>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Bloque de datos verificables. Existe para que se pueda citar sin contexto. -->
-  <section class="surface-dark" aria-labelledby="datos">
-    <div class="shell py-section">
-      <p class="label text-ciel" data-reveal>Datos verificables</p>
-      <h2 id="datos" class="mt-6 max-w-[24ch] text-display-l text-blanc" data-reveal>
-        Todo lo que se puede comprobar, en un solo sitio
-      </h2>
-
-      <dl class="mt-12 grid gap-px overflow-hidden rounded-panel bg-nuit sm:grid-cols-2">
-        {
-          DATOS.map((dato) => (
-            <div class="bg-encre p-7" data-reveal>
-              <dt class="label text-ciel">{dato.clave}</dt>
-              <dd class="measure mt-3 text-body text-blanc">{dato.valor}</dd>
-            </div>
-          ))
-        }
-      </dl>
     </div>
   </section>
 
@@ -410,34 +348,37 @@ const AFICIONES = [
     }
   }
 
-  .aficiones {
+  .formatos {
     display: grid;
-    gap: 0;
+    /* Misma altura las dos aunque un texto sea mas largo: si una caja crece,
+       parece la importante. */
+    grid-auto-rows: 1fr;
+    gap: 1rem;
     margin: 0;
     align-content: start;
   }
 
-  .aficiones__par {
-    border-bottom: 1px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
-    padding: 1.25rem 0;
+  /* Las dos cajas iguales: mismo fondo, mismo relleno, mismo borde. Si una se
+     ve mas importante que la otra, el lector deduce que lo es. */
+  .formatos__uno {
+    border-radius: 22px;
+    background-color: color-mix(in srgb, var(--color-blanc) 78%, transparent);
+    box-shadow: var(--shadow-flota);
+    padding: 1.5rem 1.5rem 1.6rem;
   }
 
-  .aficiones__par:last-child {
-    border-bottom: 0;
-  }
-
-  .aficiones__pregunta {
+  .formatos__nombre {
     font-family: var(--font-display);
     font-size: var(--text-title);
     font-weight: 600;
     color: var(--color-encre);
   }
 
-  .aficiones__respuesta {
-    margin: 0.4rem 0 0;
+  .formatos__texto {
+    margin: 0.5rem 0 0;
     font-size: var(--text-body-s);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--color-encre) 74%, transparent);
   }
 
   /* --- Los tramites --- */
