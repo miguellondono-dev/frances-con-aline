@@ -150,7 +150,6 @@ const FORMATOS = [
           salirse por el canto. */}
       <div class="pad-shell-right lg:pr-0" data-reveal="fade">
         <div class="retrato">
-          <span class="retrato__forma" aria-hidden="true"></span>
           <Picture
             src={retrato}
             formats={['avif', 'webp']}
@@ -495,63 +494,37 @@ const FORMATOS = [
   /* --- El retrato --- */
 
   /**
-   * La foto viene sin fondo, asi que no se enmarca: se apoya sobre una forma
-   * calida y la tapa por delante. La cabeza queda por encima de la forma y el
-   * cuerpo la corta por el medio: eso es lo que da profundidad a un recorte.
+   * El retrato vive dentro de una forma, no flotando y desvaneciendose.
    *
-   * La forma es mas ancha que la foto a proposito. Con el 92 por ciento que
-   * tenia antes quedaba mas estrecha que sus hombros, escondida detras de
-   * ella entera, y no se leia. Ahora asoma unos treinta y cinco puntos por
-   * cada lado.
-   */
-  /**
-   * Cuadrado y recortado por arriba, no enmascarado entero.
+   * Lo anterior se peleaba consigo mismo: el circulo media 507px dentro de una
+   * ventana de 384, asi que solo se veia su banda central y leia como un
+   * rectangulo; y la mascara cortaba la camiseta en horizontal, que es
+   * justamente lo que se queria evitar.
    *
-   * Con la mascara larga pasaban dos cosas: el circulo quedaba partido en una
-   * pastilla con el fondo recto, y la parte invisible de la foto seguia
-   * ocupando sitio en la maquetacion, asi que el titular caia 149 pixeles por
-   * debajo de la cabecera. Recortando, la caja mide lo que se ve.
-   *
-   * El origen 0% deja fuera el ultimo 29 por ciento de la foto, que es donde
-   * esta el colgante.
+   * Ahora la caja es la forma. El arco de arriba es una decision visible y el
+   * canto de abajo pertenece a la forma, asi que no hay corte que disimular.
+   * El fondo calido va dentro, porque la foto viene recortada y necesita algo
+   * sobre lo que apoyarse.
    */
   .retrato {
     position: relative;
     width: min(24rem, 100%);
     margin-inline: auto;
+    /* Cuadrada a proposito: con esta proporcion la foto entra recortada al
+       71 por ciento y el colgante, que esta al 84, queda fuera. */
     aspect-ratio: 1 / 1;
-    /* Solo el ultimo tramo, para que el recorte no termine en linea recta. */
-    mask-image: linear-gradient(to bottom, black 0%, black 76%, transparent 100%);
-  }
-
-  /**
-   * Un resplandor, no un circulo con borde.
-   *
-   * El degradado anterior seguia teniendo un 30 por ciento de color al 82 del
-   * radio, asi que se le veia el canto: al recortarlo por abajo quedaba una
-   * pastilla. Ahora llega a transparente al 72 por ciento del radio, muy por
-   * dentro de su propia caja, y ya no hay forma que cortar.
-   */
-  .retrato__forma {
-    position: absolute;
-    left: 50%;
-    top: 4%;
-    z-index: 0;
-    width: 132%;
-    aspect-ratio: 1 / 1;
-    translate: -50% 0;
+    overflow: hidden;
+    border-radius: 50% 50% 28px 28px / 44% 44% 28px 28px;
     background-image: radial-gradient(
-      circle at 46% 38%,
-      color-mix(in srgb, var(--color-chair) 40%, transparent) 0%,
-      color-mix(in srgb, var(--color-papier) 62%, transparent) 30%,
-      color-mix(in srgb, var(--color-papier) 26%, transparent) 52%,
-      transparent 72%
+      circle at 50% 24%,
+      color-mix(in srgb, var(--color-chair) 34%, var(--color-papier)) 0%,
+      color-mix(in srgb, var(--color-papier) 88%, var(--color-blanc)) 46%,
+      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 100%
     );
+    box-shadow: var(--shadow-flota);
   }
 
   .retrato__img {
-    position: relative;
-    z-index: 1;
     display: block;
     height: 100%;
     width: 100%;
