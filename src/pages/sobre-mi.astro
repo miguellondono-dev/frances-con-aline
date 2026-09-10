@@ -94,13 +94,36 @@ const IDIOMAS = [
  * debajo de la rejilla lo dice sin rodeos.
  */
 const TEMAS = [
-  { icono: 'musica', nombre: 'Música' },
-  { icono: 'lectura', nombre: 'Lectura' },
-  { icono: 'foto', nombre: 'Fotografía' },
-  { icono: 'viaje', nombre: 'Viajes' },
-  { icono: 'cine', nombre: 'Cine' },
-  { icono: 'cocina', nombre: 'Cocina' },
+  { icono: 'musica', nombre: 'Música', tinte: 'chair' },
+  { icono: 'lectura', nombre: 'Lectura', tinte: 'ciel' },
+  { icono: 'foto', nombre: 'Fotografía', tinte: 'azur' },
+  { icono: 'viaje', nombre: 'Viajes', tinte: 'papier' },
+  { icono: 'cine', nombre: 'Cine', tinte: 'corail' },
+  { icono: 'cocina', nombre: 'Cocina', tinte: 'bleu' },
 ] as const;
+
+/**
+ * La geometria del abanico, calculada aqui y no en CSS.
+ *
+ * Cada carta se coloca por su distancia al centro: el giro crece en linea
+ * recta hacia los extremos y la altura por el cuadrado, que es lo que dibuja
+ * la curva. El retardo de entrada tambien sale de ahi, asi que abren del
+ * centro hacia afuera en vez de caer como una persiana.
+ */
+const CENTRO = (TEMAS.length - 1) / 2;
+
+const abanico = TEMAS.map((tema, i) => {
+  const d = i - CENTRO;
+  return {
+    ...tema,
+    giro: (d * 3.6).toFixed(2),
+    giroY: (d * -3.2).toFixed(2),
+    alto: (d * d * 6).toFixed(0),
+    escala: (1 - Math.abs(d) * 0.028).toFixed(3),
+    capa: 10 - Math.round(Math.abs(d) * 2),
+    retardo: Math.round(Math.abs(d) * 80),
+  };
+});
 
 
 ---
@@ -179,36 +202,36 @@ const TEMAS = [
     <span class="clases__grano" aria-hidden="true"></span>
 
     <div class="shell relative z-10 py-section">
-      <div class="clases__reparto">
-        <div class="clases__texto">
-          <h2 id="clases" class="clases__titulo" data-reveal>
-            Aprender un idioma es mucho más fácil cuando tienes algo que decir
-          </h2>
+      <div class="clases__texto">
+        <h2 id="clases" class="clases__titulo" data-reveal>
+          Aprender un idioma es mucho más fácil cuando tienes algo que decir
+        </h2>
 
-          <p class="clases__cierre" data-reveal>
-            Por eso, mis clases parten de lo que te interesa y de lo que quieres
-            conseguir: conversar, viajar, trabajar, preparar un examen o
-            simplemente empezar a hablar francés.
-          </p>
-        </div>
-
-        {/* Seis cartas con el tema y su marca. Entran escalonadas, en dos
-            pasadas cruzadas, para que no caigan como una persiana. */}
-        <div class="temas">
-          <ul class="temas__rejilla" data-reveal>
-            {
-              TEMAS.map((t, i) => (
-                <li class="tema" style={`--i:${i}`}>
-                  <span class="tema__marca">
-                    <Icon name={t.icono} class="h-7 w-7" />
-                  </span>
-                  <span class="tema__nombre">{t.nombre}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
+        <p class="clases__cierre" data-reveal>
+          Por eso, mis clases parten de lo que te interesa y de lo que quieres
+          conseguir: conversar, viajar, trabajar, preparar un examen o
+          simplemente empezar a hablar francés.
+        </p>
       </div>
+
+      {/* Seis cartas abiertas en abanico. Entran apiladas en el centro y se
+          abren hacia los lados; al pasar por encima, la carta se endereza y
+          sube al frente, que es el gesto de sacar una de la baraja. */}
+      <ul class="abanico" data-reveal data-repite>
+        {
+          abanico.map((t) => (
+            <li
+              class="carta"
+              style={`--giro:${t.giro}deg;--giro-y:${t.giroY}deg;--alto:${t.alto}px;--escala:${t.escala};--capa:${t.capa};--retardo:${t.retardo}ms;--tinte:var(--color-${t.tinte})`}
+            >
+              <span class="carta__lamina">
+                <Icon name={t.icono} class="carta__marca" />
+              </span>
+              <span class="carta__nombre">{t.nombre}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -507,38 +530,13 @@ const TEMAS = [
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
-  .clases__reparto {
-    display: grid;
-    gap: 3rem;
+  /* El titular manda arriba y el abanico ocupa el ancho entero debajo. En dos
+     columnas el abanico se quedaba sin sitio para abrirse. */
+  .clases__texto {
+    max-width: 34rem;
   }
 
-  /**
-   * Dos columnas a partir de 72rem, no de 64.
-   *
-   * El texto lleva ademas la columna ancha. Su segunda linea, "con
-   * actividades divertidas", mide 10,2 veces el cuerpo del titular, y por
-   * debajo de eso el corte se rompe. A 64rem y con las fichas delante la
-   * columna se quedaba corta, asi que hasta 72rem van una debajo de otra y el
-   * titular tiene todo el ancho.
-   */
-  @media (width >= 72rem) {
-    .clases__reparto {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      align-items: center;
-      gap: 4.5rem;
-    }
-  }
 
-  /**
-   * Las tres lineas son "En mis clases mejorarás / con actividades divertidas
-   * / y a tu medida", y salen del tope de 17ch con corte normal.
-   *
-   * El reajuste base pone text-wrap: balance en todos los titulares, y ahi el
-   * navegador reparte por su cuenta: sacaba cuatro lineas, con "mejorarás
-   * con" sola en la segunda. La ventana buena va de 16 a 17,9ch, asi que 17
-   * cae en medio, y como ch se mide sobre la propia letra el corte es el
-   * mismo con el titular grande y con el pequeño.
-   */
   .clases__titulo {
     max-width: 17ch;
     font-family: var(--font-display);
@@ -562,82 +560,102 @@ const TEMAS = [
   /* --- Las dos fichas --- */
 
   /**
-   * Seis cartas con el tema y su marca.
+   * Seis cartas abiertas en abanico.
    *
-   * Antes aqui habia dos papeles girados con una pregunta y un parrafo. El
-   * gesto aguantaba con una linea de texto y dejo de aguantar con seis, asi
-   * que el contenido se parte en piezas del tamaño de una carta y el giro
-   * desaparece: en una rejilla de seis, inclinar cada pieza es ruido.
+   * Cada una se coloca por su distancia al centro: el giro crece en linea
+   * recta hacia los extremos, la altura por el cuadrado, que es lo que dibuja
+   * la curva, y el giro en Y las manda hacia atras. Los numeros salen del
+   * frontmatter y llegan como variables, asi que aqui no hay seis reglas
+   * repetidas cambiando un grado.
    */
-  /* Con tope de ancho: cuando la seccion va a una sola columna la rejilla se
-     queda con todo el ancho de la pagina y las cartas se estiran a 231px para
-     una palabra de 60. */
-  .temas__rejilla {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-    max-width: 34rem;
-    margin: 0;
-    padding: 0;
+  .abanico {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 3.5rem 0 0;
+    padding: 1.5rem 0 0;
     list-style: none;
+    perspective: 1400px;
   }
 
-  @media (width >= 30rem) {
-    .temas__rejilla {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  @media (width >= 48rem) {
+    .abanico {
+      flex-wrap: nowrap;
+      gap: 0;
+      margin-top: 4.5rem;
     }
   }
 
   /**
-   * La marca y el nombre en una sola linea.
-   *
-   * En columna eran un rectangulo de 185x105 con el icono y la palabra
-   * arrinconados arriba a la izquierda, y el resto blanco: la caja pesaba
-   * mas que lo que llevaba dentro. Cuadrarla lo empeoro, porque atada al
-   * ancho de la columna se iba a 231x231.
-   *
-   * En fila el alto lo pone la marca y el ancho lo llena el nombre, asi que
-   * no queda hueco reservado para nada.
+   * En movil las cartas van derechas y en rejilla: un abanico de seis piezas
+   * necesita mas ancho del que hay, y girarlas ahi solo las encima.
    */
-  .tema {
+  .carta {
+    position: relative;
+    z-index: var(--capa, 1);
     display: flex;
+    width: 8.75rem;
+    flex: none;
+    flex-direction: column;
     align-items: center;
     gap: 0.8rem;
-    border-radius: 18px;
+    border-radius: 22px;
     background-color: var(--color-blanc);
-    padding: 0.75rem 1rem 0.75rem 0.75rem;
+    padding: 0.8rem 0.8rem 1.1rem;
     /* Sombra teñida del azul del sitio, no negra: una sombra negra sobre un
        fondo calido lo ensucia. */
     box-shadow:
       0 1px 2px color-mix(in srgb, var(--color-encre) 6%, transparent),
-      0 16px 32px -20px color-mix(in srgb, var(--color-nuit) 40%, transparent);
+      0 20px 40px -24px color-mix(in srgb, var(--color-nuit) 46%, transparent);
+    transform-origin: 50% 100%;
     transition:
-      transform 520ms var(--ease-fluid),
-      box-shadow 520ms var(--ease-fluid);
+      transform 620ms var(--ease-fluid),
+      box-shadow 620ms var(--ease-fluid);
   }
 
-  .tema:hover {
-    transform: translateY(-4px);
-    box-shadow:
-      0 2px 4px color-mix(in srgb, var(--color-encre) 8%, transparent),
-      0 26px 46px -22px color-mix(in srgb, var(--color-nuit) 50%, transparent);
+  /**
+   * De 48rem en adelante se abren en abanico y se solapan como una baraja.
+   *
+   * El ancho lleva tope por los dos lados. Seis cartas de 10,5rem con sus
+   * solapes miden 864px, y a 785 de ventana se salian por los cantos; con el
+   * 18vw la baraja siempre cabe en la caja de la pagina.
+   */
+  @media (width >= 48rem) {
+    .carta {
+      width: min(10.5rem, 16vw);
+      margin-inline: -0.9rem;
+      transform:
+        translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
+        rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
+    }
   }
 
-  /* La marca va sobre su propio disco calido: sin el, un trazo fino sobre
-     blanco se pierde al lado del nombre. */
-  .tema__marca {
-    display: inline-flex;
+  /* La lamina es la parte que se ve de lejos: sin ella, una carta con un
+     trazo fino dentro es una caja blanca con una mota. */
+  .carta__lamina {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     align-items: center;
     justify-content: center;
-    height: 2.75rem;
-    width: 2.75rem;
-    flex: none;
-    border-radius: 14px;
-    background-color: color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc));
-    color: var(--color-grenat);
+    border-radius: 16px;
+    background-image: linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--tinte) 34%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--tinte) 16%, var(--color-blanc)) 62%,
+      color-mix(in srgb, var(--tinte) 6%, var(--color-blanc)) 100%
+    );
+    color: color-mix(in srgb, var(--tinte) 52%, var(--color-encre));
   }
 
-  .tema__nombre {
+  .carta__marca {
+    height: 45%;
+    width: 45%;
+  }
+
+  .carta__nombre {
     font-family: var(--font-display);
     font-size: var(--text-body-s);
     font-weight: 600;
@@ -646,31 +664,82 @@ const TEMAS = [
     color: var(--color-encre);
   }
 
-  /* Entran una detras de otra, de arriba abajo y de izquierda a derecha. El
-     retardo va por variable para no repetir seis reglas iguales. */
-  :global(.js) .temas__rejilla[data-reveal] .tema {
+  /**
+   * La entrada: salen de una pila hundida y se abren.
+   *
+   * Antes de revelar, las seis estan encimadas, sin giro y un poco abajo. Al
+   * entrar, cada una sale hacia su sitio con el retardo de su distancia al
+   * centro, asi que el abanico se abre de dentro hacia afuera.
+   *
+   * Las dos reglas llevan el .js delante a proposito. Sin el, la de antes de
+   * revelar y la de ya revelado pesan lo mismo y el abanico se quedaba
+   * encogido en su pila.
+   */
+  :global(.js) .abanico[data-reveal] .carta {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(28px) rotate(0deg) rotateY(0deg) scale(0.88);
   }
 
-  .temas__rejilla[data-reveal].is-revealed .tema {
+  :global(.js) .abanico[data-reveal].is-revealed .carta {
     opacity: 1;
     transform: none;
     transition:
-      opacity 620ms var(--ease-fluid) calc(var(--i, 0) * 70ms),
-      transform 620ms var(--ease-fluid) calc(var(--i, 0) * 70ms);
+      opacity 620ms var(--ease-fluid) var(--retardo, 0ms),
+      transform 900ms var(--ease-fluid) var(--retardo, 0ms),
+      box-shadow 620ms var(--ease-fluid);
+  }
+
+  @media (width >= 48rem) {
+    :global(.js) .abanico[data-reveal].is-revealed .carta {
+      transform:
+        translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
+        rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
+    }
+  }
+
+  /**
+   * Al pasar por encima se endereza, sube y se pone delante: el gesto de
+   * sacar una carta de la baraja.
+   *
+   * Van los dos selectores porque la regla de ya revelado es mas especifica
+   * que esta y si no, despues de la entrada el hover no se notaria.
+   */
+  .carta:hover,
+  .carta:focus-within,
+  :global(.js) .abanico[data-reveal].is-revealed .carta:hover,
+  :global(.js) .abanico[data-reveal].is-revealed .carta:focus-within {
+    z-index: 20;
+    transform: translateY(-14px) rotate(0deg) rotateY(0deg) scale(1.06);
+    box-shadow:
+      0 2px 6px color-mix(in srgb, var(--color-encre) 8%, transparent),
+      0 36px 64px -26px color-mix(in srgb, var(--color-nuit) 56%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tema,
-    .temas__rejilla[data-reveal].is-revealed .tema {
+    .carta,
+    :global(.js) .abanico[data-reveal].is-revealed .carta {
       transition: none;
     }
 
-    .tema:hover {
+    .carta:hover,
+    .carta:focus-within,
+    :global(.js) .abanico[data-reveal].is-revealed .carta:hover,
+    :global(.js) .abanico[data-reveal].is-revealed .carta:focus-within {
       transform: none;
     }
+
+    @media (width >= 48rem) {
+      .carta:hover,
+      .carta:focus-within,
+      :global(.js) .abanico[data-reveal].is-revealed .carta:hover,
+      :global(.js) .abanico[data-reveal].is-revealed .carta:focus-within {
+        transform:
+          translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
+          rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
+      }
+    }
   }
+
 
   /* --- Los tramites --- */
 
