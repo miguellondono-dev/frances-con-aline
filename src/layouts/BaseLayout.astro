@@ -17,6 +17,12 @@ interface Props {
   noindex?: boolean;
   /** El home lleva su propio titulo completo, sin sufijo. */
   rawTitle?: boolean;
+  /**
+   * La barra flota transparente y solo aparece al bajar. Eso funciona sobre
+   * una primera seccion clara. Si la pagina abre en oscuro hay que ponerla
+   * solida, o el texto en tinta se queda encima del azul y no se lee.
+   */
+  cabeceraSolida?: boolean;
 }
 
 const {
@@ -26,6 +32,7 @@ const {
   schema = [],
   noindex = false,
   rawTitle = false,
+  cabeceraSolida = false,
 } = Astro.props;
 
 const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
@@ -111,7 +118,7 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
 
     <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-20 w-px"></div>
 
-    <Header />
+    <Header solida={cabeceraSolida} />
 
     <main id="contenido">
       <slot />
