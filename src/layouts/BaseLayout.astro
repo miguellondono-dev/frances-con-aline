@@ -17,11 +17,6 @@ interface Props {
   noindex?: boolean;
   /** El home lleva su propio titulo completo, sin sufijo. */
   rawTitle?: boolean;
-  /**
-   * La barra flota transparente y se difumina al bajar. Sobre una primera
-   * seccion oscura hay que decirle que se difumine en tinta y no en blanco.
-   */
-  cabeceraOscura?: boolean;
 }
 
 const {
@@ -31,7 +26,6 @@ const {
   schema = [],
   noindex = false,
   rawTitle = false,
-  cabeceraOscura = false,
 } = Astro.props;
 
 const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
@@ -105,7 +99,7 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     </script>
   </head>
 
-  <body class={cabeceraOscura ? "bg-encre" : ""}>
+  <body>
     <a
       href="#contenido"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-panel focus:bg-encre focus:px-5 focus:py-3 focus:text-blanc"
@@ -123,7 +117,7 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     */}
     <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-2 w-px"></div>
 
-    <Header oscura={cabeceraOscura} />
+    <Header />
 
     <main id="contenido">
       <slot />

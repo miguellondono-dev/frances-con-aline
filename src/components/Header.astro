@@ -6,18 +6,6 @@ import { NAV, SITE_NAME, CTA_AGENDA, CTA } from '../data/site';
 /** Recorte del viewBox al ojo del logo, sin el aire del archivo original. */
 const OJO = '195 258 860 691';
 
-interface Props {
-  /**
-   * Para paginas que abren con una seccion oscura. La barra se vuelve tinta:
-   * flota transparente sobre la portada, con el texto en blanco, y al bajar
-   * se difumina en tinta en vez de en blanco. Asi el efecto de cristal se ve
-   * igual que en el resto del sitio, en vez de dejar una banda lechosa.
-   */
-  oscura?: boolean;
-}
-
-const { oscura = false } = Astro.props;
-
 const current = Astro.url.pathname;
 
 /** Marca la entrada activa aunque la ruta actual sea uno de sus hijos. */
@@ -27,7 +15,7 @@ function activa(item: (typeof NAV)[number]) {
 }
 ---
 
-<header data-header data-scrolled="false" data-tema={oscura ? "oscuro" : "claro"} class="barra sticky top-0 z-40">
+<header data-header data-scrolled="false" class="barra sticky top-0 z-40">
   <div class="shell flex items-center justify-between gap-6 py-4">
     <a
       href="/"
@@ -193,52 +181,6 @@ function activa(item: (typeof NAV)[number]) {
       backdrop-filter 300ms var(--ease-smooth),
       border-color 300ms var(--ease-smooth),
       box-shadow 300ms var(--ease-smooth);
-  }
-
-  /**
-   * Variante oscura, para paginas que abren con una seccion en tinta.
-   *
-   * Mismo comportamiento que la clara: transparente arriba y difuminada al
-   * bajar. Lo unico que cambia es el color. Un blanco al 82 por ciento sobre
-   * azul marino deja una banda lechosa con el texto dentro sin contraste.
-   *
-   * Las reglas se limitan a la fila de arriba: el panel del menu movil es
-   * blanco y su texto tiene que seguir en tinta.
-   */
-  .barra[data-tema='oscuro'] > div:first-child :is(a, summary, button, span, p) {
-    color: var(--color-blanc);
-  }
-
-  .barra[data-tema='oscuro'] > div:first-child button {
-    border-color: color-mix(in srgb, var(--color-blanc) 34%, transparent);
-  }
-
-  /**
-   * Tinta translucida con difuminado desde el primer pixel, igual que la
-   * clara. Conserva las dos esquinas de abajo redondeadas, que son la firma
-   * de la barra: ahora el cuerpo de la pagina va en tinta, asi que las
-   * muescas de los cantos se ven oscuras y no blancas.
-   */
-  .barra[data-tema='oscuro'] {
-    background-color: color-mix(in srgb, var(--color-encre) 86%, transparent);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom-color: transparent;
-  }
-
-  .barra[data-tema='oscuro'][data-scrolled='true'] {
-    background-color: color-mix(in srgb, var(--color-encre) 86%, transparent);
-    border-bottom-color: color-mix(in srgb, var(--color-blanc) 12%, transparent);
-    box-shadow: none;
-  }
-
-  .barra[data-tema='oscuro'] > div:first-child :global(a[href='/agenda']) {
-    background-color: var(--color-grenat);
-    color: var(--color-blanc);
-  }
-
-  .barra[data-tema='oscuro'] > div:first-child :global(a[href='/agenda']:hover) {
-    background-color: var(--color-lie);
   }
 
   .barra[data-scrolled='true'] {
