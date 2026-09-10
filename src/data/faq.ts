@@ -41,25 +41,8 @@ export const FAQ_HOME: Pregunta[] = [
     a: 'No.',
   },
   {
-    q: '¿Y si tengo que cambiar el horario?',
-    a: 'Lo movemos, y no hace falta que me des explicaciones.',
-  },
-  {
-    q: '¿Preparas el DELF?',
-    a: 'Sí, preparo el examen y hago simulacros con el formato oficial, aunque no soy yo quien examina.',
-  },
-  {
-    q: '¿Cuántas personas hay en una clase en grupo?',
-    a: 'De dos a cinco, para que a todos les toque hablar en cada clase.',
-  },
-  {
     q: '¿Cuánto cuesta una clase de francés?',
     a: '35 € la hora, o 20 € por persona si vienen en grupo.',
-  },
-  {
-    q: '¿Cómo se paga?',
-    a: 'PENDIENTE: falta definir los métodos de pago antes de publicar esta respuesta.',
-    pendiente: true,
   },
 ];
 

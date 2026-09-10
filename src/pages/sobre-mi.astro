@@ -4,9 +4,8 @@ import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato.png';
 import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
-import Icon from '../components/Icon.astro';
 import { breadcrumb, alineId } from '../lib/schema';
-import { CTA, PRECIOS } from '../data/site';
+import { CTA } from '../data/site';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -27,7 +26,7 @@ const persona = {
   name: 'Aline',
   jobTitle: 'Profesora de francés',
   description:
-    'Profesora francesa de francés para hispanohablantes. Formada en pedagogía y métodos de aprendizaje, habla cinco idiomas y lleva más de cinco años enseñando.',
+    'Profesora francesa de francés para hispanohablantes. Estudió la pedagogía y los métodos de aprendizaje, habla cinco idiomas y lleva más de cinco años enseñando.',
   nationality: { '@type': 'Country', name: 'Francia' },
   knowsLanguage: [
     { '@type': 'Language', name: 'Francés' },
@@ -78,50 +77,17 @@ const IDIOMAS = [
 
 
 /**
- * Tres cosas concretas sobre como da clase. Una linea cada una, con su marca:
- * antes esto eran dos parrafos seguidos y no habia por donde entrar.
+ * El texto de Miguel, en pares. Cada uno tiene la misma forma (una pregunta y
+ * lo que hacemos si la respuesta es si), asi que ninguno pesa mas que otro.
  */
-const COMO = [
+const AFICIONES = [
   {
-    icono: 'plan' as const,
-    titulo: 'Salimos de lo que te interesa',
-    texto: 'El material lo elijo por lo que te gusta y por lo que necesitas.',
+    pregunta: '¿Te encanta la poesía?',
+    respuesta: 'Trabajaremos con poemas franceses famosos.',
   },
   {
-    icono: 'escuchar' as const,
-    titulo: 'Hablas desde el primer día',
-    texto: 'Si algo se atasca cambio a tu idioma, lo aclaramos y seguimos.',
-  },
-  {
-    icono: 'escudo' as const,
-    titulo: 'Una escuela europea me seleccionó',
-    texto: 'Para enseñar a estudiantes en Canadá, Reino Unido y Francia.',
-  },
-];
-
-/**
- * Los dos formatos, tratados igual: mismo icono, mismo numero de puntos,
- * mismo sitio para el precio. Antes eran dos cajas de texto sin nada donde
- * apoyar la vista.
- */
-const FORMATOS = [
-  {
-    icono: 'privada' as const,
-    nombre: 'Clases privadas',
-    puntos: [
-      'Adapto el contenido a tus preferencias y a tus objetivos',
-      'La poesía, la fotografía, el teatro, el cine o lo que te mueva',
-    ],
-    precio: PRECIOS.privada,
-  },
-  {
-    icono: 'grupo' as const,
-    nombre: 'Clases en grupo',
-    puntos: [
-      'Avanzamos por niveles, con acompañamiento y con el progreso a la vista',
-      'De dos a cinco personas, para que a todos les toque hablar',
-    ],
-    precio: PRECIOS.grupo,
+    pregunta: '¿Te encanta la fotografía?',
+    respuesta: 'Te daré todas las bases para hablar de fotografía en francés.',
   },
 ];
 
@@ -130,7 +96,7 @@ const FORMATOS = [
 
 <BaseLayout
   title="Sobre mí: profesora francesa de francés, y cinco idiomas"
-  description="El francés es mi lengua y hablo cinco idiomas. Me formé en pedagogía y monto cada clase alrededor de lo que te gusta. También te acompaño con Campus France y con tu CV en francés."
+  description="El francés es mi idioma natal y hablo cinco idiomas. Estudié la pedagogía y los métodos de aprendizaje para poder compartir mi pasión. También te ayudo con Campus France y con tu CV en francés."
   path="/sobre-mi"
   schema={schema}
 >
@@ -144,9 +110,10 @@ const FORMATOS = [
           Enseño francés para que lo hables con fluidez
         </h1>
         <p class="cabecera__entrada" data-reveal>
-          Es mi lengua materna y aprender idiomas es mi pasión. Me formé en
-          pedagogía y en métodos de aprendizaje, hablo cinco idiomas y llevo más
-          de cinco años enseñando a estudiantes de medio mundo.
+          El francés es mi idioma natal, y estudié la pedagogía y los métodos de
+          aprendizaje para poder compartir mi pasión, que es aprender idiomas.
+          Aprendí a hablar más de cinco idiomas, lo que me permitió viajar y
+          enseñar francés a estudiantes de varias partes del mundo.
         </p>
 
         <ul class="idiomas" data-reveal>
@@ -197,51 +164,31 @@ const FORMATOS = [
     </div>
   </section>
 
-  <!-- Como ensena. Marcas y datos, no dos bloques de prosa. -->
+  <!-- Como es una clase. El texto es el de Miguel, casi tal cual. -->
   <section class="clases" aria-labelledby="clases">
     <div class="shell py-section">
-      <h2 id="clases" class="clases__titulo" data-reveal>Así es una clase conmigo</h2>
+      <div class="clases__reparto">
+        <h2 id="clases" class="clases__titulo" data-reveal>
+          En mis clases mejorarás con actividades divertidas y a tu medida
+        </h2>
 
-      <ul class="como">
-        {
-          COMO.map((c, i) => (
-            <li class="como__uno" style={`--i:${i}`} data-reveal>
-              <span class="como__marca" aria-hidden="true">
-                <Icon name={c.icono} class="h-5 w-5" />
-              </span>
-              <span class="como__titulo">{c.titulo}</span>
-              <span class="como__texto">{c.texto}</span>
-            </li>
-          ))
-        }
-      </ul>
+        <ul class="aficiones">
+          {
+            AFICIONES.map((a, i) => (
+              <li class="aficion" style={`--i:${i}`} data-reveal>
+                <span class="aficion__pregunta">{a.pregunta}</span>
+                <span class="aficion__respuesta">{a.respuesta}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
 
-      <ul class="formatos">
-        {
-          FORMATOS.map((f, i) => (
-            <li class="formato" style={`--i:${i}`} data-reveal>
-              <span class="formato__marca" aria-hidden="true">
-                <Icon name={f.icono} class="h-5 w-5" />
-              </span>
-              <span class="formato__nombre">{f.nombre}</span>
-
-              <ul class="formato__puntos">
-                {f.puntos.map((punto) => (
-                  <li>
-                    <span class="formato__punta" aria-hidden="true" />
-                    {punto}
-                  </li>
-                ))}
-              </ul>
-
-              <span class="formato__precio">
-                <span class="formato__cifra numerals">{f.precio.valor} €</span>
-                <span class="formato__unidad">{f.precio.unidad}</span>
-              </span>
-            </li>
-          ))
-        }
-      </ul>
+      <p class="clases__cierre" data-reveal>
+        Y si lo tuyo es el teatro, la pintura o el cine, funciona igual: el tema
+        lo pones tú. Escríbeme y miramos juntos lo que necesitas, tanto para
+        mejorar como para aprender francés desde cero.
+      </p>
     </div>
   </section>
 
@@ -454,8 +401,21 @@ const FORMATOS = [
 
   /* --- Como es una clase --- */
 
+  .clases__reparto {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .clases__reparto {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      align-items: center;
+      gap: 4rem;
+    }
+  }
+
   .clases__titulo {
-    max-width: 20ch;
+    max-width: 18ch;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: var(--text-display-l--font-weight);
@@ -465,247 +425,80 @@ const FORMATOS = [
     color: var(--color-encre);
   }
 
-  /* --- Las tres marcas --- */
-
-  .como {
+  .aficiones {
     display: grid;
-    gap: 1.75rem;
-    margin: 3rem 0 0;
+    gap: 1rem;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  @media (width >= 48rem) {
-    .como {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 2rem;
-    }
-  }
-
-  .como__uno {
+  /**
+   * Las dos con la misma forma y el mismo peso. La pregunta va en rojo porque
+   * es la voz de quien lee, y la respuesta en tinta porque es la de Aline: se
+   * distingue quien habla sin escribir "tu" y "yo".
+   */
+  .aficion {
     display: grid;
-    gap: 0.55rem;
-    justify-items: start;
-  }
-
-  .como__marca {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 2.75rem;
-    width: 2.75rem;
-    margin-bottom: 0.35rem;
-    border-radius: 50%;
-    background-color: color-mix(in srgb, var(--color-ciel) 34%, var(--color-blanc));
-    color: var(--color-nuit);
-  }
-
-  .como__titulo {
-    font-family: var(--font-display);
-    font-size: var(--text-title);
-    font-weight: 600;
-    line-height: 1.25;
-    color: var(--color-encre);
-  }
-
-  .como__texto {
-    max-width: 34ch;
-    font-size: var(--text-body-s);
-    line-height: 1.55;
-    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
-  }
-
-  /* --- Los dos formatos --- */
-
-  .formatos {
-    display: grid;
-    gap: 1.25rem;
-    margin: 3.5rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  @media (width >= 48rem) {
-    .formatos {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.5rem;
-    }
-  }
-
-  .formato {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    align-items: start;
+    gap: 0.4rem;
     border-radius: 22px;
     background-color: var(--color-blanc);
     box-shadow: var(--shadow-flota);
-    padding: 1.75rem 1.6rem;
+    padding: 1.5rem 1.6rem;
     transition:
       transform 520ms var(--ease-fluid),
       box-shadow 520ms var(--ease-fluid);
   }
 
-  /* El degradado del estado activo se funde por opacidad, que es lo unico que
-     se puede animar de forma continua en un degradado. Igual que en el inicio. */
-  .formato::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background-image: linear-gradient(
-      to bottom,
-      var(--color-encre) 0%,
-      var(--color-encre) 30%,
-      var(--color-nuit) 100%
-    );
-    opacity: 0;
-    transition: opacity 520ms var(--ease-fluid);
-  }
-
-  .formato__marca {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 2.75rem;
-    width: 2.75rem;
-    border-radius: 50%;
-    background-color: color-mix(in srgb, var(--color-papier) 70%, var(--color-blanc));
-    color: var(--color-lie);
-    transition:
-      background-color 420ms var(--ease-fluid),
-      color 420ms var(--ease-fluid);
-  }
-
-  .formato__nombre {
-    margin-top: 1.1rem;
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--color-encre);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .formato__puntos {
-    display: grid;
-    gap: 0.6rem;
-    margin: 1rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .formato__puntos li {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.65rem;
-    align-items: start;
-    font-size: var(--text-body-s);
-    line-height: 1.55;
-    color: color-mix(in srgb, var(--color-encre) 74%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .formato__punta {
-    width: 0.4rem;
-    height: 0.4rem;
-    margin-top: 0.5rem;
-    border-radius: 50%;
-    background-color: var(--color-grenat);
-    transition: background-color 420ms var(--ease-fluid);
-  }
-
-  /* El precio abajo del todo, y a la misma altura en las dos tarjetas aunque
-     una lleve un punto mas largo. */
-  .formato__precio {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 0.4rem;
-    margin-top: auto;
-    padding-top: 1.5rem;
-    font-size: var(--text-body-s);
-    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .formato__cifra {
-    font-size: 1.375rem;
-    font-weight: 600;
-    line-height: 1.1;
-    color: color-mix(in srgb, var(--color-encre) 82%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  /* --- Estado activo --- */
-
-  .formato:hover {
-    transform: translateY(-6px);
+  .aficion:hover {
+    transform: translateY(-4px);
     box-shadow: var(--shadow-alta);
   }
 
-  .formato:hover::before {
-    opacity: 1;
+  .aficion__pregunta {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--color-grenat);
   }
 
-  .formato:hover .formato__marca {
-    background-color: color-mix(in srgb, var(--color-blanc) 16%, transparent);
-    color: var(--color-blanc);
+  .aficion__respuesta {
+    font-size: var(--text-body-s);
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
   }
 
-  .formato:hover .formato__nombre {
-    color: var(--color-blanc);
+  .clases__cierre {
+    margin: 3rem 0 0;
+    max-width: 58ch;
+    font-size: var(--text-body);
+    line-height: 1.6;
+    color: var(--color-nuit);
   }
 
-  .formato:hover .formato__puntos li,
-  .formato:hover .formato__precio {
-    color: var(--color-ciel);
+  /* Entradas escalonadas. */
+  :global(.js) .aficion[data-reveal] {
+    transform: translateY(24px) scale(0.99);
   }
 
-  .formato:hover .formato__cifra {
-    color: color-mix(in srgb, var(--color-blanc) 88%, transparent);
-  }
-
-  .formato:hover .formato__punta {
-    background-color: var(--color-corail);
-  }
-
-  /* --- Entradas escalonadas --- */
-
-  :global(.js) .como__uno[data-reveal],
-  :global(.js) .formato[data-reveal] {
-    transform: translateY(28px) scale(0.985);
-  }
-
-  .como__uno[data-reveal],
-  .formato[data-reveal] {
+  .aficion[data-reveal] {
     transition:
-      opacity 760ms var(--ease-fluid) calc(var(--i, 0) * 90ms),
-      transform 760ms var(--ease-fluid) calc(var(--i, 0) * 90ms) !important;
+      opacity 700ms var(--ease-fluid) calc(var(--i, 0) * 110ms),
+      transform 700ms var(--ease-fluid) calc(var(--i, 0) * 110ms) !important;
   }
 
-  .como__uno[data-reveal].is-revealed,
-  .formato[data-reveal].is-revealed {
+  .aficion[data-reveal].is-revealed {
     transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .formato,
-    .formato::before,
-    .formato__marca,
-    .formato__nombre,
-    .formato__puntos li,
-    .formato__precio,
-    .formato__cifra,
-    .formato__punta {
+    .aficion {
       transition: none;
     }
 
-    .formato:hover {
+    .aficion:hover {
       transform: none;
     }
   }

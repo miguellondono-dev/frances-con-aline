@@ -47,20 +47,12 @@ export const FAQ_GRUPO: Pregunta[] = [
     a: 'Es lo primero que mido en la clase gratis, y si la diferencia es grande lo digo antes de empezar.',
   },
   {
-    q: '¿Tenemos que estar en el mismo sitio?',
-    a: 'No, cada persona se conecta desde donde esté, con que os cuadre la misma hora es suficiente.',
-  },
-  {
     q: '¿Cuántas personas pueden ser?',
     a: 'De dos a cinco, y el tope existe para que a todos les toque hablar en cada clase.',
   },
   {
     q: '¿Y si alguien no puede venir un día?',
     a: 'La clase se da igual con quien esté, y a quien faltó le paso el material para retomarlo en la siguiente.',
-  },
-  {
-    q: '¿El precio es por persona o por clase?',
-    a: 'Por persona: cada uno paga 20 € la hora, no 20 € entre todos.',
   },
   {
     q: '¿Hablo lo suficiente en un grupo?',
@@ -92,10 +84,5 @@ export const FAQ_DELF: Pregunta[] = [
   {
     q: '¿Me inscribes tú al examen?',
     a: 'No. La inscripción se hace directamente en un centro autorizado, y las fechas y los plazos los pone cada centro. Te ayudo a entender qué nivel te conviene presentar y a organizar el calendario de preparación hacia esa fecha.',
-  },
-  {
-    q: '¿Qué niveles preparas?',
-    a: 'PENDIENTE: falta confirmar el rango exacto de niveles antes de publicar esta respuesta.',
-    pendiente: true,
   },
 ];

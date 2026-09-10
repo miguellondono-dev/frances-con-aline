@@ -7,12 +7,12 @@ import Logo from '../Logo.astro';
  * TEST DE NIVEL.
  *
  * A la izquierda el titular, el boton y tres apoyos, centrados a la altura
- * del grafico. A la derecha los seis niveles girando alrededor de la mirada,
+ * del grafico. A la derecha los cinco niveles girando alrededor de la mirada,
  * cada uno con su nombre debajo.
  *
- * El orden importa y se ve: A1 corre por la linea mas pegada al ojo y C2 por
+ * El orden importa y se ve: A1 corre por la linea mas pegada al ojo y C1 por
  * la de fuera. Los angulos van separados por el angulo aureo, 137,5 grados,
- * que reparte seis puntos alrededor de un centro sin que ninguno quede
+ * que reparte los puntos alrededor de un centro sin que ninguno quede
  * enfrente de otro. Con angulos regulares salian parejas alineadas.
  *
  * Giran todos a la misma velocidad angular. Con velocidades distintas antes o
@@ -52,24 +52,25 @@ function puntoSvg(radio: number, angulo: number) {
  * Radio creciente por nivel. El nombre de cada uno es el corriente, no el
  * tecnico del marco: "Principiante" se entiende y "Acceso" no.
  */
-const NIVELES = [
+const NIVELES_BASE = [
   { nombre: 'A1', etiqueta: 'Principiante', radio: 18, angulo: 0 },
   { nombre: 'A2', etiqueta: 'Básico', radio: 23, angulo: 137.5 },
   { nombre: 'B1', etiqueta: 'Intermedio', radio: 28, angulo: 275 },
   { nombre: 'B2', etiqueta: 'Intermedio alto', radio: 33, angulo: 52.5 },
   { nombre: 'C1', etiqueta: 'Avanzado', radio: 38, angulo: 190 },
-  { nombre: 'C2', etiqueta: 'Dominio', radio: 43, angulo: 327.5 },
-].map((n, i) => ({
+];
+
+const NIVELES = NIVELES_BASE.map((n, i) => ({
   ...n,
   ...punto(n.radio, n.angulo),
   retraso: 520 + i * 70,
-  faseColor: +((i * -10) / 6).toFixed(2),
+  faseColor: +((i * -10) / NIVELES_BASE.length).toFixed(2),
   ex: +(Math.cos((n.angulo * Math.PI) / 180) * 14).toFixed(1),
   ey: +(-Math.sin((n.angulo * Math.PI) / 180) * 14).toFixed(1),
 }));
 
 /**
- * Las lineas. Las seis primeras van al radio de su nivel; las otras son
+ * Las lineas. Las cinco primeras van al radio de su nivel; las otras son
  * secundarias, mas finas y mas apagadas, y solo estan para dar densidad.
  *
  * largo es el porcentaje de circunferencia dibujado. Cada una lleva un punto
@@ -85,7 +86,7 @@ const ARCOS = [
   { r: 28, largo: 72, giro: 118, fase: -13, entra: 320, tenue: false },
   { r: 33, largo: 92, giro: 244, fase: -20, entra: 380, tenue: false },
   { r: 38, largo: 80, giro: 16, fase: -27, entra: 440, tenue: false },
-  { r: 43, largo: 86, giro: 152, fase: -33, entra: 500, tenue: false },
+  { r: 43, largo: 86, giro: 152, fase: -33, entra: 500, tenue: true },
   { r: 20.5, largo: 46, giro: 82, fase: -3, entra: 560, tenue: true },
   { r: 30.5, largo: 40, giro: -104, fase: -17, entra: 600, tenue: true },
   { r: 40.5, largo: 48, giro: 208, fase: -30, entra: 640, tenue: true },
@@ -139,7 +140,7 @@ const ARCOS = [
         class="escena"
         data-test-escena
         role="img"
-        aria-label="Los seis niveles del Marco Común Europeo girando alrededor de una mirada: A1 principiante el más cercano, luego A2 básico, B1 intermedio, B2 intermedio alto, C1 avanzado y C2 dominio"
+        aria-label="Los cinco niveles que preparo, girando alrededor de una mirada: A1 principiante el más cercano, luego A2 básico, B1 intermedio, B2 intermedio alto y C1 avanzado"
       >
         <span class="escena__halo" aria-hidden="true"></span>
 
@@ -601,7 +602,7 @@ const ARCOS = [
      * lineas son el fondo y cambian despacio; las palabras son lo que se lee
      * y cambian a un ritmo que se nota.
      *
-     * Los seis desfases se reparten el ciclo entero, uno cada 1,67 segundos.
+     * Los desfases se reparten el ciclo entero.
      * Con los dos segundos de antes, sobre un ciclo de diez, la sexta caia en
      * el segundo -10 y volvia a coincidir con la primera.
      */
