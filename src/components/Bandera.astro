@@ -1,0 +1,108 @@
+---
+/**
+ * Banderas redondas para la lista de idiomas.
+ *
+ * Van en SVG y no en emoji a proposito: en Windows el emoji de bandera no
+ * existe y el navegador dibuja las dos letras del pais (FR, ES), asi que a la
+ * mitad de quien entra le saldrian siglas en vez de banderas.
+ *
+ * Los colores son los oficiales de cada bandera y por eso van en hexadecimal
+ * y no en variables: no pertenecen al sistema de color del sitio y cambiarlos
+ * seria dibujar otra bandera.
+ *
+ * Portugues lleva Brasil, que es de donde viene casi todo el que habla
+ * portugues.
+ */
+interface Props {
+  pais: 'fr' | 'es' | 'gb' | 'it' | 'br';
+  class?: string;
+}
+
+const { pais, class: className = '' } = Astro.props;
+
+/** Un identificador propio por instancia: si dos banderas comparten el id del
+    recorte, la segunda hereda el de la primera y se dibuja mal. */
+const id = `bandera-${pais}-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg
+  class={`bandera ${className}`}
+  viewBox="0 0 24 24"
+  role="img"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id={id}>
+      <circle cx="12" cy="12" r="12"></circle>
+    </clipPath>
+  </defs>
+
+  <g clip-path={`url(#${id})`}>
+    {
+      pais === 'fr' && (
+        <>
+          <rect width="8" height="24" fill="#002395" />
+          <rect x="8" width="8" height="24" fill="#ffffff" />
+          <rect x="16" width="8" height="24" fill="#ed2939" />
+        </>
+      )
+    }
+
+    {
+      pais === 'es' && (
+        <>
+          <rect width="24" height="24" fill="#aa151b" />
+          <rect y="6" width="24" height="12" fill="#f1bf00" />
+        </>
+      )
+    }
+
+    {
+      pais === 'gb' && (
+        <>
+          <rect width="24" height="24" fill="#012169" />
+          {/* Las aspas blancas y, encima, las rojas mas finas. */}
+          <path d="M0 0 24 24M24 0 0 24" stroke="#ffffff" stroke-width="5" />
+          <path d="M0 0 24 24M24 0 0 24" stroke="#c8102e" stroke-width="2.4" />
+          {/* La cruz recta, blanca debajo y roja encima. */}
+          <path d="M12 0v24M0 12h24" stroke="#ffffff" stroke-width="8" />
+          <path d="M12 0v24M0 12h24" stroke="#c8102e" stroke-width="4.6" />
+        </>
+      )
+    }
+
+    {
+      pais === 'it' && (
+        <>
+          <rect width="8" height="24" fill="#008c45" />
+          <rect x="8" width="8" height="24" fill="#f4f5f0" />
+          <rect x="16" width="8" height="24" fill="#cd212a" />
+        </>
+      )
+    }
+
+    {
+      pais === 'br' && (
+        <>
+          <rect width="24" height="24" fill="#009b3a" />
+          <path d="M12 3.6 21.6 12 12 20.4 2.4 12Z" fill="#fedf00" />
+          <circle cx="12" cy="12" r="3.9" fill="#002776" />
+        </>
+      )
+    }
+  </g>
+
+  {/* Un aro muy tenue para que la bandera no se funda con el fondo claro. */}
+  <circle cx="12" cy="12" r="11.5" fill="none" stroke="rgb(0 4 58 / 0.14)" stroke-width="1"
+  ></circle>
+</svg>
+
+<style>
+  .bandera {
+    display: block;
+    height: 1.375rem;
+    width: 1.375rem;
+    flex: none;
+  }
+</style>

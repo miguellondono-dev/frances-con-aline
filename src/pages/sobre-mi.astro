@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato.png';
 import Cta from '../components/Cta.astro';
+import Bandera from '../components/Bandera.astro';
 import { breadcrumb, alineId } from '../lib/schema';
 import { CTA } from '../data/site';
 
@@ -65,15 +66,14 @@ const INTERESES = [
 ];
 
 
-/**
- * Cada idioma escrito en su propio idioma.
- *
- * Antes eran cinco fichas con etiqueta debajo (materna, bilingue, aprendido)
- * y un pie explicandolo: treinta palabras para decir que habla cinco idiomas.
- * Escritos asi no hace falta ninguna etiqueta, porque la lista se demuestra
- * sola en cuanto se lee.
- */
-const IDIOMAS = ['Français', 'Español', 'English', 'Italiano', 'Português'];
+/** Portugues lleva Brasil, que es de donde viene casi todo el que lo habla. */
+const IDIOMAS = [
+  { nombre: 'Francés', pais: 'fr' as const },
+  { nombre: 'Español', pais: 'es' as const },
+  { nombre: 'Inglés', pais: 'gb' as const },
+  { nombre: 'Italiano', pais: 'it' as const },
+  { nombre: 'Portugués', pais: 'br' as const },
+];
 
 
 /**
@@ -107,23 +107,24 @@ const FORMATOS = [
   <!-- Apertura -->
   <section class="cabecera overflow-hidden">
     <div
-      class="pad-shell-left grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+      class="pad-shell-left grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14"
     >
       <div class="pad-shell-right lg:pr-0">
         <h1 class="cabecera__titulo" data-reveal>
-          Enseño <em class="destacado">francés</em> para que lo hables con soltura
+          Enseño francés para que lo hables con fluidez
         </h1>
-        <p class="measure mt-7 text-body text-nuit" data-reveal>
-          Es mi lengua materna. Los otros cuatro los aprendí de adulta, así que
-          sé por dónde vas a pasar. Me formé en pedagogía y llevo más de cinco
-          años enseñando.
+        <p class="cabecera__entrada" data-reveal>
+          Es mi lengua materna y aprender idiomas es mi pasión. Me formé en
+          pedagogía y en métodos de aprendizaje, hablo cinco idiomas y llevo más
+          de cinco años enseñando a estudiantes de medio mundo.
         </p>
 
         <ul class="idiomas" data-reveal>
           {
             IDIOMAS.map((idioma, i) => (
               <li class="idiomas__uno" style={`--i:${i}`}>
-                {i === 0 ? <em class="destacado">{idioma}</em> : idioma}
+                <Bandera pais={idioma.pais} />
+                <span class="idiomas__nombre">{idioma.nombre}</span>
               </li>
             ))
           }
@@ -139,26 +140,6 @@ const FORMATOS = [
           salirse por el canto. */}
       <div class="pad-shell-right lg:pr-0" data-reveal="fade">
         <div class="retrato">
-          <span class="retrato__halo" aria-hidden="true"></span>
-
-          {/*
-            El anillo punteado. Es la familia azul del sitio, que en esta
-            pagina no aparecia por ningun lado: todo era el mismo rosa. Gira
-            una vuelta cada tres minutos y medio, la misma idea que los orbes
-            del test: a esa velocidad no se ve girar, se nota.
-          */}
-          <svg class="retrato__anillo" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-            <circle
-              cx="50"
-              cy="50"
-              r="49"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="0.45"
-              stroke-linecap="round"
-              stroke-dasharray="0.5 4.2"
-            />
-          </svg>
 
           <div class="retrato__disco">
             <Picture
@@ -323,16 +304,24 @@ const FORMATOS = [
    * display con su escala.
    */
   .cabecera__titulo {
-    margin-top: 1.5rem;
-    max-width: 17ch;
+    max-width: 13ch;
     font-family: var(--font-display);
-    font-size: var(--text-display-xl);
-    font-weight: var(--text-display-xl--font-weight);
-    line-height: var(--text-display-xl--line-height);
-    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     text-wrap: balance;
     color: var(--color-encre);
   }
+
+  .cabecera__entrada {
+    margin: 2rem 0 0;
+    max-width: 52ch;
+    font-size: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--color-nuit);
+  }
+
 
   /**
    * Entra y sale en blanco, como las secciones del inicio. Antes era un baño
@@ -367,41 +356,31 @@ const FORMATOS = [
 
   /* --- Los idiomas --- */
 
-  /**
-   * Una linea de tipografia, no una tabla de datos. El francés va con la
-   * italica del inicio, que es el mismo recurso que usa la portada para
-   * marcar esa palabra.
-   */
   .idiomas {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem 0.9rem;
-    margin: 2.25rem 0 0;
+    gap: 0.6rem;
+    margin: 2.5rem 0 0;
     padding: 0;
     list-style: none;
-    font-family: var(--font-display);
-    font-size: clamp(1.125rem, 0.95rem + 0.8vw, 1.5rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--color-encre);
   }
 
   .idiomas__uno {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.9rem;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 14px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 0.6rem 1rem 0.6rem 0.7rem;
   }
 
-  /* El punto separador va en el elemento, no entre etiquetas: asi no se cuela
-     en el texto que lee un lector de pantalla. */
-  .idiomas__uno:not(:last-child)::after {
-    content: '';
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background-color: color-mix(in srgb, var(--color-encre) 32%, transparent);
-    translate: 0 -0.32em;
+  .idiomas__nombre {
+    font-family: var(--font-display);
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-encre);
   }
 
   /* Entran escalonados, de izquierda a derecha. El retardo va por variable
@@ -415,8 +394,8 @@ const FORMATOS = [
     opacity: 1;
     transform: none;
     transition:
-      opacity 620ms var(--ease-fluid) calc(var(--i, 0) * 90ms),
-      transform 620ms var(--ease-fluid) calc(var(--i, 0) * 90ms);
+      opacity 560ms var(--ease-fluid) calc(var(--i, 0) * 80ms),
+      transform 560ms var(--ease-fluid) calc(var(--i, 0) * 80ms);
   }
 
   /* --- Como es una clase --- */
@@ -497,81 +476,49 @@ const FORMATOS = [
 
   /* --- El retrato --- */
 
-  /**
-   * Tres capas, no una foto suelta: el halo calido detras, el anillo azul que
-   * gira, y el disco con la foto delante. La familia azul no aparecia en toda
-   * la pagina y era lo que la dejaba en un solo tono.
-   */
   .retrato {
     position: relative;
-    display: grid;
-    place-items: center;
-    width: min(23rem, 100%);
-    aspect-ratio: 1 / 1;
+    width: min(26rem, 100%);
     margin-inline: auto;
   }
 
-  .retrato__halo {
-    position: absolute;
-    inset: -16%;
-    border-radius: 50%;
-    background-image: radial-gradient(
-      circle at 50% 44%,
-      color-mix(in srgb, var(--color-chair) 26%, transparent) 0%,
-      color-mix(in srgb, var(--color-papier) 42%, transparent) 42%,
-      transparent 70%
-    );
-  }
-
-  .retrato__anillo {
-    position: absolute;
-    top: -7%;
-    left: -7%;
-    height: 114%;
-    width: 114%;
-    max-width: none;
-    color: color-mix(in srgb, var(--color-azur) 74%, transparent);
-    animation: girar-anillo 210s linear infinite;
-  }
-
-  @keyframes girar-anillo {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   /**
-   * Cuadrada de proporcion a proposito: con 1/1 la foto entra recortada al
-   * 71 por ciento y el colgante, que esta al 84, queda fuera. Y redondo, que
-   * es la forma del sitio: el ojo del logotipo y las aperturas.
+   * Caja redondeada, no circulo: es lo que enseña la referencia. El radio es
+   * grande y uniforme, asi que sigue sin haber una punta en toda la pieza.
    */
   .retrato__disco {
     position: relative;
-    height: 100%;
-    width: 100%;
     overflow: hidden;
-    border-radius: 50%;
-    background-image: radial-gradient(
-      circle at 50% 26%,
-      color-mix(in srgb, var(--color-papier) 92%, var(--color-blanc)) 0%,
-      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 52%,
-      color-mix(in srgb, var(--color-ciel) 26%, var(--color-blanc)) 100%
+    aspect-ratio: 4 / 5;
+    border-radius: 40px;
+    background-image: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-papier) 78%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 58%,
+      color-mix(in srgb, var(--color-ciel) 18%, var(--color-blanc)) 100%
     );
-    box-shadow: var(--shadow-flota);
+    box-shadow: var(--shadow-alta);
   }
 
+  /**
+   * Encuadre de la referencia: cabeza y hombros.
+   *
+   * Con object-fit la caja 4/5 enseñaria el 89 por ciento de la foto y ahi
+   * entra el colgante, que esta al 84. Poniendo la imagen al 149 por ciento
+   * del ancho y anclandola arriba se ve el 60 por ciento, que es justo el
+   * encuadre de la referencia y deja el colgante fuera.
+   *
+   * max-width none porque el reajuste global capa toda imagen al 100 y aqui
+   * hace falta pasarse.
+   */
   .retrato__img {
-    display: block;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    object-position: 50% 0%;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .retrato__anillo {
-      animation: none;
-    }
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: auto;
+    width: 149%;
+    max-width: none;
+    translate: -50% 0;
   }
 
   /* --- Hablemos --- */
