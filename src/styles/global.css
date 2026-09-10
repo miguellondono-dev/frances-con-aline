@@ -393,6 +393,23 @@
     box-shadow 520ms var(--ease-fluid);
 }
 
+/**
+ * Superficie oscura con profundidad. Un bloque de tinta plano pegado a una
+ * seccion clara corta la pagina con una linea de cuchillo. Con el degradado,
+ * la tinta entra por el azul de noche y se cierra abajo, asi que la seccion
+ * tiene volumen y el canto deja de leerse como un corte.
+ */
+@utility fondo-oscuro {
+  background-color: var(--color-encre);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-nuit) 62%, var(--color-encre)) 0%,
+    var(--color-encre) 46%,
+    var(--color-encre) 100%
+  );
+  color: var(--color-blanc);
+}
+
 @utility surface-dark {
   background-color: var(--color-encre);
   color: var(--color-blanc);
