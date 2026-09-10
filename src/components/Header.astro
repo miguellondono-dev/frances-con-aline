@@ -213,21 +213,27 @@ function activa(item: (typeof NAV)[number]) {
     border-color: color-mix(in srgb, var(--color-blanc) 34%, transparent);
   }
 
+  /* Tinta desde el primer pixel: la barra es la misma pieza que la portada. */
+  .barra[data-tema='oscuro'] {
+    background-color: var(--color-encre);
+    border-bottom-color: transparent;
+  }
+
   .barra[data-tema='oscuro'][data-scrolled='true'] {
-    background-color: color-mix(in srgb, var(--color-encre) 74%, transparent);
+    background-color: color-mix(in srgb, var(--color-encre) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom-color: color-mix(in srgb, var(--color-blanc) 14%, transparent);
     box-shadow: none;
   }
 
-  /* El boton del header va en tinta a proposito. Sobre una barra de tinta se
-     perderia, asi que aqui se invierte. */
   .barra[data-tema='oscuro'] > div:first-child :global(a[href='/agenda']) {
-    background-color: var(--color-blanc);
-    color: var(--color-encre);
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
   }
 
   .barra[data-tema='oscuro'] > div:first-child :global(a[href='/agenda']:hover) {
-    background-color: var(--color-ciel);
+    background-color: var(--color-lie);
   }
 
   .barra[data-scrolled='true'] {
