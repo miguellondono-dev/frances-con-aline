@@ -249,7 +249,7 @@ const abanico = TEMAS.map((tema, i) => {
     <span class="cierre__curva" aria-hidden="true"></span>
 
   <section class="tramites" aria-labelledby="tramites">
-    <div class="shell pb-section-sm pt-28">
+    <div class="shell pb-section-sm pt-20 lg:pt-44">
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="tramites__titulo" data-reveal>
@@ -910,31 +910,41 @@ const abanico = TEMAS.map((tema, i) => {
       color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0%,
       var(--color-encre) 14%,
       /**
-       * El azul aguanta macizo hasta el 31%, que es donde termina el texto en
-       * blanco de los documentos, y se gasta el salto entre el 31 y el 40, que
-       * es el hueco antes de que empiece el texto del formulario. Asi el
-       * blanco de arriba se lee sobre azul y el oscuro de abajo sobre tinte.
+       * El azul aguanta macizo hasta el 34%, que es donde termina el texto en
+       * blanco de los documentos, y gasta el salto entre el 34 y el 44, que es
+       * el hueco antes de que empiece el formulario, en el 45. Asi el blanco de
+       * arriba se lee sobre azul y el oscuro de abajo sobre tinte claro.
        */
-      var(--color-encre) 31%,
-      color-mix(in srgb, var(--color-encre) 30%, transparent) 36%,
-      color-mix(in srgb, var(--color-encre) 16%, transparent) 40%,
-      color-mix(in srgb, var(--color-encre) 10%, transparent) 60%,
-      color-mix(in srgb, var(--color-encre) 4%, transparent) 84%,
+      var(--color-encre) 34%,
+      color-mix(in srgb, var(--color-encre) 32%, transparent) 39%,
+      color-mix(in srgb, var(--color-encre) 15%, transparent) 44%,
+      color-mix(in srgb, var(--color-encre) 10%, transparent) 65%,
+      color-mix(in srgb, var(--color-encre) 4%, transparent) 86%,
       transparent 100%
     );
     background-size: 100% 112%;
     background-position: 50% 0%;
   }
 
-  /* La curva. Una pieza del color de la pagina con la base en elipse, apoyada
-     sobre el canto de arriba: lo que queda debajo es el azul en forma de u. */
+  /**
+   * La curva. Una pieza del color de la pagina con la base en elipse, apoyada
+   * sobre el canto de arriba: lo que queda debajo es el azul en forma de u.
+   *
+   * La caida importa mas que el radio, y va atada al ancho. Con 64px sobre
+   * 1380 la proporcion era de 1 a 21 y no se leia como curva, se leia como una
+   * raya torcida; fija en 120px se leia bien en pantalla grande pero en un
+   * movil de 375 quedaba en 1 a 3, un socavon. Con 8,5vw sale 1 a 12 en
+   * cualquier ancho.
+   */
   .cierre__curva {
     position: absolute;
-    top: -4rem;
-    right: -4%;
-    left: -4%;
+    top: -4.5rem;
+    /* Pegada a los cantos, no pasada: sobresalir un 4% por cada lado metia
+       barra de scroll horizontal en toda la pagina. */
+    right: 0;
+    left: 0;
     z-index: -1;
-    height: 8rem;
+    height: calc(4.5rem + 8.5vw);
     border-radius: 0 0 50% 50% / 0 0 100% 100%;
     background-color: var(--color-blanc);
     pointer-events: none;
