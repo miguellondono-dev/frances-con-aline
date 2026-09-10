@@ -111,7 +111,7 @@ const FORMATOS = [
     >
       <div class="pad-shell-right lg:pr-0">
         <h1 class="cabecera__titulo" data-reveal>
-          Enseño francés para que lo hables con soltura
+          Enseño <em class="destacado">francés</em> para que lo hables con soltura
         </h1>
         <p class="measure mt-7 text-body text-nuit" data-reveal>
           Es mi lengua materna. Los otros cuatro los aprendí de adulta, así que
@@ -139,7 +139,29 @@ const FORMATOS = [
           salirse por el canto. */}
       <div class="pad-shell-right lg:pr-0" data-reveal="fade">
         <div class="retrato">
-          <Picture
+          <span class="retrato__halo" aria-hidden="true"></span>
+
+          {/*
+            El anillo punteado. Es la familia azul del sitio, que en esta
+            pagina no aparecia por ningun lado: todo era el mismo rosa. Gira
+            una vuelta cada tres minutos y medio, la misma idea que los orbes
+            del test: a esa velocidad no se ve girar, se nota.
+          */}
+          <svg class="retrato__anillo" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <circle
+              cx="50"
+              cy="50"
+              r="49"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="0.45"
+              stroke-linecap="round"
+              stroke-dasharray="0.5 4.2"
+            />
+          </svg>
+
+          <div class="retrato__disco">
+            <Picture
             src={retrato}
             formats={['avif', 'webp']}
             {/* El respaldo tambien en webp: por defecto Astro lo deja en el
@@ -151,7 +173,8 @@ const FORMATOS = [
             alt="Aline, profesora de francés"
             loading="eager"
             class="retrato__img"
-          />
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -311,15 +334,22 @@ const FORMATOS = [
     color: var(--color-encre);
   }
 
+  /**
+   * Entra y sale en blanco, como las secciones del inicio. Antes era un baño
+   * rosa de arriba abajo, y una pagina entera del mismo tono es lo que hacia
+   * que esto pareciera muerto.
+   */
   .cabecera {
     background-image: linear-gradient(
       to bottom,
       var(--color-blanc) 0%,
-      color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc)) 30%,
-      color-mix(in srgb, var(--color-papier) 20%, var(--color-blanc)) 72%,
+      color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc)) 34%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 62%,
+      color-mix(in srgb, var(--color-papier) 12%, var(--color-blanc)) 88%,
       var(--color-blanc) 100%
     );
   }
+
 
   .clases {
     background-image: linear-gradient(
@@ -468,28 +498,64 @@ const FORMATOS = [
   /* --- El retrato --- */
 
   /**
-   * Redondo. Ni una punta.
-   *
-   * El sitio se sostiene sobre formas redondas desde el principio: el ojo del
-   * logotipo y las aperturas. Un cuadrado con las esquinas a 28px se salia de
-   * ahi, y ademas volvia a plantear el problema del canto recto. Con un
-   * circulo no hay canto que justificar: el borde es la forma.
-   *
-   * Cuadrada de proporcion a proposito: con 1/1 la foto entra recortada al
-   * 71 por ciento y el colgante, que esta al 84, queda fuera.
+   * Tres capas, no una foto suelta: el halo calido detras, el anillo azul que
+   * gira, y el disco con la foto delante. La familia azul no aparecia en toda
+   * la pagina y era lo que la dejaba en un solo tono.
    */
   .retrato {
     position: relative;
+    display: grid;
+    place-items: center;
     width: min(23rem, 100%);
-    margin-inline: auto;
     aspect-ratio: 1 / 1;
+    margin-inline: auto;
+  }
+
+  .retrato__halo {
+    position: absolute;
+    inset: -16%;
+    border-radius: 50%;
+    background-image: radial-gradient(
+      circle at 50% 44%,
+      color-mix(in srgb, var(--color-chair) 26%, transparent) 0%,
+      color-mix(in srgb, var(--color-papier) 42%, transparent) 42%,
+      transparent 70%
+    );
+  }
+
+  .retrato__anillo {
+    position: absolute;
+    top: -7%;
+    left: -7%;
+    height: 114%;
+    width: 114%;
+    max-width: none;
+    color: color-mix(in srgb, var(--color-azur) 74%, transparent);
+    animation: girar-anillo 210s linear infinite;
+  }
+
+  @keyframes girar-anillo {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /**
+   * Cuadrada de proporcion a proposito: con 1/1 la foto entra recortada al
+   * 71 por ciento y el colgante, que esta al 84, queda fuera. Y redondo, que
+   * es la forma del sitio: el ojo del logotipo y las aperturas.
+   */
+  .retrato__disco {
+    position: relative;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
     border-radius: 50%;
     background-image: radial-gradient(
       circle at 50% 26%,
-      color-mix(in srgb, var(--color-chair) 32%, var(--color-papier)) 0%,
-      color-mix(in srgb, var(--color-papier) 86%, var(--color-blanc)) 48%,
-      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 100%
+      color-mix(in srgb, var(--color-papier) 92%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 52%,
+      color-mix(in srgb, var(--color-ciel) 26%, var(--color-blanc)) 100%
     );
     box-shadow: var(--shadow-flota);
   }
@@ -500,6 +566,12 @@ const FORMATOS = [
     width: 100%;
     object-fit: cover;
     object-position: 50% 0%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .retrato__anillo {
+      animation: none;
+    }
   }
 
   /* --- Hablemos --- */
