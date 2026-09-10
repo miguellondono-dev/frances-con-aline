@@ -6,6 +6,18 @@ import { NAV, SITE_NAME, CTA_AGENDA, CTA } from '../data/site';
 /** Recorte del viewBox al ojo del logo, sin el aire del archivo original. */
 const OJO = '195 258 860 691';
 
+interface Props {
+  /**
+   * Arranca con el cristal ya puesto, sin esperar a que se deslice. Es la
+   * misma barra y el mismo estado de siempre: lo unico que cambia es que no
+   * hay tramo transparente. En paginas que abren con una seccion oscura, ese
+   * tramo es justo donde la curva de abajo no se aprecia.
+   */
+  fija?: boolean;
+}
+
+const { fija = false } = Astro.props;
+
 const current = Astro.url.pathname;
 
 /** Marca la entrada activa aunque la ruta actual sea uno de sus hijos. */
@@ -15,7 +27,7 @@ function activa(item: (typeof NAV)[number]) {
 }
 ---
 
-<header data-header data-scrolled="false" class="barra sticky top-0 z-40">
+<header data-header data-scrolled={fija ? "true" : "false"} data-fija={fija} class="barra sticky top-0 z-40">
   <div class="shell flex items-center justify-between gap-6 py-4">
     <a
       href="/"
@@ -183,6 +195,7 @@ function activa(item: (typeof NAV)[number]) {
       box-shadow 300ms var(--ease-smooth);
   }
 
+  .barra[data-fija='true'],
   .barra[data-scrolled='true'] {
     background-color: color-mix(in srgb, var(--color-blanc) 82%, transparent);
     backdrop-filter: blur(16px);

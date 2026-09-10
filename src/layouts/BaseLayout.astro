@@ -17,6 +17,8 @@ interface Props {
   noindex?: boolean;
   /** El home lleva su propio titulo completo, sin sufijo. */
   rawTitle?: boolean;
+  /** La barra arranca con el cristal puesto, sin tramo transparente. */
+  cabeceraFija?: boolean;
 }
 
 const {
@@ -26,6 +28,7 @@ const {
   schema = [],
   noindex = false,
   rawTitle = false,
+  cabeceraFija = false,
 } = Astro.props;
 
 const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
@@ -117,7 +120,7 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     */}
     <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-2 w-px"></div>
 
-    <Header />
+    <Header fija={cabeceraFija} />
 
     <main id="contenido">
       <slot />
