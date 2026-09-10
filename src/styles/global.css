@@ -399,15 +399,47 @@
  * la tinta entra por el azul de noche y se cierra abajo, asi que la seccion
  * tiene volumen y el canto deja de leerse como un corte.
  */
+/**
+ * Banda oscura.
+ *
+ * Antes se aclaraba arriba y a partir del 46% se quedaba en un plano de color
+ * hasta el final: media banda era un rectangulo liso. Ahora respira por los
+ * dos cantos y lleva grano, igual que las secciones claras, para que no sea
+ * un bloque macizo entre dos degradados.
+ */
 @utility fondo-oscuro {
+  position: relative;
+  isolation: isolate;
   background-color: var(--color-encre);
   background-image: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--color-nuit) 62%, var(--color-encre)) 0%,
-    var(--color-encre) 46%,
-    var(--color-encre) 100%
+    color-mix(in srgb, var(--color-nuit) 68%, var(--color-encre)) 0%,
+    color-mix(in srgb, var(--color-nuit) 34%, var(--color-encre)) 28%,
+    var(--color-encre) 54%,
+    color-mix(in srgb, var(--color-nuit) 26%, var(--color-encre)) 82%,
+    color-mix(in srgb, var(--color-nuit) 52%, var(--color-encre)) 100%
   );
   color: var(--color-blanc);
+}
+
+/* El grano va aparte del @utility: dentro de un bloque de utilidad, Tailwind
+   no admite pseudoelementos. Se desvanece por arriba y por abajo para no
+   dejar la raya que deja un velo que empieza de golpe en el canto. */
+.fondo-oscuro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 14%,
+    black 86%,
+    transparent 100%
+  );
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
 @utility surface-dark {

@@ -254,7 +254,10 @@ const abanico = TEMAS.map((tema, i) => {
           </p>
         </div>
         <div class="tramites__accion" data-reveal>
-          <Cta href="/agenda" variant="grenat">{CTA.cierreQuienSoy}</Cta>
+          {/* El texto del boton sale de lo que promete esta seccion. Antes
+              decia "Conozcámonos en una clase", que es el cierre de la pagina
+              y sale otra vez 400px mas abajo. */}
+          <Cta href="#hablemos" variant="grenat">Cuéntame qué necesitas</Cta>
         </div>
       </div>
     </div>
