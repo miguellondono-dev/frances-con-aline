@@ -246,8 +246,6 @@ const abanico = TEMAS.map((tema, i) => {
     desaparecer al final del formulario.
   */}
   <div class="cierre">
-    <span class="cierre__curva" aria-hidden="true"></span>
-
   <section class="tramites" aria-labelledby="tramites">
     <div class="shell pb-48 pt-24 lg:pt-36">
       <div class="tramites__caja">
@@ -893,15 +891,23 @@ const abanico = TEMAS.map((tema, i) => {
    * es blanca y su caida se sumaba a ese hueco en vez de ocuparlo: 231px de
    * nada entre el ultimo parrafo y el azul.
    */
+  /* Sube solo lo que sobra del hueco de la seccion de arriba. Con 6vw el azul
+     se comia las ultimas lineas del parrafo anterior, y con 2,5rem fijos se
+     las comia igual en movil, donde ese hueco es mas corto. En vw sube en
+     proporcion al ancho, como la propia curva. */
   .cierre {
     position: relative;
     isolation: isolate;
-    margin-top: -6vw;
+    margin-top: -2.5vw;
   }
 
   .tramites {
     position: relative;
     isolation: isolate;
+    /* Recorta la capa del azul, que sobra 40px por arriba y por abajo para
+       tener recorrido. Sin esto, esos 40px asomaban por encima de la curva
+       como una franja azul suelta. */
+    overflow: hidden;
     color: var(--color-blanc);
   }
 
@@ -936,12 +942,18 @@ const abanico = TEMAS.map((tema, i) => {
    * La curva: una pieza del color de la pagina con la base en elipse, apoyada
    * en el canto de arriba. Lo que queda debajo es el azul en forma de u.
    *
+   * Va como ::after de la propia seccion y no como hermana suelta. Colgada del
+   * envoltorio quedaba detras del azul y no se veia: .tramites abre su propio
+   * contexto de apilado, asi que un hermano con z-index negativo se pinta por
+   * debajo de ella entera.
+   *
    * La caida va atada al ancho porque lo que decide si se lee como curva es la
    * proporcion, no los pixeles: 8,5vw son 1 a 12 en cualquier pantalla. Con
    * 64px fijos sobre 1380 salia 1 a 21, una raya torcida; con 120 fijos, en un
    * movil de 375 salia 1 a 3, un socavon.
    */
-  .cierre__curva {
+  .tramites::after {
+    content: '';
     position: absolute;
     top: 0;
     right: 0;
