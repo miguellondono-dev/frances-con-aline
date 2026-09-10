@@ -402,44 +402,76 @@
 /**
  * Banda oscura.
  *
- * Antes se aclaraba arriba y a partir del 46% se quedaba en un plano de color
- * hasta el final: media banda era un rectangulo liso. Ahora respira por los
- * dos cantos y lleva grano, igual que las secciones claras, para que no sea
- * un bloque macizo entre dos degradados.
+ * Ya no es un bloque con dos cantos rectos. Arriba entra con una curva y el
+ * azul se apaga hacia abajo hasta desaparecer antes del formulario, asi que
+ * por abajo no hay canto ninguno.
+ *
+ * Van dos capas. La de atras es el azul, que ademas se desplaza mientras la
+ * banda cruza la pantalla; se mueve el fondo dentro de la caja y no la caja,
+ * para que la curva de arriba se quede quieta. La de delante es una pieza del
+ * color de la pagina con la base redondeada, y es la que talla la curva.
  */
 @utility fondo-oscuro {
   position: relative;
   isolation: isolate;
-  background-color: var(--color-encre);
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-nuit) 68%, var(--color-encre)) 0%,
-    color-mix(in srgb, var(--color-nuit) 34%, var(--color-encre)) 28%,
-    var(--color-encre) 54%,
-    color-mix(in srgb, var(--color-nuit) 26%, var(--color-encre)) 82%,
-    color-mix(in srgb, var(--color-nuit) 52%, var(--color-encre)) 100%
-  );
   color: var(--color-blanc);
 }
 
-/* El grano va aparte del @utility: dentro de un bloque de utilidad, Tailwind
-   no admite pseudoelementos. Se desvanece por arriba y por abajo para no
-   dejar la raya que deja un velo que empieza de golpe en el canto. */
-.fondo-oscuro::before {
+.fondo-oscuro::before,
+.fondo-oscuro::after {
   content: '';
   position: absolute;
-  inset: 0;
-  z-index: -1;
   pointer-events: none;
-  opacity: 0.22;
-  mask-image: linear-gradient(
+}
+
+.fondo-oscuro::before {
+  inset: 0;
+  z-index: -2;
+  background-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    black 14%,
-    black 86%,
+    color-mix(in srgb, var(--color-nuit) 62%, var(--color-encre)) 0%,
+    var(--color-encre) 30%,
+    var(--color-encre) 58%,
+    color-mix(in srgb, var(--color-encre) 62%, transparent) 82%,
     transparent 100%
   );
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
+  /* Mas alto que la caja: es el margen que se come el desplazamiento. */
+  background-size: 100% 118%;
+  background-position: 50% 0%;
+}
+
+/* La curva. Una pieza del color de la pagina, con la base en elipse, apoyada
+   sobre el canto de arriba: lo que queda debajo es el azul en forma de u. */
+.fondo-oscuro::after {
+  top: -3.5rem;
+  right: -4%;
+  left: -4%;
+  z-index: -1;
+  height: 7rem;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background-color: var(--color-blanc);
+}
+
+@keyframes banda-deriva {
+  from {
+    background-position-y: 0%;
+  }
+  to {
+    background-position-y: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* En propiedades sueltas y con duracion auto. El atajo animation: pone la
+     duracion en 0s, y con duracion cero una animacion atada al scroll no
+     avanza nunca: se queda en el primer fotograma. */
+  .fondo-oscuro::before {
+    animation-name: banda-deriva;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+  }
 }
 
 @utility surface-dark {
