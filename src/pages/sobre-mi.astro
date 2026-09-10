@@ -201,7 +201,9 @@ const abanico = TEMAS.map((tema, i) => {
     {/* Grano. Rompe el plano de color sin pedir un solo archivo al servidor. */}
     <span class="clases__grano" aria-hidden="true"></span>
 
-    <div class="shell relative z-10 py-section">
+    {/* Menos relleno arriba que abajo: la cabecera ya deja su propio aire
+        debajo de las banderas y sumando los dos el titular caia muy hondo. */}
+    <div class="shell relative z-10 pb-section pt-10">
       <h2 id="clases" class="clases__titulo" data-reveal>
         Aprender un idioma es mucho más fácil cuando tienes algo que decir
       </h2>
