@@ -246,8 +246,10 @@ const abanico = TEMAS.map((tema, i) => {
     desaparecer al final del formulario.
   */}
   <div class="cierre">
+    <span class="cierre__curva" aria-hidden="true"></span>
+
   <section class="tramites" aria-labelledby="tramites">
-    <div class="shell pb-48 pt-20 lg:pt-28">
+    <div class="shell pb-48 pt-24 lg:pt-36">
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="tramites__titulo" data-reveal>
@@ -877,6 +879,110 @@ const abanico = TEMAS.map((tema, i) => {
       color-mix(in srgb, black 55%, transparent) 93%,
       transparent 100%
     );
+  }
+
+  /* --- Hablemos --- */
+
+  /**
+   * El azul de las dos secciones que cierran la pagina.
+   *
+   * No es una banda: arranca macizo detras de los documentos y se va apagando
+   * hasta desaparecer al final del formulario.
+   *
+   * Sube para meterse en el hueco que ya dejaba la seccion de arriba. La curva
+   * es blanca y su caida se sumaba a ese hueco en vez de ocuparlo: 231px de
+   * nada entre el ultimo parrafo y el azul.
+   */
+  .cierre {
+    position: relative;
+    isolation: isolate;
+    margin-top: -6vw;
+  }
+
+  .tramites {
+    position: relative;
+    isolation: isolate;
+    color: var(--color-blanc);
+  }
+
+  /**
+   * El azul, en su propia capa para poder moverlo con transform.
+   *
+   * Antes se movia el background-position, que repinta en cada fotograma. La
+   * capa sobra 40px por arriba y por abajo, que es el margen que se come el
+   * recorrido sin dejar el canto al descubierto.
+   *
+   * Los cortes van en pixeles desde el canto, no en porcentajes del bloque:
+   * con porcentajes funcionaba en pantalla grande y se rompia en el movil,
+   * donde el formulario mide el triple y el mismo corte caia en otro sitio.
+   */
+  .tramites::before {
+    content: '';
+    position: absolute;
+    inset: -40px 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0,
+      var(--color-encre) 170px,
+      var(--color-encre) calc(100% - 190px),
+      color-mix(in srgb, var(--color-encre) 12%, transparent) calc(100% - 40px),
+      color-mix(in srgb, var(--color-encre) 12%, transparent) 100%
+    );
+  }
+
+  /**
+   * La curva: una pieza del color de la pagina con la base en elipse, apoyada
+   * en el canto de arriba. Lo que queda debajo es el azul en forma de u.
+   *
+   * La caida va atada al ancho porque lo que decide si se lee como curva es la
+   * proporcion, no los pixeles: 8,5vw son 1 a 12 en cualquier pantalla. Con
+   * 64px fijos sobre 1380 salia 1 a 21, una raya torcida; con 120 fijos, en un
+   * movil de 375 salia 1 a 3, un socavon.
+   */
+  .cierre__curva {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+    height: 8.5vw;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    background-color: var(--color-blanc);
+    pointer-events: none;
+  }
+
+  /* El formulario sigue sobre el tinte, que se apaga del todo al final. Sin
+     fondo propio: el que tenia tapaba el azul. */
+  .hablemos {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-encre) 12%, transparent) 0%,
+      color-mix(in srgb, var(--color-encre) 8%, transparent) 46%,
+      transparent 100%
+    );
+  }
+
+  @keyframes cierre-deriva {
+    from {
+      transform: translateY(-18px);
+    }
+    to {
+      transform: translateY(18px);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* En propiedades sueltas y con duracion auto: el atajo animation: pone la
+       duracion en 0s y con eso una animacion de scroll no avanza nunca. */
+    .tramites::before {
+      animation-name: cierre-deriva;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+    }
   }
 
   /* --- Hablemos --- */
