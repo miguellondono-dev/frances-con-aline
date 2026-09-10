@@ -111,6 +111,10 @@
      Empezo en 4px para que toda la curvatura viviera en la apertura del ojo.
      En tarjetas con contenido eso se lee duro, asi que sube a 14px. La
      apertura sigue siendo la forma con caracter del sitio. --- */
+  /* Alto real de la barra, medido. Lo necesita cualquier seccion que quiera
+     pasar por detras de ella. */
+  --alto-barra: 89px;
+
   --radius-panel: 14px;
   --radius-pill: 999px;
 
@@ -319,6 +323,76 @@
 }
 
 /* Superficie oscura. Se usa como puntuacion, no como base. Maximo 3 en el home. */
+/**
+ * La palabra marcada de un titular. La portada la usa para "francés" y es una
+ * de las cosas que hacen que una seccion se reconozca como de este sitio.
+ * Estaba escrita tres veces en tres archivos; ahora vive aqui.
+ */
+@utility destacado {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-lie);
+}
+
+/**
+ * El titular de una seccion. La escala da 500 de grosor, pero los titulares
+ * de la portada van a 700: con 500 a ese tamaño se quedan flojos y la seccion
+ * pierde peso frente a las de al lado.
+ */
+@utility titulo-seccion {
+  font-family: var(--font-display);
+  font-size: var(--text-display-l);
+  font-weight: 700;
+  line-height: var(--text-display-l--line-height);
+  letter-spacing: var(--text-display-l--letter-spacing);
+  text-wrap: balance;
+}
+
+/**
+ * Los fondos de seccion del sitio. Entran y salen en blanco, asi que dos
+ * secciones seguidas no chocan por un canto duro: el color sube, se mantiene
+ * y baja. Un bloque plano de color corta la pagina en franjas.
+ */
+@utility fondo-calido {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-blanc) 0%,
+    color-mix(in srgb, var(--color-papier) 58%, var(--color-blanc)) 30%,
+    color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 66%,
+    color-mix(in srgb, var(--color-papier) 20%, var(--color-blanc)) 90%,
+    var(--color-blanc) 100%
+  );
+}
+
+@utility fondo-suave {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-blanc) 0%,
+    color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 40%,
+    color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc)) 72%,
+    var(--color-blanc) 100%
+  );
+}
+
+/**
+ * La tarjeta del sitio. Radio de 22, sombra flotante desde el principio y el
+ * degradado de tinta que entra al pasar por encima, que es lo que hacen las
+ * tarjetas de la portada. El degradado se funde por opacidad, que es lo unico
+ * que se puede animar de forma continua en un degradado.
+ */
+@utility tarjeta-sitio {
+  position: relative;
+  isolation: isolate;
+  border-radius: 22px;
+  background-color: var(--color-blanc);
+  box-shadow: var(--shadow-flota);
+  transition:
+    transform 520ms var(--ease-fluid),
+    box-shadow 520ms var(--ease-fluid);
+}
+
 @utility surface-dark {
   background-color: var(--color-encre);
   color: var(--color-blanc);

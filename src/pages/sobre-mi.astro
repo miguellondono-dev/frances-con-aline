@@ -321,8 +321,16 @@ const AFICIONES = [
    * titulares de portada del sitio van a 650, mas cuerpo que el 500 de la
    * escala pero sin llegar a gritar, y este es un titular de portada.
    */
+  /**
+   * Sube por detras de la barra y se devuelve el hueco con relleno, asi que
+   * el contenido no se mueve pero el color si llega hasta arriba. Sin esto,
+   * la barra flota sobre el blanco del cuerpo y las muescas de sus esquinas
+   * se ven blancas en vez de azules.
+   */
   .cabecera {
     position: relative;
+    margin-top: calc(-1 * var(--alto-barra));
+    padding-top: var(--alto-barra);
   }
 
   .cabecera__titulo {

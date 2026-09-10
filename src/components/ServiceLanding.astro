@@ -88,14 +88,19 @@ const {
 </section>
 
 <!-- 2. PARA QUIEN SI, PARA QUIEN NO -->
-<section class="bg-papier" aria-labelledby="para-quien">
+<section class="fondo-calido" aria-labelledby="para-quien">
   <div class="shell py-section">
-    <h2 id="para-quien" class="max-w-[22ch] text-display-l text-encre" data-reveal>
+    <h2 id="para-quien" class="titulo-seccion max-w-[22ch] text-encre" data-reveal>
       Para quién es esto, y para quién no
     </h2>
 
-    <div class="mt-12 grid gap-px overflow-hidden rounded-panel bg-encre/15 lg:grid-cols-2">
-      <div class="bg-papier p-8 sm:p-10" data-reveal>
+    {/*
+      Dos tarjetas que flotan y se separan, como las de la portada. Antes iban
+      pegadas con una linea de un pixel dentro de una caja: ese recurso no
+      existe en ningun sitio del inicio.
+    */}
+    <div class="mt-12 grid gap-5 lg:grid-cols-2">
+      <div class="tarjeta-sitio p-8 sm:p-10" data-reveal>
         <p class="label text-bleu">Es para ti si</p>
         <ul class="mt-6 flex flex-col gap-4">
           {
@@ -113,7 +118,7 @@ const {
         </ul>
       </div>
 
-      <div class="bg-papier p-8 sm:p-10" data-reveal>
+      <div class="tarjeta-sitio p-8 sm:p-10" data-reveal>
         <p class="label text-lie">No es para ti si</p>
         <ul class="mt-6 flex flex-col gap-4">
           {
@@ -138,7 +143,7 @@ const {
 <section class="bg-blanc" aria-labelledby="incluye">
   <div class="shell grid gap-12 py-section lg:grid-cols-12 lg:gap-8">
     <div class="lg:col-span-4">
-      <h2 id="incluye" class="text-display-l text-encre lg:sticky lg:top-28" data-reveal>
+      <h2 id="incluye" class="titulo-seccion text-encre lg:sticky lg:top-28" data-reveal>
         Qué incluye
       </h2>
     </div>
@@ -156,9 +161,9 @@ const {
 </section>
 
 <!-- 4. COMO FUNCIONA. Unica fila de tres del sitio: es una secuencia real. -->
-<section class="bg-papier" aria-labelledby="como-funciona">
+<section class="fondo-suave" aria-labelledby="como-funciona">
   <div class="shell py-section">
-    <h2 id="como-funciona" class="text-display-l text-encre" data-reveal>Cómo funciona</h2>
+    <h2 id="como-funciona" class="titulo-seccion text-encre" data-reveal>Cómo funciona</h2>
     <ol class="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
       {
         pasos.map((paso, i) => (
@@ -224,9 +229,9 @@ const {
 <Faq preguntas={faq} id="preguntas" />
 
 <!-- 7. CTA -->
-<section class="border-t-4 border-chair bg-papier" aria-labelledby="cierre">
+<section class="fondo-calido" aria-labelledby="cierre">
   <div class="shell flex flex-col items-start py-section">
-    <h2 id="cierre" class="max-w-[20ch] text-display-l text-encre" data-reveal>
+    <h2 id="cierre" class="titulo-seccion max-w-[20ch] text-encre" data-reveal>
       {cierre.titulo}
     </h2>
     <p class="measure mt-7 text-body text-encre" data-reveal>{cierre.texto}</p>
