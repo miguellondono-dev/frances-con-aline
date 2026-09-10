@@ -246,10 +246,8 @@ const abanico = TEMAS.map((tema, i) => {
     desaparecer al final del formulario.
   */}
   <div class="cierre">
-    <span class="cierre__curva" aria-hidden="true"></span>
-
   <section class="tramites" aria-labelledby="tramites">
-    <div class="shell pb-section-sm pt-20 lg:pt-44">
+    <div class="shell pb-48 pt-20 lg:pt-28">
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="tramites__titulo" data-reveal>
@@ -886,68 +884,55 @@ const abanico = TEMAS.map((tema, i) => {
   /**
    * El azul de las dos secciones que cierran la pagina.
    *
-   * No es una banda con dos cantos: arranca macizo detras de los documentos y
-   * se va apagando hasta desaparecer al final del formulario. Por eso el
-   * degradado vive en el envoltorio de las dos y no en cada seccion, y por eso
-   * el formulario ya no lleva fondo propio: lo taparia.
+   * No es una banda: arranca macizo detras de los documentos y se va apagando
+   * hasta desaparecer al final del formulario.
    *
-   * El fondo mide mas que la caja y se desplaza dentro de ella mientras el
-   * bloque cruza la pantalla, atado al scroll, asi que se mueve al bajar y al
-   * subir. Se mueve el fondo y no la caja para que la curva se quede quieta.
+   * Los cortes van en pixeles desde el canto de cada seccion, no en
+   * porcentajes del bloque entero. Con porcentajes funcionaba en pantalla
+   * grande y se rompia en el movil, donde el formulario mide el triple y el
+   * mismo 34% caia en otro sitio: el azul llegaba macizo hasta el texto
+   * oscuro.
    */
   .cierre {
     position: relative;
     isolation: isolate;
   }
 
-  .cierre::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -2;
+  .tramites {
+    color: var(--color-blanc);
+    /**
+     * La curva es el propio canto del azul, en forma de loma: sube en el
+     * centro y baja hacia las esquinas. Al reves, con el blanco cayendo en el
+     * centro, ese blanco se sumaba al que ya dejaba la seccion de arriba justo
+     * debajo del parrafo, que va centrado.
+     *
+     * La caida va atada al ancho porque lo que decide si se lee como curva es
+     * la proporcion: 8,5vw son 1 a 12 en cualquier pantalla.
+     */
+    border-radius: 50% 50% 0 0 / 8.5vw 8.5vw 0 0;
     background-image: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0%,
-      var(--color-encre) 14%,
-      /**
-       * El azul aguanta macizo hasta el 34%, que es donde termina el texto en
-       * blanco de los documentos, y gasta el salto entre el 34 y el 44, que es
-       * el hueco antes de que empiece el formulario, en el 45. Asi el blanco de
-       * arriba se lee sobre azul y el oscuro de abajo sobre tinte claro.
-       */
-      var(--color-encre) 34%,
-      color-mix(in srgb, var(--color-encre) 32%, transparent) 39%,
-      color-mix(in srgb, var(--color-encre) 15%, transparent) 44%,
-      color-mix(in srgb, var(--color-encre) 10%, transparent) 65%,
-      color-mix(in srgb, var(--color-encre) 4%, transparent) 86%,
-      transparent 100%
+      color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0,
+      var(--color-encre) 130px,
+      /* Los ultimos 150px se van al tinte claro con el que arranca el
+         formulario. El relleno de abajo de esta seccion es mayor que eso, asi
+         que el texto en blanco termina antes de que empiece el salto. */
+      var(--color-encre) calc(100% - 150px),
+      color-mix(in srgb, var(--color-encre) 12%, transparent) 100%
     );
-    background-size: 100% 112%;
+    background-size: 100% 106%;
     background-position: 50% 0%;
   }
 
-  /**
-   * La curva. Una pieza del color de la pagina con la base en elipse, apoyada
-   * sobre el canto de arriba: lo que queda debajo es el azul en forma de u.
-   *
-   * La caida importa mas que el radio, y va atada al ancho. Con 64px sobre
-   * 1380 la proporcion era de 1 a 21 y no se leia como curva, se leia como una
-   * raya torcida; fija en 120px se leia bien en pantalla grande pero en un
-   * movil de 375 quedaba en 1 a 3, un socavon. Con 8,5vw sale 1 a 12 en
-   * cualquier ancho.
-   */
-  .cierre__curva {
-    position: absolute;
-    top: -4.5rem;
-    /* Pegada a los cantos, no pasada: sobresalir un 4% por cada lado metia
-       barra de scroll horizontal en toda la pagina. */
-    right: 0;
-    left: 0;
-    z-index: -1;
-    height: calc(4.5rem + 8.5vw);
-    border-radius: 0 0 50% 50% / 0 0 100% 100%;
-    background-color: var(--color-blanc);
-    pointer-events: none;
+  /* El formulario sigue sobre el tinte, que se apaga del todo al final. Sin
+     fondo propio: el que tenia tapaba el azul. */
+  .hablemos {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-encre) 12%, transparent) 0%,
+      color-mix(in srgb, var(--color-encre) 8%, transparent) 46%,
+      transparent 100%
+    );
   }
 
   @keyframes cierre-deriva {
@@ -962,17 +947,13 @@ const abanico = TEMAS.map((tema, i) => {
   @media (prefers-reduced-motion: no-preference) {
     /* En propiedades sueltas y con duracion auto: el atajo animation: pone la
        duracion en 0s y con eso una animacion de scroll no avanza nunca. */
-    .cierre::before {
+    .tramites {
       animation-name: cierre-deriva;
       animation-duration: auto;
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-timeline: view();
     }
-  }
-
-  .tramites {
-    color: var(--color-blanc);
   }
 
   .hablemos__reparto {
