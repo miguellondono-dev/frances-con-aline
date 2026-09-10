@@ -4,6 +4,7 @@ import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato-2026.png';
 import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
+import Icon from '../components/Icon.astro';
 import { breadcrumb, alineId } from '../lib/schema';
 import { CTA } from '../data/site';
 
@@ -85,29 +86,21 @@ const IDIOMAS = [
  * lo que hacemos si la respuesta es si), asi que ninguno pesa mas que otro.
  */
 /**
- * Las dos preguntas con las que arranca una clase.
+ * De donde puede salir el material de una clase.
  *
- * Antes aqui habia dos aficiones concretas, poesia y fotografia, y eso
- * dejaba fuera a quien no tuviera ninguna de las dos: se leian como el menu
- * completo. Ahora las preguntas son abiertas y los ejemplos van dentro de la
- * respuesta, donde se leen como lo que son.
- *
- * Cortas a proposito. Son dos papeles dejados sobre una mesa y van girados:
- * con un parrafo largo dentro dejan de parecer papeles y el giro solo estorba
- * para leer. Tres lineas cada uno es lo que aguanta el gesto.
+ * Antes aqui habia dos aficiones concretas, poesia y fotografia, y con dos
+ * se leian como el menu completo: quien no tuviera ninguna de las dos
+ * quedaba fuera. Seis se leen como lo que son, ejemplos, y la linea de
+ * debajo de la rejilla lo dice sin rodeos.
  */
-const PARTIDA = [
-  {
-    pregunta: '¿Qué te gusta?',
-    respuesta:
-      'De ahí sale el material. Una canción, una receta, la serie que estás viendo, el libro que tienes a medias. Si lo tuyo es otra cosa, lo traes.',
-  },
-  {
-    pregunta: '¿A dónde quieres llegar?',
-    respuesta:
-      'Conversar, viajar, trabajar, preparar un examen o simplemente empezar a hablar francés. Dime el tuyo y ordeno las clases para llegar ahí.',
-  },
-];
+const TEMAS = [
+  { icono: 'musica', nombre: 'Música' },
+  { icono: 'lectura', nombre: 'Lectura' },
+  { icono: 'foto', nombre: 'Fotografía' },
+  { icono: 'viaje', nombre: 'Viajes' },
+  { icono: 'cine', nombre: 'Cine' },
+  { icono: 'cocina', nombre: 'Cocina' },
+] as const;
 
 
 ---
@@ -189,29 +182,36 @@ const PARTIDA = [
       <div class="clases__reparto">
         <div class="clases__texto">
           <h2 id="clases" class="clases__titulo" data-reveal>
-            En mis clases mejorarás con actividades divertidas y a tu medida
+            Aprender un idioma es mucho más fácil cuando tienes algo que decir
           </h2>
 
           <p class="clases__cierre" data-reveal>
-            Aprender un idioma es mucho más fácil cuando tienes algo que decir.
+            Por eso, mis clases parten de lo que te interesa y de lo que quieres
+            conseguir: conversar, viajar, trabajar, preparar un examen o
+            simplemente empezar a hablar francés.
           </p>
         </div>
 
-        {/*
-          Las dos fichas se solapan y van giradas un grado largo, como dos
-          papeles dejados sobre una mesa. Antes eran dos cajas blancas
-          apiladas: la misma informacion sin nada que mirar.
-        */}
-        <ul class="fichas">
-          {
-            PARTIDA.map((a, i) => (
-              <li class="ficha" style={`--i:${i}`} data-reveal>
-                <span class="ficha__pregunta">{a.pregunta}</span>
-                <span class="ficha__respuesta">{a.respuesta}</span>
-              </li>
-            ))
-          }
-        </ul>
+        {/* Seis cartas con el tema y su marca. Entran escalonadas, en dos
+            pasadas cruzadas, para que no caigan como una persiana. */}
+        <div class="temas">
+          <ul class="temas__rejilla" data-reveal>
+            {
+              TEMAS.map((t, i) => (
+                <li class="tema" style={`--i:${i}`}>
+                  <span class="tema__marca">
+                    <Icon name={t.icono} class="h-6 w-6" />
+                  </span>
+                  <span class="tema__nombre">{t.nombre}</span>
+                </li>
+              ))
+            }
+          </ul>
+
+          <p class="temas__pie" data-reveal>
+            Y si lo tuyo no está aquí, lo traes tú.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -565,111 +565,106 @@ const PARTIDA = [
 
   /* --- Las dos fichas --- */
 
-  .fichas {
+  /**
+   * Seis cartas con el tema y su marca.
+   *
+   * Antes aqui habia dos papeles girados con una pregunta y un parrafo. El
+   * gesto aguantaba con una linea de texto y dejo de aguantar con seis, asi
+   * que el contenido se parte en piezas del tamaño de una carta y el giro
+   * desaparece: en una rejilla de seis, inclinar cada pieza es ruido.
+   */
+  .temas__rejilla {
     display: grid;
-    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  /**
-   * Se solapan y van giradas: dos papeles dejados sobre una mesa, no dos
-   * cajas apiladas. La segunda entra por debajo y desplazada a la derecha,
-   * asi que hay profundidad de verdad y no dos rectangulos alineados.
-   */
-  .ficha {
-    position: relative;
-    border-radius: 24px 24px 26px 22px;
+  @media (width >= 30rem) {
+    .temas__rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .tema {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    border-radius: 20px;
     background-color: var(--color-blanc);
-    padding: 1.6rem 1.7rem 1.7rem;
+    padding: 1.1rem 1rem 1.15rem;
     /* Sombra teñida del azul del sitio, no negra: una sombra negra sobre un
        fondo calido lo ensucia. */
     box-shadow:
       0 1px 2px color-mix(in srgb, var(--color-encre) 6%, transparent),
-      0 22px 44px -22px color-mix(in srgb, var(--color-nuit) 42%, transparent);
+      0 16px 32px -20px color-mix(in srgb, var(--color-nuit) 40%, transparent);
     transition:
       transform 520ms var(--ease-fluid),
       box-shadow 520ms var(--ease-fluid);
   }
 
-  .ficha:first-child {
-    z-index: 2;
-    rotate: -1.4deg;
-  }
-
-  .ficha:last-child {
-    z-index: 1;
-    margin-top: -1.15rem;
-    rotate: 1deg;
-  }
-
-  @media (width >= 40rem) {
-    .ficha:first-child {
-      margin-right: 3.5rem;
-    }
-
-    .ficha:last-child {
-      margin-left: 3.5rem;
-      margin-top: -1.6rem;
-    }
-  }
-
-  /* Al pasar por encima se endereza y sube al frente: el gesto de coger un
-     papel de la mesa. */
-  .ficha:hover {
-    z-index: 3;
-    rotate: 0deg;
-    transform: translateY(-6px);
+  .tema:hover {
+    transform: translateY(-4px);
     box-shadow:
       0 2px 4px color-mix(in srgb, var(--color-encre) 8%, transparent),
-      0 34px 60px -24px color-mix(in srgb, var(--color-nuit) 52%, transparent);
+      0 26px 46px -22px color-mix(in srgb, var(--color-nuit) 50%, transparent);
   }
 
-  .ficha__pregunta {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.625rem);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+  /* La marca va sobre su propio disco calido: sin el, un trazo fino sobre
+     blanco se pierde al lado del nombre. */
+  .tema__marca {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.6rem;
+    width: 2.6rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc));
     color: var(--color-grenat);
   }
 
-  .ficha__respuesta {
-    display: block;
-    margin-top: 0.55rem;
-    max-width: 36ch;
+  .tema__nombre {
+    font-family: var(--font-display);
     font-size: var(--text-body-s);
-    line-height: 1.55;
-    text-wrap: pretty;
-    color: color-mix(in srgb, var(--color-encre) 76%, transparent);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-encre);
   }
 
-  /* Entradas escalonadas, cada una desde su propio giro. */
-  :global(.js) .ficha[data-reveal] {
-    transform: translateY(26px);
+  .temas__pie {
+    margin: 1.4rem 0 0;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
   }
 
-  .ficha[data-reveal] {
-    transition:
-      opacity 720ms var(--ease-fluid) calc(var(--i, 0) * 120ms),
-      transform 720ms var(--ease-fluid) calc(var(--i, 0) * 120ms),
-      box-shadow 520ms var(--ease-fluid) !important;
+  /* Entran una detras de otra, de arriba abajo y de izquierda a derecha. El
+     retardo va por variable para no repetir seis reglas iguales. */
+  :global(.js) .temas__rejilla[data-reveal] .tema {
+    opacity: 0;
+    transform: translateY(16px);
   }
 
-  .ficha[data-reveal].is-revealed {
+  .temas__rejilla[data-reveal].is-revealed .tema {
+    opacity: 1;
     transform: none;
+    transition:
+      opacity 620ms var(--ease-fluid) calc(var(--i, 0) * 70ms),
+      transform 620ms var(--ease-fluid) calc(var(--i, 0) * 70ms);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ficha {
+    .tema,
+    .temas__rejilla[data-reveal].is-revealed .tema {
       transition: none;
     }
 
-    .ficha:hover {
+    .tema:hover {
       transform: none;
-      rotate: 0deg;
     }
   }
 
