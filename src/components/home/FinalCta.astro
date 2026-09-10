@@ -16,13 +16,15 @@ import { CTA_AGENDA, CTA } from '../../data/site';
 ---
 
 <section
-  class="surface-dark relative overflow-hidden"
+  class="cierre-home surface-dark relative overflow-hidden"
   data-blink="closed"
   aria-labelledby="cierre-titulo"
 >
   <ParisBackdrop variant="oscuro" />
 
-  <div class="shell relative z-10 flex flex-col items-center py-section text-center">
+  {/* Mas relleno arriba que abajo: la curva del canto baja 8,5vw y el titular
+      tiene que caer por debajo de ella. */}
+  <div class="shell relative z-10 flex flex-col items-center pb-section pt-24 text-center lg:pt-40">
     <h2 id="cierre-titulo" class="max-w-[24ch] text-display-l text-blanc" data-reveal>
       Hablemos de lo que quieres lograr en francés y te ayudo a alcanzarlo
     </h2>
@@ -37,6 +39,79 @@ import { CTA_AGENDA, CTA } from '../../data/site';
 </section>
 
 <style>
+  /**
+   * El canto de arriba.
+   *
+   * La curva ya existia aqui, pero solo mientras el parpado estaba cerrado:
+   * al abrirse se iba con el y el canto volvia a ser recto. Ahora la curva se
+   * queda, tallada por una pieza del color de la pagina con la base en elipse.
+   *
+   * La caida va atada al ancho porque lo que decide si se lee como curva es la
+   * proporcion, no los pixeles: 8,5vw son 1 a 12 en cualquier pantalla.
+   *
+   * Por abajo no hay nada que hacer: el pie es de este mismo azul y va pegado,
+   * asi que no hay canto.
+   */
+  .cierre-home {
+    isolation: isolate;
+  }
+
+  .cierre-home::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
+    height: 8.5vw;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    background-color: var(--color-blanc);
+    pointer-events: none;
+  }
+
+  /**
+   * El azul se mueve mientras la seccion cruza la pantalla, al bajar y al
+   * subir. Va en su propia capa para poder moverla con transform, que no
+   * repinta, y sobra 40px por arriba y por abajo, que es el margen que se come
+   * el recorrido. La seccion ya recorta lo que sobra.
+   *
+   * Queda por detras de los tejados, que estan en z-index 0.
+   */
+  .cierre-home::before {
+    content: '';
+    position: absolute;
+    inset: -40px 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0%,
+      var(--color-encre) 46%,
+      var(--color-encre) 100%
+    );
+  }
+
+  @keyframes cierre-home-deriva {
+    from {
+      transform: translateY(-18px);
+    }
+    to {
+      transform: translateY(18px);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* En propiedades sueltas y con duracion auto: el atajo animation: pone la
+       duracion en 0s y con eso una animacion de scroll no avanza nunca. */
+    .cierre-home::before {
+      animation-name: cierre-home-deriva;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+    }
+  }
+
   .blink-lid {
     position: absolute;
     left: -2%;
