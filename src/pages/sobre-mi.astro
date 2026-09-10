@@ -4,8 +4,9 @@ import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato.png';
 import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
+import Icon from '../components/Icon.astro';
 import { breadcrumb, alineId } from '../lib/schema';
-import { CTA } from '../data/site';
+import { CTA, PRECIOS } from '../data/site';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -77,21 +78,50 @@ const IDIOMAS = [
 
 
 /**
- * Los dos formatos, tratados igual: mismo tamano, mismo sitio, misma
- * estructura de frase. Antes la pagina soltaba "poesia", "fotografia" y
- * luego "teatro, pintura, cine" agrupados, y esa asimetria hacia parecer que
- * unos temas contaban mas que otros.
+ * Tres cosas concretas sobre como da clase. Una linea cada una, con su marca:
+ * antes esto eran dos parrafos seguidos y no habia por donde entrar.
+ */
+const COMO = [
+  {
+    icono: 'plan' as const,
+    titulo: 'Salimos de lo que te interesa',
+    texto: 'El material lo elijo por lo que te gusta y por lo que necesitas.',
+  },
+  {
+    icono: 'escuchar' as const,
+    titulo: 'Hablas desde el primer día',
+    texto: 'Si algo se atasca cambio a tu idioma, lo aclaramos y seguimos.',
+  },
+  {
+    icono: 'escudo' as const,
+    titulo: 'Una escuela europea me seleccionó',
+    texto: 'Para enseñar a estudiantes en Canadá, Reino Unido y Francia.',
+  },
+];
+
+/**
+ * Los dos formatos, tratados igual: mismo icono, mismo numero de puntos,
+ * mismo sitio para el precio. Antes eran dos cajas de texto sin nada donde
+ * apoyar la vista.
  */
 const FORMATOS = [
   {
+    icono: 'privada' as const,
     nombre: 'Clases privadas',
-    texto:
-      'Adapto el contenido a tus preferencias y a tus objetivos. La poesía, la fotografía, el teatro, la pintura, el cine o el tema que te mueva: te doy las bases para hablar de ello en francés.',
+    puntos: [
+      'Adapto el contenido a tus preferencias y a tus objetivos',
+      'La poesía, la fotografía, el teatro, el cine o lo que te mueva',
+    ],
+    precio: PRECIOS.privada,
   },
   {
+    icono: 'grupo' as const,
     nombre: 'Clases en grupo',
-    texto:
-      'Avanzamos por niveles, con acompañamiento y con el progreso a la vista. Cada persona sabe en qué punto está y qué viene después.',
+    puntos: [
+      'Avanzamos por niveles, con acompañamiento y con el progreso a la vista',
+      'De dos a cinco personas, para que a todos les toque hablar',
+    ],
+    precio: PRECIOS.grupo,
   },
 ];
 
@@ -167,39 +197,51 @@ const FORMATOS = [
     </div>
   </section>
 
-  <!-- Como ensena. Los dos formatos, con el mismo peso. -->
+  <!-- Como ensena. Marcas y datos, no dos bloques de prosa. -->
   <section class="clases" aria-labelledby="clases">
     <div class="shell py-section">
-      <div class="clases__reparto">
-        <div>
-          <h2 id="clases" class="text-display-l text-encre" data-reveal>
-            Así es una clase conmigo
-          </h2>
-          <p class="measure mt-6 text-body text-encre" data-reveal>
-            Me formé en pedagogía y en métodos de aprendizaje, y llevo más de
-            cinco años dando clase. Trabajo sobre todo con gente que habla
-            español o inglés, con talleres de conversación y clases hechas a la
-            medida de cada quien.
-          </p>
-          <p class="measure mt-5 text-body text-encre" data-reveal>
-            Cuando algo se atasca cambio a tu idioma, lo aclaramos y seguimos.
-            Una escuela europea de idiomas me seleccionó para enseñar a
-            estudiantes en Canadá, Reino Unido y Francia, y ahí aprendí que el
-            mismo contenido llega distinto según de dónde viene quien escucha.
-          </p>
-        </div>
+      <h2 id="clases" class="clases__titulo" data-reveal>Así es una clase conmigo</h2>
 
-        <dl class="formatos" data-reveal>
-          {
-            FORMATOS.map((f) => (
-              <div class="formatos__uno">
-                <dt class="formatos__nombre">{f.nombre}</dt>
-                <dd class="formatos__texto">{f.texto}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </div>
+      <ul class="como">
+        {
+          COMO.map((c, i) => (
+            <li class="como__uno" style={`--i:${i}`} data-reveal>
+              <span class="como__marca" aria-hidden="true">
+                <Icon name={c.icono} class="h-5 w-5" />
+              </span>
+              <span class="como__titulo">{c.titulo}</span>
+              <span class="como__texto">{c.texto}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <ul class="formatos">
+        {
+          FORMATOS.map((f, i) => (
+            <li class="formato" style={`--i:${i}`} data-reveal>
+              <span class="formato__marca" aria-hidden="true">
+                <Icon name={f.icono} class="h-5 w-5" />
+              </span>
+              <span class="formato__nombre">{f.nombre}</span>
+
+              <ul class="formato__puntos">
+                {f.puntos.map((punto) => (
+                  <li>
+                    <span class="formato__punta" aria-hidden="true" />
+                    {punto}
+                  </li>
+                ))}
+              </ul>
+
+              <span class="formato__precio">
+                <span class="formato__cifra numerals">{f.precio.valor} €</span>
+                <span class="formato__unidad">{f.precio.unidad}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -412,49 +454,260 @@ const FORMATOS = [
 
   /* --- Como es una clase --- */
 
-  .clases__reparto {
-    display: grid;
-    gap: 2.5rem;
-  }
-
-  @media (width >= 64rem) {
-    .clases__reparto {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      gap: 4rem;
-    }
-  }
-
-  .formatos {
-    display: grid;
-    /* Misma altura las dos aunque un texto sea mas largo: si una caja crece,
-       parece la importante. */
-    grid-auto-rows: 1fr;
-    gap: 1rem;
-    margin: 0;
-    align-content: start;
-  }
-
-  /* Las dos cajas iguales: mismo fondo, mismo relleno, mismo borde. Si una se
-     ve mas importante que la otra, el lector deduce que lo es. */
-  .formatos__uno {
-    border-radius: 22px;
-    background-color: color-mix(in srgb, var(--color-blanc) 78%, transparent);
-    box-shadow: var(--shadow-flota);
-    padding: 1.5rem 1.5rem 1.6rem;
-  }
-
-  .formatos__nombre {
+  .clases__titulo {
+    max-width: 20ch;
     font-family: var(--font-display);
-    font-size: var(--text-title);
-    font-weight: 600;
+    font-size: var(--text-display-l);
+    font-weight: var(--text-display-l--font-weight);
+    line-height: var(--text-display-l--line-height);
+    letter-spacing: var(--text-display-l--letter-spacing);
+    text-wrap: balance;
     color: var(--color-encre);
   }
 
-  .formatos__texto {
-    margin: 0.5rem 0 0;
+  /* --- Las tres marcas --- */
+
+  .como {
+    display: grid;
+    gap: 1.75rem;
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .como {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  .como__uno {
+    display: grid;
+    gap: 0.55rem;
+    justify-items: start;
+  }
+
+  .como__marca {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    width: 2.75rem;
+    margin-bottom: 0.35rem;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-ciel) 34%, var(--color-blanc));
+    color: var(--color-nuit);
+  }
+
+  .como__titulo {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-encre);
+  }
+
+  .como__texto {
+    max-width: 34ch;
+    font-size: var(--text-body-s);
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  /* --- Los dos formatos --- */
+
+  .formatos {
+    display: grid;
+    gap: 1.25rem;
+    margin: 3.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .formatos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+
+  .formato {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: start;
+    border-radius: 22px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: 1.75rem 1.6rem;
+    transition:
+      transform 520ms var(--ease-fluid),
+      box-shadow 520ms var(--ease-fluid);
+  }
+
+  /* El degradado del estado activo se funde por opacidad, que es lo unico que
+     se puede animar de forma continua en un degradado. Igual que en el inicio. */
+  .formato::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-encre) 0%,
+      var(--color-encre) 30%,
+      var(--color-nuit) 100%
+    );
+    opacity: 0;
+    transition: opacity 520ms var(--ease-fluid);
+  }
+
+  .formato__marca {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    width: 2.75rem;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-papier) 70%, var(--color-blanc));
+    color: var(--color-lie);
+    transition:
+      background-color 420ms var(--ease-fluid),
+      color 420ms var(--ease-fluid);
+  }
+
+  .formato__nombre {
+    margin-top: 1.1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .formato__puntos {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .formato__puntos li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: start;
     font-size: var(--text-body-s);
     line-height: 1.55;
     color: color-mix(in srgb, var(--color-encre) 74%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .formato__punta {
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    transition: background-color 420ms var(--ease-fluid);
+  }
+
+  /* El precio abajo del todo, y a la misma altura en las dos tarjetas aunque
+     una lleve un punto mas largo. */
+  .formato__precio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  .formato__cifra {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: color-mix(in srgb, var(--color-encre) 82%, transparent);
+    transition: color 420ms var(--ease-fluid);
+  }
+
+  /* --- Estado activo --- */
+
+  .formato:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .formato:hover::before {
+    opacity: 1;
+  }
+
+  .formato:hover .formato__marca {
+    background-color: color-mix(in srgb, var(--color-blanc) 16%, transparent);
+    color: var(--color-blanc);
+  }
+
+  .formato:hover .formato__nombre {
+    color: var(--color-blanc);
+  }
+
+  .formato:hover .formato__puntos li,
+  .formato:hover .formato__precio {
+    color: var(--color-ciel);
+  }
+
+  .formato:hover .formato__cifra {
+    color: color-mix(in srgb, var(--color-blanc) 88%, transparent);
+  }
+
+  .formato:hover .formato__punta {
+    background-color: var(--color-corail);
+  }
+
+  /* --- Entradas escalonadas --- */
+
+  :global(.js) .como__uno[data-reveal],
+  :global(.js) .formato[data-reveal] {
+    transform: translateY(28px) scale(0.985);
+  }
+
+  .como__uno[data-reveal],
+  .formato[data-reveal] {
+    transition:
+      opacity 760ms var(--ease-fluid) calc(var(--i, 0) * 90ms),
+      transform 760ms var(--ease-fluid) calc(var(--i, 0) * 90ms) !important;
+  }
+
+  .como__uno[data-reveal].is-revealed,
+  .formato[data-reveal].is-revealed {
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .formato,
+    .formato::before,
+    .formato__marca,
+    .formato__nombre,
+    .formato__puntos li,
+    .formato__precio,
+    .formato__cifra,
+    .formato__punta {
+      transition: none;
+    }
+
+    .formato:hover {
+      transform: none;
+    }
   }
 
   /* --- Los tramites --- */
