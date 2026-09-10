@@ -149,8 +149,14 @@ const FORMATOS = [
                 formato de origen, y ahi eran 1,4 MB de PNG que nadie llega a
                 descargar pero que quedan en el paquete. */}
             fallbackFormat="webp"
-            widths={[420, 620, 840]}
-            sizes="(min-width: 64rem) 26rem, (min-width: 48rem) 22rem, 78vw"
+            {/*
+              La imagen se dibuja al 149 por ciento de su caja para lograr el
+              encuadre, asi que el sizes tiene que declarar ese ancho y no el
+              de la caja. Declarando 26rem el navegador bajaba un archivo de
+              416px para un hueco de 620 y lo estiraba 1,49 veces.
+            */}
+            widths={[520, 780, 1063]}
+            sizes="(min-width: 30rem) 620px, 130vw"
             alt="Aline, profesora de francés"
             loading="eager"
             class="retrato__img"
@@ -303,13 +309,19 @@ const FORMATOS = [
    * esquinas de 26px, las sombras nuevas y los titulares en la tipografia de
    * display con su escala.
    */
+  /**
+   * Tamaño, interlineado y tracking salen de la escala del sitio, no de un
+   * clamp escrito a mano aqui. El unico valor propio es el grosor: los dos
+   * titulares de portada del sitio van a 650, mas cuerpo que el 500 de la
+   * escala pero sin llegar a gritar, y este es un titular de portada.
+   */
   .cabecera__titulo {
     max-width: 13ch;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
-    font-weight: 700;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    font-size: var(--text-display-xl);
+    font-weight: 650;
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
     text-wrap: balance;
     color: var(--color-encre);
   }
@@ -317,7 +329,7 @@ const FORMATOS = [
   .cabecera__entrada {
     margin: 2rem 0 0;
     max-width: 52ch;
-    font-size: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    font-size: var(--text-body);
     line-height: 1.6;
     color: var(--color-nuit);
   }
