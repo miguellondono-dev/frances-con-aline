@@ -599,6 +599,16 @@ const abanico = TEMAS.map((tema, i) => {
       flex-wrap: nowrap;
       gap: 0;
       margin-top: 3.25rem;
+      /**
+       * Sitio reservado para lo que baja el abanico.
+       *
+       * Las cartas caen con transform, que no cuenta para la maquetacion: la
+       * caja del abanico mide lo que una carta sin girar y las de los
+       * extremos, 94px mas abajo, se salian por el canto de la seccion, que
+       * las recortaba contra la banda azul. Estos 4rem son esa caida mas la
+       * sombra.
+       */
+      padding-bottom: 6.5rem;
     }
   }
 
@@ -639,7 +649,9 @@ const abanico = TEMAS.map((tema, i) => {
   @media (width >= 48rem) {
     .carta {
       width: min(12rem, 17vw);
-      margin-inline: -2.1rem;
+      /* -1.5rem y no mas: con 2,1 el paso entre cartas bajaba a 124px y la
+         siguiente se comia el final del nombre de la anterior. */
+      margin-inline: -1.5rem;
       transform:
         translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
         rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
