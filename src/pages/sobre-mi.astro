@@ -317,13 +317,21 @@ const AFICIONES = [
   }
 
   /**
-   * El reajuste base pone text-wrap: balance en todos los titulares, y ahi el
-   * navegador reparte las lineas por su cuenta: dejaba "hables" en la tercera
-   * con "con fluidez". Aqui se pide corte normal, que llena cada linea hasta
-   * donde cabe, y el ancho decide donde parte.
+   * El corte tiene que ser el mismo en toda pantalla: "Enseño francés / para
+   * que lo hables / con fluidez".
+   *
+   * Dos cosas lo consiguen. El reajuste base pone text-wrap: balance en todos
+   * los titulares y ahi reparte el navegador, asi que aqui se pide corte
+   * normal, que llena cada linea hasta donde cabe. Y el tope va en ch, que se
+   * mide sobre la propia letra: al crecer el cuerpo crece el tope igual, y el
+   * corte no depende del ancho de la ventana.
+   *
+   * El numero sale de medir. Con el cuerpo a 80px, "para que lo hables" ocupa
+   * 588px y "Enseño francés para" 677. El tope tiene que caer entre los dos:
+   * 12ch son 625px, con holgura por los dos lados.
    */
   .cabecera__titulo {
-    max-width: 18ch;
+    max-width: 12ch;
     text-wrap: wrap;
     font-family: var(--font-display);
     font-size: var(--text-display-xl);
