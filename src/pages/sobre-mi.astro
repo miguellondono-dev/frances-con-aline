@@ -103,7 +103,7 @@ const AFICIONES = [
   <!-- Apertura -->
   <section class="cabecera overflow-hidden">
     <div
-      class="pad-shell-left grid items-center gap-12 pb-section pt-section lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14"
+      class="pad-shell-left grid items-center gap-12 pb-section pt-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14"
     >
       <div class="pad-shell-right lg:pr-0">
         <h1 class="cabecera__titulo" data-palabras data-repite>
@@ -316,14 +316,20 @@ const AFICIONES = [
     position: relative;
   }
 
+  /**
+   * El reajuste base pone text-wrap: balance en todos los titulares, y ahi el
+   * navegador reparte las lineas por su cuenta: dejaba "hables" en la tercera
+   * con "con fluidez". Aqui se pide corte normal, que llena cada linea hasta
+   * donde cabe, y el ancho decide donde parte.
+   */
   .cabecera__titulo {
-    max-width: 14ch;
+    max-width: 18ch;
+    text-wrap: wrap;
     font-family: var(--font-display);
     font-size: var(--text-display-xl);
     font-weight: 650;
     line-height: var(--text-display-xl--line-height);
     letter-spacing: var(--text-display-xl--letter-spacing);
-    text-wrap: balance;
     color: var(--color-encre);
   }
 
@@ -424,6 +430,16 @@ const AFICIONES = [
     z-index: 0;
     pointer-events: none;
     opacity: 0.32;
+    /* El color de la mascara da igual, solo cuenta su alfa: negro es opaco y
+       transparente es nada. Sin esto el velo arranca de golpe en el borde de
+       la seccion y se ve una raya horizontal donde empieza. */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 14%,
+      black 86%,
+      transparent 100%
+    );
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
