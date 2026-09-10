@@ -166,29 +166,39 @@ const AFICIONES = [
 
   <!-- Como es una clase. El texto es el de Miguel, casi tal cual. -->
   <section class="clases" aria-labelledby="clases">
-    <div class="shell py-section">
-      <div class="clases__reparto">
-        <h2 id="clases" class="clases__titulo" data-reveal>
-          En mis clases mejorarás con actividades divertidas y a tu medida
-        </h2>
+    {/* Grano. Rompe el plano de color sin pedir un solo archivo al servidor. */}
+    <span class="clases__grano" aria-hidden="true"></span>
 
-        <ul class="aficiones">
+    <div class="shell relative z-10 py-section">
+      <div class="clases__reparto">
+        <div class="clases__texto">
+          <h2 id="clases" class="clases__titulo" data-reveal>
+            En mis clases mejorarás con actividades divertidas y a tu medida
+          </h2>
+
+          <p class="clases__cierre" data-reveal>
+            Y si lo tuyo es el teatro, la pintura o el cine, funciona igual: el
+            tema lo pones tú. Escríbeme y miramos juntos lo que necesitas, tanto
+            para mejorar como para aprender francés desde cero.
+          </p>
+        </div>
+
+        {/*
+          Las dos fichas se solapan y van giradas un grado largo, como dos
+          papeles dejados sobre una mesa. Antes eran dos cajas blancas
+          apiladas: la misma informacion sin nada que mirar.
+        */}
+        <ul class="fichas">
           {
             AFICIONES.map((a, i) => (
-              <li class="aficion" style={`--i:${i}`} data-reveal>
-                <span class="aficion__pregunta">{a.pregunta}</span>
-                <span class="aficion__respuesta">{a.respuesta}</span>
+              <li class="ficha" style={`--i:${i}`} data-reveal>
+                <span class="ficha__pregunta">{a.pregunta}</span>
+                <span class="ficha__respuesta">{a.respuesta}</span>
               </li>
             ))
           }
         </ul>
       </div>
-
-      <p class="clases__cierre" data-reveal>
-        Y si lo tuyo es el teatro, la pintura o el cine, funciona igual: el tema
-        lo pones tú. Escríbeme y miramos juntos lo que necesitas, tanto para
-        mejorar como para aprender francés desde cero.
-      </p>
     </div>
   </section>
 
@@ -460,21 +470,41 @@ const AFICIONES = [
 
   /* --- Como es una clase --- */
 
+  .clases {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /**
+   * Grano fino sobre el color. Un degradado liso se lee como plastico; con
+   * grano se lee como papel. Va en un SVG dentro del propio CSS, asi que no
+   * pide un archivo mas al servidor.
+   */
+  .clases__grano {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.32;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
   .clases__reparto {
     display: grid;
-    gap: 2.5rem;
+    gap: 3rem;
   }
 
   @media (width >= 64rem) {
     .clases__reparto {
       grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
       align-items: center;
-      gap: 4rem;
+      gap: 4.5rem;
     }
   }
 
   .clases__titulo {
-    max-width: 18ch;
+    max-width: 17ch;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: var(--text-display-l--font-weight);
@@ -484,81 +514,122 @@ const AFICIONES = [
     color: var(--color-encre);
   }
 
-  .aficiones {
+  .clases__cierre {
+    margin: 1.75rem 0 0;
+    max-width: 46ch;
+    font-size: var(--text-body);
+    line-height: 1.6;
+    text-wrap: pretty;
+    color: var(--color-nuit);
+  }
+
+  /* --- Las dos fichas --- */
+
+  .fichas {
     display: grid;
-    gap: 1rem;
+    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   /**
-   * Las dos con la misma forma y el mismo peso. La pregunta va en rojo porque
-   * es la voz de quien lee, y la respuesta en tinta porque es la de Aline: se
-   * distingue quien habla sin escribir "tu" y "yo".
+   * Se solapan y van giradas: dos papeles dejados sobre una mesa, no dos
+   * cajas apiladas. La segunda entra por debajo y desplazada a la derecha,
+   * asi que hay profundidad de verdad y no dos rectangulos alineados.
    */
-  .aficion {
-    display: grid;
-    gap: 0.4rem;
-    border-radius: 22px;
+  .ficha {
+    position: relative;
+    border-radius: 24px 24px 26px 22px;
     background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    padding: 1.5rem 1.6rem;
+    padding: 1.6rem 1.7rem 1.7rem;
+    /* Sombra teñida del azul del sitio, no negra: una sombra negra sobre un
+       fondo calido lo ensucia. */
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--color-encre) 6%, transparent),
+      0 22px 44px -22px color-mix(in srgb, var(--color-nuit) 42%, transparent);
     transition:
       transform 520ms var(--ease-fluid),
       box-shadow 520ms var(--ease-fluid);
   }
 
-  .aficion:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-alta);
+  .ficha:first-child {
+    z-index: 2;
+    rotate: -1.4deg;
   }
 
-  .aficion__pregunta {
+  .ficha:last-child {
+    z-index: 1;
+    margin-top: -1.15rem;
+    rotate: 1deg;
+  }
+
+  @media (width >= 40rem) {
+    .ficha:first-child {
+      margin-right: 3.5rem;
+    }
+
+    .ficha:last-child {
+      margin-left: 3.5rem;
+      margin-top: -1.6rem;
+    }
+  }
+
+  /* Al pasar por encima se endereza y sube al frente: el gesto de coger un
+     papel de la mesa. */
+  .ficha:hover {
+    z-index: 3;
+    rotate: 0deg;
+    transform: translateY(-6px);
+    box-shadow:
+      0 2px 4px color-mix(in srgb, var(--color-encre) 8%, transparent),
+      0 34px 60px -24px color-mix(in srgb, var(--color-nuit) 52%, transparent);
+  }
+
+  .ficha__pregunta {
+    display: block;
     font-family: var(--font-display);
-    font-size: var(--text-title);
+    font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.625rem);
     font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     color: var(--color-grenat);
   }
 
-  .aficion__respuesta {
+  .ficha__respuesta {
+    display: block;
+    margin-top: 0.55rem;
+    max-width: 36ch;
     font-size: var(--text-body-s);
     line-height: 1.55;
-    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
+    text-wrap: pretty;
+    color: color-mix(in srgb, var(--color-encre) 76%, transparent);
   }
 
-  .clases__cierre {
-    margin: 3rem 0 0;
-    max-width: 58ch;
-    font-size: var(--text-body);
-    line-height: 1.6;
-    color: var(--color-nuit);
+  /* Entradas escalonadas, cada una desde su propio giro. */
+  :global(.js) .ficha[data-reveal] {
+    transform: translateY(26px);
   }
 
-  /* Entradas escalonadas. */
-  :global(.js) .aficion[data-reveal] {
-    transform: translateY(24px) scale(0.99);
-  }
-
-  .aficion[data-reveal] {
+  .ficha[data-reveal] {
     transition:
-      opacity 700ms var(--ease-fluid) calc(var(--i, 0) * 110ms),
-      transform 700ms var(--ease-fluid) calc(var(--i, 0) * 110ms) !important;
+      opacity 720ms var(--ease-fluid) calc(var(--i, 0) * 120ms),
+      transform 720ms var(--ease-fluid) calc(var(--i, 0) * 120ms),
+      box-shadow 520ms var(--ease-fluid) !important;
   }
 
-  .aficion[data-reveal].is-revealed {
+  .ficha[data-reveal].is-revealed {
     transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .aficion {
+    .ficha {
       transition: none;
     }
 
-    .aficion:hover {
+    .ficha:hover {
       transform: none;
+      rotate: 0deg;
     }
   }
 
