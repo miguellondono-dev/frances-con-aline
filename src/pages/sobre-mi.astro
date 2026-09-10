@@ -118,7 +118,7 @@ const abanico = TEMAS.map((tema, i) => {
     ...tema,
     giro: (d * 5.8).toFixed(2),
     giroY: (d * -4.5).toFixed(2),
-    alto: (d * d * 15).toFixed(0),
+    alto: (d * d * 12).toFixed(0),
     escala: (1.02 - Math.abs(d) * 0.052).toFixed(3),
     capa: 10 - Math.round(Math.abs(d) * 2),
     retardo: Math.round(Math.abs(d) * 80),
@@ -202,17 +202,9 @@ const abanico = TEMAS.map((tema, i) => {
     <span class="clases__grano" aria-hidden="true"></span>
 
     <div class="shell relative z-10 py-section">
-      <div class="clases__texto">
-        <h2 id="clases" class="clases__titulo" data-reveal>
-          Aprender un idioma es mucho más fácil cuando tienes algo que decir
-        </h2>
-
-        <p class="clases__cierre" data-reveal>
-          Por eso, mis clases parten de lo que te interesa y de lo que quieres
-          conseguir: conversar, viajar, trabajar, preparar un examen o
-          simplemente empezar a hablar francés.
-        </p>
-      </div>
+      <h2 id="clases" class="clases__titulo" data-reveal>
+        Aprender un idioma es mucho más fácil cuando tienes algo que decir
+      </h2>
 
       {/* Seis cartas abiertas en abanico. Entran apiladas en el centro y se
           abren hacia los lados; al pasar por encima, la carta se endereza y
@@ -232,6 +224,12 @@ const abanico = TEMAS.map((tema, i) => {
           ))
         }
       </ul>
+
+      <p class="clases__cierre" data-reveal>
+        Por eso, mis clases parten de lo que te interesa y de lo que quieres
+        conseguir: conversar, viajar, trabajar, preparar un examen o
+        simplemente empezar a hablar francés.
+      </p>
     </div>
   </section>
 
@@ -532,27 +530,19 @@ const abanico = TEMAS.map((tema, i) => {
 
   /* El titular manda arriba y el abanico ocupa el ancho entero debajo. En dos
      columnas el abanico se quedaba sin sitio para abrirse. */
+
   /**
-   * Centrado, sobre el eje del abanico.
+   * Dos lineas: "Aprender un idioma es mucho más fácil / cuando tienes algo
+   * que decir". El corte cae donde la frase respira.
    *
-   * A la izquierda, el bloque de texto acababa a mitad de la pagina y las
-   * cartas venian centradas debajo: dos ejes distintos y un vacio a la
-   * derecha que no era de nadie. Centrado, lo que sobra se reparte por los
-   * dos lados y el titular cae justo encima de la carta del medio.
-   *
-   * 40rem y no 34: la segunda linea del titular pide 573px y con el tope
-   * anterior, 544, se partia en cuatro con "decir" sola.
+   * La ventana buena va de 26 a 28ch y 27 queda en medio. Como ch se mide
+   * sobre la propia letra, el corte aguanta mientras la caja de la pagina sea
+   * mas ancha que el tope, o sea de unos 790px en adelante.
    */
-  .clases__texto {
-    max-width: 40rem;
+  .clases__titulo {
+    max-width: 27ch;
     margin-inline: auto;
     text-align: center;
-  }
-
-
-  .clases__titulo {
-    max-width: 17ch;
-    margin-inline: auto;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: var(--text-display-l--font-weight);
@@ -562,9 +552,12 @@ const abanico = TEMAS.map((tema, i) => {
     color: var(--color-encre);
   }
 
+  /* El margen cuenta con que las cartas caen por debajo de su caja: entre la
+     carta mas baja y esta linea quedan 54px. */
   .clases__cierre {
-    margin: 1.75rem auto 0;
+    margin: 2.75rem auto 0;
     max-width: 46ch;
+    text-align: center;
     font-size: var(--text-body);
     line-height: 1.6;
     text-wrap: pretty;
@@ -648,10 +641,11 @@ const abanico = TEMAS.map((tema, i) => {
    */
   @media (width >= 48rem) {
     .carta {
-      width: min(12rem, 17vw);
-      /* -1.5rem y no mas: con 2,1 el paso entre cartas bajaba a 124px y la
-         siguiente se comia el final del nombre de la anterior. */
-      margin-inline: -1.5rem;
+      width: min(10rem, 15vw);
+      /* El solape va atado al ancho de la carta: lo que no puede pasar es que
+         el paso entre cartas baje del ancho del nombre, porque entonces cada
+         una se come el final de la palabra de la anterior. */
+      margin-inline: -1.1rem;
       transform:
         translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
         rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
