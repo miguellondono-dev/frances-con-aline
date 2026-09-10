@@ -84,14 +84,24 @@ const IDIOMAS = [
  * El texto de Miguel, en pares. Cada uno tiene la misma forma (una pregunta y
  * lo que hacemos si la respuesta es si), asi que ninguno pesa mas que otro.
  */
-const AFICIONES = [
+/**
+ * Las dos preguntas con las que arranca una clase.
+ *
+ * Antes aqui habia dos aficiones concretas, poesia y fotografia, y eso
+ * dejaba fuera a quien no tuviera ninguna de las dos: se leian como el menu
+ * completo. Ahora las preguntas son abiertas y los ejemplos van dentro de la
+ * respuesta, donde se leen como lo que son.
+ */
+const PARTIDA = [
   {
-    pregunta: '¿Te encanta la poesía?',
-    respuesta: 'Trabajaremos con poemas franceses famosos.',
+    pregunta: '¿Qué te gusta?',
+    respuesta:
+      'De ahí sale el material. Una canción, una receta, la serie que estás viendo o el libro que tienes a medias sirven igual de bien, y si lo tuyo es otra cosa, lo traes y trabajamos con eso.',
   },
   {
-    pregunta: '¿Te encanta la fotografía?',
-    respuesta: 'Te daré todas las bases para hablar de fotografía en francés.',
+    pregunta: '¿A dónde quieres llegar?',
+    respuesta:
+      'Conversar sin quedarte en blanco, moverte en un viaje, defenderte en el trabajo, presentarte a un examen o soltar tus primeras frases. Dime cuál es el tuyo y ordeno las clases para llegar ahí.',
   },
 ];
 
@@ -166,7 +176,7 @@ const AFICIONES = [
     </div>
   </section>
 
-  <!-- Como es una clase. El texto es el de Miguel, casi tal cual. -->
+  <!-- Como es una clase. El texto sigue la guia de Miguel. -->
   <section class="clases" aria-labelledby="clases">
     {/* Grano. Rompe el plano de color sin pedir un solo archivo al servidor. */}
     <span class="clases__grano" aria-hidden="true"></span>
@@ -179,9 +189,10 @@ const AFICIONES = [
           </h2>
 
           <p class="clases__cierre" data-reveal>
-            Y si lo tuyo es el teatro, la pintura o el cine, funciona igual: el
-            tema lo pones tú. Escríbeme y miramos juntos lo que necesitas, tanto
-            para mejorar como para aprender francés desde cero.
+            Aprender un idioma es mucho más fácil cuando tienes algo que decir.
+            Por eso mis clases parten de lo que te interesa y de lo que quieres
+            conseguir. Escríbeme y miramos juntos lo que necesitas, tanto para
+            mejorar como para aprender francés desde cero.
           </p>
         </div>
 
@@ -192,7 +203,7 @@ const AFICIONES = [
         */}
         <ul class="fichas">
           {
-            AFICIONES.map((a, i) => (
+            PARTIDA.map((a, i) => (
               <li class="ficha" style={`--i:${i}`} data-reveal>
                 <span class="ficha__pregunta">{a.pregunta}</span>
                 <span class="ficha__respuesta">{a.respuesta}</span>
@@ -504,14 +515,33 @@ const AFICIONES = [
     gap: 3rem;
   }
 
-  @media (width >= 64rem) {
+  /**
+   * Dos columnas a partir de 72rem, no de 64.
+   *
+   * El texto lleva ademas la columna ancha. Su segunda linea, "con
+   * actividades divertidas", mide 10,2 veces el cuerpo del titular, y por
+   * debajo de eso el corte se rompe. A 64rem y con las fichas delante la
+   * columna se quedaba corta, asi que hasta 72rem van una debajo de otra y el
+   * titular tiene todo el ancho.
+   */
+  @media (width >= 72rem) {
     .clases__reparto {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
       align-items: center;
       gap: 4.5rem;
     }
   }
 
+  /**
+   * Las tres lineas son "En mis clases mejorarás / con actividades divertidas
+   * / y a tu medida", y salen del tope de 17ch con corte normal.
+   *
+   * El reajuste base pone text-wrap: balance en todos los titulares, y ahi el
+   * navegador reparte por su cuenta: sacaba cuatro lineas, con "mejorarás
+   * con" sola en la segunda. La ventana buena va de 16 a 17,9ch, asi que 17
+   * cae en medio, y como ch se mide sobre la propia letra el corte es el
+   * mismo con el titular grande y con el pequeño.
+   */
   .clases__titulo {
     max-width: 17ch;
     font-family: var(--font-display);
@@ -519,7 +549,7 @@ const AFICIONES = [
     font-weight: var(--text-display-l--font-weight);
     line-height: var(--text-display-l--line-height);
     letter-spacing: var(--text-display-l--letter-spacing);
-    text-wrap: balance;
+    text-wrap: wrap;
     color: var(--color-encre);
   }
 
