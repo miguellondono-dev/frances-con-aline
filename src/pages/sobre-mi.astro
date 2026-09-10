@@ -351,10 +351,19 @@ const AFICIONES = [
     color: var(--color-encre);
   }
 
-  /* La palabra marcada del sitio va en rojo profundo. Aqui se pide el azul
-     oscuro de la paleta, y solo aqui. */
+  /**
+   * Azul oscuro, pero que se separe del titular.
+   *
+   * El titular es tinta (#00043a) y nuit (#033270) solo le saca 1,57 a 1 de
+   * contraste: a este tamaño los dos se leen como el mismo azul casi negro.
+   * Bleu (#1368aa) si se separa, 3,33 a 1, pero es el azul de los enlaces y
+   * se va de claro.
+   *
+   * La mezcla de los dos queda en 2,45 a 1 contra el titular y 7,82 a 1
+   * contra el fondo: sigue siendo azul oscuro y se nota que es otro color.
+   */
   .cabecera__titulo .destacado {
-    color: var(--color-nuit);
+    color: color-mix(in srgb, var(--color-bleu) 60%, var(--color-nuit));
   }
 
   /* La palabra que rota, en el mismo rojo que el verbo del inicio. */
