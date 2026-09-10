@@ -116,10 +116,10 @@ const abanico = TEMAS.map((tema, i) => {
   const d = i - CENTRO;
   return {
     ...tema,
-    giro: (d * 3.6).toFixed(2),
-    giroY: (d * -3.2).toFixed(2),
-    alto: (d * d * 6).toFixed(0),
-    escala: (1 - Math.abs(d) * 0.028).toFixed(3),
+    giro: (d * 5.8).toFixed(2),
+    giroY: (d * -4.5).toFixed(2),
+    alto: (d * d * 15).toFixed(0),
+    escala: (1.02 - Math.abs(d) * 0.052).toFixed(3),
     capa: 10 - Math.round(Math.abs(d) * 2),
     retardo: Math.round(Math.abs(d) * 80),
   };
@@ -532,8 +532,10 @@ const abanico = TEMAS.map((tema, i) => {
 
   /* El titular manda arriba y el abanico ocupa el ancho entero debajo. En dos
      columnas el abanico se quedaba sin sitio para abrirse. */
+  /* 40rem y no 34: la segunda linea del titular pide 573px y con el tope
+     anterior, 544, se partia en cuatro con "decir" sola. */
   .clases__texto {
-    max-width: 34rem;
+    max-width: 40rem;
   }
 
 
@@ -624,8 +626,8 @@ const abanico = TEMAS.map((tema, i) => {
    */
   @media (width >= 48rem) {
     .carta {
-      width: min(10.5rem, 16vw);
-      margin-inline: -0.9rem;
+      width: min(12rem, 17vw);
+      margin-inline: -2.1rem;
       transform:
         translateY(var(--alto, 0)) rotate(var(--giro, 0deg))
         rotateY(var(--giro-y, 0deg)) scale(var(--escala, 1));
@@ -643,11 +645,11 @@ const abanico = TEMAS.map((tema, i) => {
     border-radius: 16px;
     background-image: linear-gradient(
       155deg,
-      color-mix(in srgb, var(--tinte) 34%, var(--color-blanc)) 0%,
-      color-mix(in srgb, var(--tinte) 16%, var(--color-blanc)) 62%,
-      color-mix(in srgb, var(--tinte) 6%, var(--color-blanc)) 100%
+      color-mix(in srgb, var(--tinte) 62%, var(--color-blanc)) 0%,
+      color-mix(in srgb, var(--tinte) 40%, var(--color-blanc)) 58%,
+      color-mix(in srgb, var(--tinte) 24%, var(--color-blanc)) 100%
     );
-    color: color-mix(in srgb, var(--tinte) 52%, var(--color-encre));
+    color: color-mix(in srgb, var(--tinte) 34%, var(--color-encre));
   }
 
   .carta__marca {
