@@ -200,17 +200,13 @@ const TEMAS = [
               TEMAS.map((t, i) => (
                 <li class="tema" style={`--i:${i}`}>
                   <span class="tema__marca">
-                    <Icon name={t.icono} class="h-6 w-6" />
+                    <Icon name={t.icono} class="h-7 w-7" />
                   </span>
                   <span class="tema__nombre">{t.nombre}</span>
                 </li>
               ))
             }
           </ul>
-
-          <p class="temas__pie" data-reveal>
-            Y si lo tuyo no está aquí, lo traes tú.
-          </p>
         </div>
       </div>
     </div>
@@ -573,10 +569,14 @@ const TEMAS = [
    * que el contenido se parte en piezas del tamaño de una carta y el giro
    * desaparece: en una rejilla de seis, inclinar cada pieza es ruido.
    */
+  /* Con tope de ancho: cuando la seccion va a una sola columna la rejilla se
+     queda con todo el ancho de la pagina y las cartas se estiran a 231px para
+     una palabra de 60. */
   .temas__rejilla {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.9rem;
+    max-width: 34rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -588,14 +588,24 @@ const TEMAS = [
     }
   }
 
+  /**
+   * La marca y el nombre en una sola linea.
+   *
+   * En columna eran un rectangulo de 185x105 con el icono y la palabra
+   * arrinconados arriba a la izquierda, y el resto blanco: la caja pesaba
+   * mas que lo que llevaba dentro. Cuadrarla lo empeoro, porque atada al
+   * ancho de la columna se iba a 231x231.
+   *
+   * En fila el alto lo pone la marca y el ancho lo llena el nombre, asi que
+   * no queda hueco reservado para nada.
+   */
   .tema {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.7rem;
-    border-radius: 20px;
+    align-items: center;
+    gap: 0.8rem;
+    border-radius: 18px;
     background-color: var(--color-blanc);
-    padding: 1.1rem 1rem 1.15rem;
+    padding: 0.75rem 1rem 0.75rem 0.75rem;
     /* Sombra teñida del azul del sitio, no negra: una sombra negra sobre un
        fondo calido lo ensucia. */
     box-shadow:
@@ -619,8 +629,9 @@ const TEMAS = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 2.6rem;
-    width: 2.6rem;
+    height: 2.75rem;
+    width: 2.75rem;
+    flex: none;
     border-radius: 14px;
     background-color: color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc));
     color: var(--color-grenat);
@@ -633,13 +644,6 @@ const TEMAS = [
     line-height: 1.2;
     letter-spacing: -0.01em;
     color: var(--color-encre);
-  }
-
-  .temas__pie {
-    margin: 1.4rem 0 0;
-    font-size: var(--text-body-s);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
   }
 
   /* Entran una detras de otra, de arriba abajo y de izquierda a derecha. El
