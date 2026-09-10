@@ -18,11 +18,10 @@ interface Props {
   /** El home lleva su propio titulo completo, sin sufijo. */
   rawTitle?: boolean;
   /**
-   * La barra flota transparente y solo aparece al bajar. Eso funciona sobre
-   * una primera seccion clara. Si la pagina abre en oscuro hay que ponerla
-   * solida, o el texto en tinta se queda encima del azul y no se lee.
+   * La barra flota transparente y se difumina al bajar. Sobre una primera
+   * seccion oscura hay que decirle que se difumine en tinta y no en blanco.
    */
-  cabeceraSolida?: boolean;
+  cabeceraOscura?: boolean;
 }
 
 const {
@@ -32,7 +31,7 @@ const {
   schema = [],
   noindex = false,
   rawTitle = false,
-  cabeceraSolida = false,
+  cabeceraOscura = false,
 } = Astro.props;
 
 const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
@@ -116,9 +115,15 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
 
     <ApertureDefs />
 
-    <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-20 w-px"></div>
+    {/*
+      Ocho pixeles, no ochenta. Con el centinela alto habia que bajar 80
+      pixeles antes de que la barra reaccionara, asi que durante todo ese
+      recorrido el contenido pasaba por detras de una barra transparente.
+      Ocho es inmediato a la vista y no parpadea con el rebote del scroll.
+    */}
+    <div data-header-sentinel aria-hidden="true" class="absolute top-0 h-2 w-px"></div>
 
-    <Header solida={cabeceraSolida} />
+    <Header oscura={cabeceraOscura} />
 
     <main id="contenido">
       <slot />
