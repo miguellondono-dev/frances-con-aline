@@ -532,15 +532,27 @@ const abanico = TEMAS.map((tema, i) => {
 
   /* El titular manda arriba y el abanico ocupa el ancho entero debajo. En dos
      columnas el abanico se quedaba sin sitio para abrirse. */
-  /* 40rem y no 34: la segunda linea del titular pide 573px y con el tope
-     anterior, 544, se partia en cuatro con "decir" sola. */
+  /**
+   * Centrado, sobre el eje del abanico.
+   *
+   * A la izquierda, el bloque de texto acababa a mitad de la pagina y las
+   * cartas venian centradas debajo: dos ejes distintos y un vacio a la
+   * derecha que no era de nadie. Centrado, lo que sobra se reparte por los
+   * dos lados y el titular cae justo encima de la carta del medio.
+   *
+   * 40rem y no 34: la segunda linea del titular pide 573px y con el tope
+   * anterior, 544, se partia en cuatro con "decir" sola.
+   */
   .clases__texto {
     max-width: 40rem;
+    margin-inline: auto;
+    text-align: center;
   }
 
 
   .clases__titulo {
     max-width: 17ch;
+    margin-inline: auto;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: var(--text-display-l--font-weight);
@@ -551,7 +563,7 @@ const abanico = TEMAS.map((tema, i) => {
   }
 
   .clases__cierre {
-    margin: 1.75rem 0 0;
+    margin: 1.75rem auto 0;
     max-width: 46ch;
     font-size: var(--text-body);
     line-height: 1.6;
@@ -576,8 +588,8 @@ const abanico = TEMAS.map((tema, i) => {
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin: 3.5rem 0 0;
-    padding: 1.5rem 0 0;
+    margin: 2.5rem 0 0;
+    padding: 1rem 0 0;
     list-style: none;
     perspective: 1400px;
   }
@@ -586,7 +598,7 @@ const abanico = TEMAS.map((tema, i) => {
     .abanico {
       flex-wrap: nowrap;
       gap: 0;
-      margin-top: 4.5rem;
+      margin-top: 3.25rem;
     }
   }
 
