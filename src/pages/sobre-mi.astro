@@ -66,20 +66,15 @@ const INTERESES = [
 
 
 /**
- * Los idiomas, con lo que es cada uno para ella.
+ * Cada idioma escrito en su propio idioma.
  *
- * Los cinco llevan la misma estructura y el mismo peso: en cuanto unos llevan
- * apunte y otros no, el lector deduce que unos cuentan mas. Y el dato dice
- * algo que el nombre suelto no decia: cuatro de los cinco los aprendio de
- * adulta, que es justo lo que esta haciendo quien lee la pagina.
+ * Antes eran cinco fichas con etiqueta debajo (materna, bilingue, aprendido)
+ * y un pie explicandolo: treinta palabras para decir que habla cinco idiomas.
+ * Escritos asi no hace falta ninguna etiqueta, porque la lista se demuestra
+ * sola en cuanto se lee.
  */
-const IDIOMAS = [
-  { nombre: 'Francés', nivel: 'Materna' },
-  { nombre: 'Español', nivel: 'Bilingüe' },
-  { nombre: 'Inglés', nivel: 'Aprendido' },
-  { nombre: 'Italiano', nivel: 'Aprendido' },
-  { nombre: 'Portugués', nivel: 'Aprendido' },
-];
+const IDIOMAS = ['Français', 'Español', 'English', 'Italiano', 'Português'];
+
 
 /**
  * Los dos formatos, tratados igual: mismo tamano, mismo sitio, misma
@@ -119,26 +114,20 @@ const FORMATOS = [
           Enseño francés para que lo hables con soltura
         </h1>
         <p class="measure mt-7 text-body text-nuit" data-reveal>
-          Es mi lengua materna y aprender idiomas es mi pasión. Me formé en
-          pedagogía y en métodos de aprendizaje, hablo cinco idiomas y llevo más
-          de cinco años enseñando a estudiantes de medio mundo.
+          Es mi lengua materna. Los otros cuatro los aprendí de adulta, así que
+          sé por dónde vas a pasar. Me formé en pedagogía y llevo más de cinco
+          años enseñando.
         </p>
 
         <ul class="idiomas" data-reveal>
           {
             IDIOMAS.map((idioma, i) => (
               <li class="idiomas__uno" style={`--i:${i}`}>
-                <span class="idiomas__nombre">{idioma.nombre}</span>
-                <span class="idiomas__nivel">{idioma.nivel}</span>
+                {i === 0 ? <em class="destacado">{idioma}</em> : idioma}
               </li>
             ))
           }
         </ul>
-
-        <p class="idiomas__pie" data-reveal>
-          Todos menos el francés los aprendí de adulta, así que sé exactamente
-          por dónde vas a pasar.
-        </p>
       </div>
 
       {/* El retrato viene recortado, sin fondo. Por eso no va dentro de un
@@ -348,71 +337,56 @@ const FORMATOS = [
 
   /* --- Los idiomas --- */
 
+  /**
+   * Una linea de tipografia, no una tabla de datos. El francés va con la
+   * italica del inicio, que es el mismo recurso que usa la portada para
+   * marcar esa palabra.
+   */
   .idiomas {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    align-items: baseline;
+    gap: 0.35rem 0.9rem;
     margin: 2.25rem 0 0;
     padding: 0;
     list-style: none;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 0.95rem + 0.8vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
   }
 
   .idiomas__uno {
-    display: grid;
-    gap: 0.15rem;
-    border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
-    background-color: color-mix(in srgb, var(--color-blanc) 76%, transparent);
-    padding: 0.55rem 0.9rem 0.6rem;
-    transition:
-      transform 420ms var(--ease-fluid),
-      border-color 420ms var(--ease-fluid),
-      box-shadow 420ms var(--ease-fluid);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.9rem;
   }
 
-  /* Entran escalonadas, de izquierda a derecha. El retardo va por variable
+  /* El punto separador va en el elemento, no entre etiquetas: asi no se cuela
+     en el texto que lee un lector de pantalla. */
+  .idiomas__uno:not(:last-child)::after {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-encre) 32%, transparent);
+    translate: 0 -0.32em;
+  }
+
+  /* Entran escalonados, de izquierda a derecha. El retardo va por variable
      para no repetir cinco reglas iguales cambiando un numero. */
   :global(.js) .idiomas[data-reveal] .idiomas__uno {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
 
   .idiomas[data-reveal].is-revealed .idiomas__uno {
     opacity: 1;
     transform: none;
     transition:
-      opacity 520ms var(--ease-fluid) calc(var(--i, 0) * 70ms),
-      transform 520ms var(--ease-fluid) calc(var(--i, 0) * 70ms);
-  }
-
-  .idiomas__uno:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--color-encre) 26%, transparent);
-    box-shadow: var(--shadow-flota);
-  }
-
-  .idiomas__nombre {
-    font-family: var(--font-display);
-    font-size: var(--text-body-s);
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-encre);
-  }
-
-  .idiomas__nivel {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-lie);
-  }
-
-  .idiomas__pie {
-    margin: 1.25rem 0 0;
-    max-width: 44ch;
-    font-size: var(--text-body-s);
-    line-height: 1.55;
-    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+      opacity 620ms var(--ease-fluid) calc(var(--i, 0) * 90ms),
+      transform 620ms var(--ease-fluid) calc(var(--i, 0) * 90ms);
   }
 
   /* --- Como es una clase --- */
@@ -494,32 +468,28 @@ const FORMATOS = [
   /* --- El retrato --- */
 
   /**
-   * El retrato vive dentro de una forma, no flotando y desvaneciendose.
+   * Redondo. Ni una punta.
    *
-   * Lo anterior se peleaba consigo mismo: el circulo media 507px dentro de una
-   * ventana de 384, asi que solo se veia su banda central y leia como un
-   * rectangulo; y la mascara cortaba la camiseta en horizontal, que es
-   * justamente lo que se queria evitar.
+   * El sitio se sostiene sobre formas redondas desde el principio: el ojo del
+   * logotipo y las aperturas. Un cuadrado con las esquinas a 28px se salia de
+   * ahi, y ademas volvia a plantear el problema del canto recto. Con un
+   * circulo no hay canto que justificar: el borde es la forma.
    *
-   * Ahora la caja es la forma. El arco de arriba es una decision visible y el
-   * canto de abajo pertenece a la forma, asi que no hay corte que disimular.
-   * El fondo calido va dentro, porque la foto viene recortada y necesita algo
-   * sobre lo que apoyarse.
+   * Cuadrada de proporcion a proposito: con 1/1 la foto entra recortada al
+   * 71 por ciento y el colgante, que esta al 84, queda fuera.
    */
   .retrato {
     position: relative;
-    width: min(24rem, 100%);
+    width: min(23rem, 100%);
     margin-inline: auto;
-    /* Cuadrada a proposito: con esta proporcion la foto entra recortada al
-       71 por ciento y el colgante, que esta al 84, queda fuera. */
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    border-radius: 50% 50% 28px 28px / 44% 44% 28px 28px;
+    border-radius: 50%;
     background-image: radial-gradient(
-      circle at 50% 24%,
-      color-mix(in srgb, var(--color-chair) 34%, var(--color-papier)) 0%,
-      color-mix(in srgb, var(--color-papier) 88%, var(--color-blanc)) 46%,
-      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 100%
+      circle at 50% 26%,
+      color-mix(in srgb, var(--color-chair) 32%, var(--color-papier)) 0%,
+      color-mix(in srgb, var(--color-papier) 86%, var(--color-blanc)) 48%,
+      color-mix(in srgb, var(--color-papier) 44%, var(--color-blanc)) 100%
     );
     box-shadow: var(--shadow-flota);
   }
@@ -689,15 +659,13 @@ const FORMATOS = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .idiomas__uno,
     .idiomas[data-reveal].is-revealed .idiomas__uno,
     .campo__caja,
     .hablemos__boton {
       transition: none;
     }
 
-    .hablemos__boton:hover,
-    .idiomas__uno:hover {
+    .hablemos__boton:hover {
       transform: none;
     }
   }
