@@ -215,12 +215,11 @@ function activa(item: (typeof NAV)[number]) {
 
   /**
    * Tinta translucida con difuminado desde el primer pixel, igual que la
-   * clara. Y sin las esquinas redondeadas de abajo: detras hay blanco, asi
-   * que la curva dejaba dos muescas blancas en los cantos.
+   * clara. Conserva las dos esquinas de abajo redondeadas, que son la firma
+   * de la barra: ahora el cuerpo de la pagina va en tinta, asi que las
+   * muescas de los cantos se ven oscuras y no blancas.
    */
   .barra[data-tema='oscuro'] {
-    border-end-start-radius: 0;
-    border-end-end-radius: 0;
     background-color: color-mix(in srgb, var(--color-encre) 86%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
