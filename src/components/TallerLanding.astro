@@ -44,7 +44,19 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
     <div class="cabecera__reparto">
       <div class="cabecera__texto">
         <p class="label mt-8 text-lie" data-reveal>{t.donde}</p>
-        <h1 class="cabecera__titulo" data-reveal>{t.titular}</h1>
+        <h1 class="cabecera__titulo" data-palabras data-repite>
+          {
+            t.acento && t.titular.includes(t.acento) ? (
+              <>
+                {t.titular.slice(0, t.titular.indexOf(t.acento))}
+                <em class="destacado">{t.acento}</em>
+                {t.titular.slice(t.titular.indexOf(t.acento) + t.acento.length)}
+              </>
+            ) : (
+              t.titular
+            )
+          }
+        </h1>
 
         <p class="measure mt-7 text-body text-nuit" data-reveal>
           {t.parrafos[0]}

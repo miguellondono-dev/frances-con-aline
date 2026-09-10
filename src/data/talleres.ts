@@ -17,6 +17,8 @@ export type Taller = {
   nombre: string;
   /** Titular de la pagina del taller. Dice que se gana, no que se hace. */
   titular: string;
+  /** La palabra del titular que va en italica roja. */
+  acento: string;
   /** Una linea en la tarjeta del indice. Maximo dos renglones. */
   resumen: string;
   parrafos: string[];
@@ -49,6 +51,7 @@ export const TALLERES: Taller[] = [
     slug: 'teatro',
     nombre: 'Teatro en francés',
     titular: 'Cuatro sábados para perder la vergüenza de hablar',
+    acento: 'vergüenza',
     resumen:
       'Escenas en grupo, improvisación y trabalenguas, sobre un escenario de verdad.',
     parrafos: [
@@ -81,6 +84,7 @@ export const TALLERES: Taller[] = [
     slug: 'acuarela',
     nombre: 'Acuarela en francés',
     titular: 'Un domingo pintando, con las manos ocupadas y el francés suelto',
+    acento: 'francés',
     resumen:
       'Una sesión, una lámina terminada y el vocabulario del color y de la luz.',
     parrafos: [

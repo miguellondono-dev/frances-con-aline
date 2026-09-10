@@ -46,9 +46,9 @@ const DATOS = [
 
       <!-- Portada -->
       <div class="portada" data-test-intro>
-          <h1 class="portada__titulo" data-reveal>
+        <h1 class="portada__titulo" data-palabras data-repite>
           Descubre tu nivel de francés en solo
-          <span class="portada__acento">diez minutos</span>
+          <em class="portada__acento destacado">diez minutos</em>
         </h1>
         <p class="portada__apoyo" data-reveal>
           Son veinticinco preguntas, de A1 a C1, con gramática, lectura,
@@ -220,9 +220,17 @@ const DATOS = [
     text-wrap: balance;
   }
 
+  /* El color y la italica los pone .destacado, que es la palabra marcada de
+     todo el sitio. Aqui solo se le pide el salto de linea. */
   .portada__acento {
     display: block;
-    color: var(--color-grenat);
+  }
+
+  /* La entrada por palabras envuelve cada etiqueta en una mascara en linea, y
+     ahi el display: block del acento deja de partir la linea. El salto se lo
+     pide entonces la mascara que lo contiene. */
+  :global(.js .palabra:has(.portada__acento)) {
+    display: block;
   }
 
   .portada__apoyo {
