@@ -239,11 +239,13 @@ const AFICIONES = [
         <form
           class="hablemos__forma"
           method="post"
-          action="/api/contacto"
+          action="/api/enviar.php"
           data-contacto
           data-reveal
           novalidate
         >
+          <input type="hidden" name="tipo" value="contacto" />
+
           {/* Campo trampa. Invisible para personas, visible para robots. */}
           <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
             <label for="hablemos-empresa">No rellenes este campo</label>

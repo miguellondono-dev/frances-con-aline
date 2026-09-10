@@ -211,11 +211,12 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
       <form
         class="reserva__forma"
         method="post"
-        action="/api/lista-espera"
+        action="/api/enviar.php"
         data-waitlist
         data-reveal
         novalidate
       >
+        <input type="hidden" name="tipo" value={`taller-${t.slug}`} />
         <input type="hidden" name="origen" value={`taller-${t.slug}`} />
         <input type="hidden" name="interes" value={t.slug} />
 

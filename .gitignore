@@ -21,3 +21,9 @@ test-de-francés-interactivo.zip
 # public/video: el original de 80 MB no tiene por que estar en el repositorio.
 Media Taller Teatro/
 Media Taller acuarela/
+
+# La configuracion de los formularios lleva la contrasena del correo, y los
+# envios llevan datos de personas. Ninguna de las dos cosas va al repositorio.
+public/api/config.php
+public/api/envios.csv
+public/api/tests/

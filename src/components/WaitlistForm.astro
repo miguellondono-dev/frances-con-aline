@@ -30,11 +30,12 @@ const etiqueta = oscuro ? 'text-ciel' : 'text-nuit';
 <form
   class="w-full"
   method="post"
-  action="/api/lista-espera"
+  action="/api/enviar.php"
   data-waitlist
   data-origen={origen}
   novalidate
 >
+  <input type="hidden" name="tipo" value="lista-espera" />
   <input type="hidden" name="origen" value={origen} />
 
   {/* Campo trampa. Invisible para personas, visible para robots. */}

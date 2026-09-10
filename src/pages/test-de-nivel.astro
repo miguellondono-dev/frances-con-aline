@@ -125,7 +125,7 @@ const DATOS = [
           <form
             class="cierre__forma"
             method="post"
-            action="/api/plan"
+            action="/api/enviar.php"
             data-plan
             novalidate
           >
@@ -141,6 +141,7 @@ const DATOS = [
             {/* El resultado completo viaja aqui: nivel, porcentaje por bloque,
                 las tres redacciones y todas las respuestas. */}
             <input type="hidden" name="resultado" data-test-carga />
+            <input type="hidden" name="tipo" value="test" />
             <input type="hidden" name="origen" value="test-de-nivel" />
 
             <div class="campo campo--mitad">
