@@ -399,79 +399,15 @@
  * la tinta entra por el azul de noche y se cierra abajo, asi que la seccion
  * tiene volumen y el canto deja de leerse como un corte.
  */
-/**
- * Banda oscura.
- *
- * Ya no es un bloque con dos cantos rectos. Arriba entra con una curva y el
- * azul se apaga hacia abajo hasta desaparecer antes del formulario, asi que
- * por abajo no hay canto ninguno.
- *
- * Van dos capas. La de atras es el azul, que ademas se desplaza mientras la
- * banda cruza la pantalla; se mueve el fondo dentro de la caja y no la caja,
- * para que la curva de arriba se quede quieta. La de delante es una pieza del
- * color de la pagina con la base redondeada, y es la que talla la curva.
- */
 @utility fondo-oscuro {
-  position: relative;
-  isolation: isolate;
-  color: var(--color-blanc);
-}
-
-.fondo-oscuro::before,
-.fondo-oscuro::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-}
-
-.fondo-oscuro::before {
-  inset: 0;
-  z-index: -2;
+  background-color: var(--color-encre);
   background-image: linear-gradient(
     to bottom,
     color-mix(in srgb, var(--color-nuit) 62%, var(--color-encre)) 0%,
-    var(--color-encre) 30%,
-    var(--color-encre) 58%,
-    color-mix(in srgb, var(--color-encre) 62%, transparent) 82%,
-    transparent 100%
+    var(--color-encre) 46%,
+    var(--color-encre) 100%
   );
-  /* Mas alto que la caja: es el margen que se come el desplazamiento. */
-  background-size: 100% 118%;
-  background-position: 50% 0%;
-}
-
-/* La curva. Una pieza del color de la pagina, con la base en elipse, apoyada
-   sobre el canto de arriba: lo que queda debajo es el azul en forma de u. */
-.fondo-oscuro::after {
-  top: -3.5rem;
-  right: -4%;
-  left: -4%;
-  z-index: -1;
-  height: 7rem;
-  border-radius: 0 0 50% 50% / 0 0 100% 100%;
-  background-color: var(--color-blanc);
-}
-
-@keyframes banda-deriva {
-  from {
-    background-position-y: 0%;
-  }
-  to {
-    background-position-y: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* En propiedades sueltas y con duracion auto. El atajo animation: pone la
-     duracion en 0s, y con duracion cero una animacion atada al scroll no
-     avanza nunca: se queda en el primer fotograma. */
-  .fondo-oscuro::before {
-    animation-name: banda-deriva;
-    animation-duration: auto;
-    animation-timing-function: linear;
-    animation-fill-mode: both;
-    animation-timeline: view();
-  }
+  color: var(--color-blanc);
 }
 
 @utility surface-dark {

@@ -240,8 +240,16 @@ const abanico = TEMAS.map((tema, i) => {
     usa el inicio con su marquesina: sin un corte, cuatro secciones claras
     seguidas se leen como una sola pagina plana.
   */}
-  <section class="tramites fondo-oscuro" aria-labelledby="tramites">
-    <div class="shell py-section-sm">
+  {/*
+    El azul no es una banda: es el fondo de las dos secciones que cierran la
+    pagina. Arranca macizo detras de los documentos y se va apagando hasta
+    desaparecer al final del formulario.
+  */}
+  <div class="cierre">
+    <span class="cierre__curva" aria-hidden="true"></span>
+
+  <section class="tramites" aria-labelledby="tramites">
+    <div class="shell pb-section-sm pt-28">
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="tramites__titulo" data-reveal>
@@ -341,6 +349,7 @@ const abanico = TEMAS.map((tema, i) => {
       </div>
     </div>
   </section>
+  </div>
 
 </BaseLayout>
 
@@ -874,15 +883,86 @@ const abanico = TEMAS.map((tema, i) => {
 
   /* --- Hablemos --- */
 
-  .hablemos {
+  /**
+   * El azul de las dos secciones que cierran la pagina.
+   *
+   * No es una banda con dos cantos: arranca macizo detras de los documentos y
+   * se va apagando hasta desaparecer al final del formulario. Por eso el
+   * degradado vive en el envoltorio de las dos y no en cada seccion, y por eso
+   * el formulario ya no lleva fondo propio: lo taparia.
+   *
+   * El fondo mide mas que la caja y se desplaza dentro de ella mientras el
+   * bloque cruza la pantalla, atado al scroll, asi que se mueve al bajar y al
+   * subir. Se mueve el fondo y no la caja para que la curva se quede quieta.
+   */
+  .cierre {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .cierre::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
     background-image: linear-gradient(
       to bottom,
-      var(--color-blanc) 0%,
-      color-mix(in srgb, var(--color-papier) 48%, var(--color-blanc)) 26%,
-      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 62%,
-      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 88%,
-      var(--color-blanc) 100%
+      color-mix(in srgb, var(--color-nuit) 58%, var(--color-encre)) 0%,
+      var(--color-encre) 14%,
+      /**
+       * El azul aguanta macizo hasta el 31%, que es donde termina el texto en
+       * blanco de los documentos, y se gasta el salto entre el 31 y el 40, que
+       * es el hueco antes de que empiece el texto del formulario. Asi el
+       * blanco de arriba se lee sobre azul y el oscuro de abajo sobre tinte.
+       */
+      var(--color-encre) 31%,
+      color-mix(in srgb, var(--color-encre) 30%, transparent) 36%,
+      color-mix(in srgb, var(--color-encre) 16%, transparent) 40%,
+      color-mix(in srgb, var(--color-encre) 10%, transparent) 60%,
+      color-mix(in srgb, var(--color-encre) 4%, transparent) 84%,
+      transparent 100%
     );
+    background-size: 100% 112%;
+    background-position: 50% 0%;
+  }
+
+  /* La curva. Una pieza del color de la pagina con la base en elipse, apoyada
+     sobre el canto de arriba: lo que queda debajo es el azul en forma de u. */
+  .cierre__curva {
+    position: absolute;
+    top: -4rem;
+    right: -4%;
+    left: -4%;
+    z-index: -1;
+    height: 8rem;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    background-color: var(--color-blanc);
+    pointer-events: none;
+  }
+
+  @keyframes cierre-deriva {
+    from {
+      background-position-y: 0%;
+    }
+    to {
+      background-position-y: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* En propiedades sueltas y con duracion auto: el atajo animation: pone la
+       duracion en 0s y con eso una animacion de scroll no avanza nunca. */
+    .cierre::before {
+      animation-name: cierre-deriva;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+    }
+  }
+
+  .tramites {
+    color: var(--color-blanc);
   }
 
   .hablemos__reparto {
