@@ -114,6 +114,22 @@ const { variant = 'claro', eager = false, class: className = '' } = Astro.props;
     );
   }
 
+  /**
+   * Sin el crema del papel.
+   *
+   * El papel del dibujo es #F3EEDB y el fondo de la pagina #FFFDFB: al papel
+   * le faltan 32 puntos de azul y eso se lee como una mancha amarillenta en
+   * la parte de abajo, donde el velo ya no lo tapa. Quitando el color y
+   * subiendo un 7,5% la luz, el papel queda en blanco y los trazos, que eran
+   * marrones, en gris neutro.
+   *
+   * Solo en la version clara. La oscura usa el mismo archivo invertido y no se
+   * toca: por eso va en CSS y no en el archivo.
+   */
+  .paris--claro .paris__img {
+    filter: saturate(0) brightness(1.075);
+  }
+
   /* Sobre tinta se invierte: el crema se vuelve oscuro y el trazo, claro. */
   .paris--oscuro .paris__img {
     filter: invert(1);
