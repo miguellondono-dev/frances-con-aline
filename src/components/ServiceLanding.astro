@@ -1,4 +1,6 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
 import Aperture from './Aperture.astro';
 import Cta from './Cta.astro';
 import Faq from './Faq.astro';
@@ -30,7 +32,12 @@ interface Props {
    */
   acento?: string;
   intro: string;
-  apertura: { alt: string; todo: string };
+  /**
+   * La imagen de la portada. Sin `foto` se pinta el ojo con el hueco marcado.
+   * Con `foto` (aunque sea provisional) va en tarjeta: el ojo esta pensado
+   * para la foto de clase definitiva.
+   */
+  apertura: { alt: string; todo: string; foto?: ImageMetadata };
   paraQuienSi: string[];
   paraQuienNo: string[];
   incluye: { titulo: string; texto: string }[];
@@ -72,15 +79,32 @@ const {
     class="pad-shell-right grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-16"
   >
     <div class="pad-shell-left order-2 lg:order-1 lg:pl-0" data-reveal="fade">
-      <Aperture
-        alt={apertura.alt}
-        todo={apertura.todo}
-        ratio="aspect-[4/5]"
-        lids
-        lidColor="blanc"
-        eager
-        class="mx-auto w-full max-w-[24rem]"
-      />
+      {
+        apertura.foto ? (
+          <figure class="foto-tarjeta mx-auto w-full max-w-[24rem]">
+            <Picture
+              src={apertura.foto}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[400, 600, 800]}
+              sizes="(min-width: 64rem) 24rem, 86vw"
+              alt={apertura.alt}
+              loading="eager"
+              class="foto-tarjeta__img"
+            />
+          </figure>
+        ) : (
+          <Aperture
+            alt={apertura.alt}
+            todo={apertura.todo}
+            ratio="aspect-[4/5]"
+            lids
+            lidColor="blanc"
+            eager
+            class="mx-auto w-full max-w-[24rem]"
+          />
+        )
+      }
     </div>
 
     <div class="pad-shell-left order-1 lg:order-2 lg:pl-0">
@@ -109,7 +133,11 @@ const {
 <!-- 2. PARA QUIEN SI, PARA QUIEN NO -->
 <section class="fondo-calido" aria-labelledby="para-quien">
   <div class="shell py-section">
-    <h2 id="para-quien" class="titulo-seccion max-w-[22ch] text-encre" data-reveal>
+    <h2
+      id="para-quien"
+      class="titulo-seccion mx-auto max-w-[22ch] text-center text-encre"
+      data-reveal
+    >
       Para quién es esto, y para quién no
     </h2>
 
@@ -182,7 +210,9 @@ const {
 <!-- 4. COMO FUNCIONA. Unica fila de tres del sitio: es una secuencia real. -->
 <section class="fondo-suave" aria-labelledby="como-funciona">
   <div class="shell py-section">
-    <h2 id="como-funciona" class="titulo-seccion text-encre" data-reveal>Cómo funciona</h2>
+    <h2 id="como-funciona" class="titulo-seccion text-center text-encre" data-reveal>
+      Cómo funciona
+    </h2>
     <ol class="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
       {
         pasos.map((paso, i) => (
@@ -199,23 +229,29 @@ const {
   </div>
 </section>
 
-<!-- 5. PRECIO Y BONOS -->
-<section class="fondo-oscuro" aria-labelledby="precio">
-  <div class="shell py-section">
+<!-- 5. PRECIO Y BONOS. Es el unico bloque oscuro en mitad de la pagina, asi
+     que lleva el parpadeo del cierre del inicio: sin el, sus dos cantos rectos
+     cortarian la pagina en franjas. -->
+<section
+  class="surface-dark relative overflow-hidden"
+  data-blink="closed"
+  aria-labelledby="precio"
+>
+  <div class="shell relative z-10 flex flex-col items-center py-section text-center">
     <p class="label text-ciel" data-reveal>Precio</p>
     <h2 id="precio" class="sr-only">Precio y bonos</h2>
 
-    <div class="mt-10 flex flex-wrap items-end gap-x-16 gap-y-8" data-reveal>
+    <div class="mt-8 flex flex-col items-center" data-reveal>
       <p>
         <span class="numerals block text-display-xl text-blanc">{precio.valor}</span>
         <span class="mt-3 block text-body text-ciel">{precio.unidad}</span>
       </p>
-      {precio.nota && <p class="measure-tight text-body text-ciel">{precio.nota}</p>}
+      {precio.nota && <p class="measure-tight mt-6 text-body text-ciel">{precio.nota}</p>}
     </div>
 
     {
       bonos && (
-        <div class="mt-16 border-t border-nuit pt-12" data-reveal>
+        <div class="mt-16 w-full max-w-4xl border-t border-nuit pt-12" data-reveal>
           <h3 class="text-display-m text-blanc">{bonos.titulo}</h3>
 
           {!bonos.confirmado && (
@@ -227,7 +263,10 @@ const {
             </p>
           )}
 
-          <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* auto-fit y no un numero fijo de columnas: cada pagina trae los
+              bonos que tiene, y asi la fila queda llena y centrada con
+              cualquier cantidad. */}
+          <ul class="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-5">
             {bonos.lista.map((bono) => (
               <li class="border-t border-nuit pt-5">
                 <p class="numerals text-display-m text-blanc">{bono.precio} €</p>
@@ -242,6 +281,9 @@ const {
       )
     }
   </div>
+
+  <span class="blink-lid blink-lid--top" aria-hidden="true"></span>
+  <span class="blink-lid blink-lid--bottom" aria-hidden="true"></span>
 </section>
 
 <!-- 6. FAQ propia del servicio -->
@@ -249,7 +291,7 @@ const {
 
 <!-- 7. CTA -->
 <section class="fondo-calido" aria-labelledby="cierre">
-  <div class="shell flex flex-col items-start py-section">
+  <div class="shell flex flex-col items-center py-section text-center">
     <h2 id="cierre" class="titulo-seccion max-w-[20ch] text-encre" data-reveal>
       {cierre.titulo}
     </h2>
@@ -259,3 +301,91 @@ const {
     </div>
   </div>
 </section>
+
+<style>
+  /**
+   * La foto de la portada, en tarjeta. Mismo radio y misma curva que las
+   * tarjetas del sitio. Va un poco girada y se endereza al pasar por encima,
+   * como las cartas de Sobre mi.
+   */
+  .foto-tarjeta {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 22px;
+    background-color: var(--color-papier);
+    box-shadow: var(--shadow-alta);
+    transform: rotate(-2deg);
+    transition: transform 520ms var(--ease-fluid);
+  }
+
+  /* Picture envuelve la imagen en un <picture> en linea: sin esto la imagen
+     no toma el alto de la tarjeta. */
+  .foto-tarjeta :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .foto-tarjeta__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .foto-tarjeta:hover {
+      transform: rotate(0deg) translateY(-6px);
+    }
+  }
+
+  /**
+   * El parpadeo, copiado tal cual del cierre del inicio (FinalCta.astro).
+   * Mismas medidas, mismas curvas y mismos tiempos: si se cambia alli, se
+   * cambia aqui. Lo mueve setupBlink en motion.ts.
+   */
+  .blink-lid {
+    position: absolute;
+    left: -2%;
+    width: 104%;
+    height: 56%;
+    background-color: var(--color-blanc);
+    pointer-events: none;
+    z-index: 20;
+    will-change: transform;
+    transition: transform 900ms var(--ease-smooth);
+  }
+
+  .blink-lid--top {
+    top: 0;
+    border-radius: 0 0 50% 50% / 0 0 22% 22%;
+    transform: translateY(-102%);
+  }
+
+  .blink-lid--bottom {
+    bottom: 0;
+    border-radius: 50% 50% 0 0 / 22% 22% 0 0;
+    transform: translateY(102%);
+    transition-delay: 80ms;
+  }
+
+  /* Los parpados solo empiezan cerrados si hay JS que los pueda abrir. */
+  :global(.js) [data-blink='closed'] .blink-lid--top,
+  :global(.js) [data-blink='closed'] .blink-lid--bottom {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .foto-tarjeta {
+      transition: none;
+    }
+    .blink-lid {
+      transition: none !important;
+    }
+    :global(.js) [data-blink='closed'] .blink-lid--top {
+      transform: translateY(-102%) !important;
+    }
+    :global(.js) [data-blink='closed'] .blink-lid--bottom {
+      transform: translateY(102%) !important;
+    }
+  }
+</style>

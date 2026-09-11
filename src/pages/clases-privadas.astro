@@ -5,6 +5,7 @@ import { FAQ_PRIVADAS } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
 import { BONOS, CTA } from '../data/site';
 import { breadcrumb, service } from '../lib/schema';
+import alineClases from '../assets/aline-clases.jpeg';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -38,8 +39,10 @@ const schema = [
   acento="tú"
     intro="En una clase privada no hay turno que esperar. La hora es tuya, el plan sale de para qué necesitas el francés y de cuándo lo necesitas, y los errores se corrigen en el momento en que aparecen."
     apertura={{
-      alt: 'Aline dando clase frente a la pantalla',
+      alt: 'Aline en Montmartre, frente al Sacré-Cœur',
       todo: 'Aline dando clase',
+      // Provisional, hasta tener la foto de Aline dando clase.
+      foto: alineClases,
     }}
     paraQuienSi={[
       'Tienes una fecha encima: una mudanza, un traslado de trabajo, un trámite.',
