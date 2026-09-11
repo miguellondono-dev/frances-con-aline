@@ -240,14 +240,8 @@ const abanico = TEMAS.map((tema, i) => {
     usa el inicio con su marquesina: sin un corte, cuatro secciones claras
     seguidas se leen como una sola pagina plana.
   */}
-  {/*
-    El azul no es una banda: es el fondo de las dos secciones que cierran la
-    pagina. Arranca macizo detras de los documentos y se va apagando hasta
-    desaparecer al final del formulario.
-  */}
-  <div class="cierre">
-  <section class="tramites" data-blink="closed" aria-labelledby="tramites">
-    <div class="shell pb-48 pt-16 lg:pt-24">
+  <section class="tramites surface-dark relative overflow-hidden" data-blink="closed" aria-labelledby="tramites">
+    <div class="shell py-section">
       <div class="tramites__caja">
         <div>
           <h2 id="tramites" class="tramites__titulo" data-reveal>
@@ -353,7 +347,6 @@ const abanico = TEMAS.map((tema, i) => {
       </div>
     </div>
   </section>
-  </div>
 
 </BaseLayout>
 
@@ -887,106 +880,14 @@ const abanico = TEMAS.map((tema, i) => {
 
   /* --- Hablemos --- */
 
-  /**
-   * El azul de las dos secciones que cierran la pagina.
-   *
-   * No es una banda: arranca macizo detras de los documentos y se va apagando
-   * hasta desaparecer al final del formulario.
-   *
-   * Sube para meterse en el hueco que ya dejaba la seccion de arriba. La curva
-   * es blanca y su caida se sumaba a ese hueco en vez de ocuparlo: 231px de
-   * nada entre el ultimo parrafo y el azul.
-   */
-  /* Sube solo lo que sobra del hueco de la seccion de arriba. Con 6vw el azul
-     se comia las ultimas lineas del parrafo anterior, y con 2,5rem fijos se
-     las comia igual en movil, donde ese hueco es mas corto. En vw sube en
-     proporcion al ancho, como la propia curva. */
-  .cierre {
-    position: relative;
-    isolation: isolate;
-    margin-top: -2.5vw;
-  }
-
-  .tramites {
-    position: relative;
-    isolation: isolate;
-    /* Recorta la capa del azul, que sobra 40px por arriba y por abajo para
-       tener recorrido. Sin esto, esos 40px asomaban por encima de la curva
-       como una franja azul suelta. */
-    overflow: hidden;
-    color: var(--color-blanc);
-  }
-
-  /**
-   * El azul, en su propia capa.
-   *
-   * Esta capa se movia con el scroll y no llego a funcionar nunca: la seccion
-   * lleva overflow: hidden, que la convierte en su propio contenedor de
-   * scroll, y una animacion view() medida ahi dentro no avanza. La animacion
-   * de esta seccion es ahora el parpadeo, igual que el cierre del inicio.
-   *
-   * La capa conserva su desplazamiento de 120px porque de el depende que
-   * parte del degradado cae dentro de la seccion; quitarlo cambiaria el
-   * color que se ve.
-   */
-  .tramites::before {
-    content: '';
-    position: absolute;
-    inset: -120px 0;
-    z-index: -2;
-    pointer-events: none;
-    /* La banda clara de arriba es lo que se ve viajar. Sin ella el degradado
-       es casi plano y el desplazamiento no se lee. */
-    background-image: linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--color-nuit) 44%, var(--color-encre)) 0,
-      color-mix(in srgb, var(--color-nuit) 78%, var(--color-encre)) 150px,
-      color-mix(in srgb, var(--color-nuit) 30%, var(--color-encre)) 280px,
-      var(--color-encre) 400px,
-      var(--color-encre) calc(100% - 270px),
-      color-mix(in srgb, var(--color-encre) 12%, transparent) calc(100% - 120px),
-      color-mix(in srgb, var(--color-encre) 12%, transparent) 100%
-    );
-  }
-
-  /**
-   * La curva: una pieza del color de la pagina con la base en elipse, apoyada
-   * en el canto de arriba. Lo que queda debajo es el azul en forma de u.
-   *
-   * Va como ::after de la propia seccion y no como hermana suelta. Colgada del
-   * envoltorio quedaba detras del azul y no se veia: .tramites abre su propio
-   * contexto de apilado, asi que un hermano con z-index negativo se pinta por
-   * debajo de ella entera.
-   *
-   * La caida va atada al ancho, pero corta: 8,5vw eran 113px de los 451 que
-   * mide la seccion, o sea un cuarto del bloque en blanco, y eso no se lee
-   * como un canto curvo sino como un cuenco. Con 3,5vw son 46px, el diez por
-   * ciento, que insinua la curva sin comerse la seccion.
-   *
-   * Con suelo, porque 3,5vw de un movil de 375 son 13px y ahi la curva
-   * desaparece: el canto vuelve a ser una raya recta.
-   */
-  .tramites::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: -1;
-    height: clamp(1.5rem, 3.5vw, 3rem);
-    border-radius: 0 0 50% 50% / 0 0 100% 100%;
-    background-color: var(--color-blanc);
-    pointer-events: none;
-  }
-
-  /* El formulario sigue sobre el tinte, que se apaga del todo al final. Sin
-     fondo propio: el que tenia tapaba el azul. */
   .hablemos {
     background-image: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--color-encre) 12%, transparent) 0%,
-      color-mix(in srgb, var(--color-encre) 8%, transparent) 46%,
-      transparent 100%
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 48%, var(--color-blanc)) 26%,
+      color-mix(in srgb, var(--color-papier) 62%, var(--color-blanc)) 62%,
+      color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc)) 88%,
+      var(--color-blanc) 100%
     );
   }
 
