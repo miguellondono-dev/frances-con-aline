@@ -97,18 +97,23 @@ const { variant = 'claro', eager = false, class: className = '' } = Astro.props;
   /**
    * El velo es fuerte donde va el texto y se abre hacia abajo.
    *
-   * No lo tapa del todo arriba: deja el dibujo a un 10 o 15 por ciento, lo
-   * justo para que se intuya la torre detrás del titular sin robarle
-   * legibilidad. Con la tinta sobre ese crema tan claro el contraste se queda
-   * por encima de 17:1, muy holgado.
+   * No lo tapa del todo arriba: a la altura del titular deja el dibujo entre
+   * un 12 y un 25 por ciento. Antes lo dejaba entre un 6 y un 15 y la torre,
+   * que va justo detras del titular, casi no se veia: Miguel la pidio mas
+   * presente.
+   *
+   * Contraste medido en el peor caso, con el trazo mas oscuro de la torre
+   * justo debajo: titular 12,8:1, frase de apoyo 6,4:1 y palabra roja 3,7:1
+   * (texto grande, el minimo es 3:1). Si se baja mas el velo, la roja es la
+   * primera en quedarse corta.
    */
   .paris--claro .paris__velo {
     background: linear-gradient(
       to bottom,
       var(--color-blanc) 0%,
       var(--color-blanc) 16%,
-      color-mix(in srgb, var(--color-blanc) 90%, transparent) 42%,
-      color-mix(in srgb, var(--color-blanc) 80%, transparent) 62%,
+      color-mix(in srgb, var(--color-blanc) 80%, transparent) 42%,
+      color-mix(in srgb, var(--color-blanc) 70%, transparent) 62%,
       color-mix(in srgb, var(--color-blanc) 30%, transparent) 84%,
       transparent 100%
     );
@@ -128,6 +133,21 @@ const { variant = 'claro', eager = false, class: className = '' } = Astro.props;
    */
   .paris--claro .paris__img {
     filter: saturate(0) brightness(1.075);
+
+    /**
+     * Y un poco mas abajo.
+     *
+     * Con object-position no se puede: en el hero el dibujo se ajusta al alto
+     * exacto de la seccion, asi que no sobra nada que mover en vertical. Se
+     * baja con translate, que es una propiedad aparte de transform y por eso
+     * no pisa el parallax que pone el guion.
+     *
+     * Lo que se sale por abajo lo recorta la seccion, y la franja que queda
+     * libre arriba cae debajo de la parte solida del velo: no se ve.
+     *
+     * Solo en la version clara. El cierre no se toca.
+     */
+    translate: 0 3%;
   }
 
   /* Sobre tinta se invierte: el crema se vuelve oscuro y el trazo, claro. */
