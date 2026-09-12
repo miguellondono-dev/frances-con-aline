@@ -57,12 +57,15 @@ export const NAV: {
     ],
   },
   {
+    /**
+     * Solo los dos padres. Teatro y acuarela son talleres, y colgados aqui al
+     * mismo nivel que Talleres se leian como cuatro cosas distintas. Se llega
+     * a ellos desde /talleres, que es donde viven.
+     */
     label: 'Experiencias',
     hijos: [
       { href: '/talleres', label: 'Talleres' },
-      { href: '/talleres/teatro', label: 'Teatro en francés' },
-      { href: '/talleres/acuarela', label: 'Acuarela en francés' },
-      { href: '/tours-en-paris', label: 'Tours por París' },
+      { href: '/tours-en-paris', label: 'Tours' },
     ],
   },
   { label: 'Test', href: '/test-de-nivel' },
@@ -78,7 +81,7 @@ export const NAV_FOOTER = {
     { href: '/talleres', label: 'Talleres' },
     { href: '/talleres/teatro', label: 'Teatro en francés' },
     { href: '/talleres/acuarela', label: 'Acuarela en francés' },
-    { href: '/tours-en-paris', label: 'Tours por París' },
+    { href: '/tours-en-paris', label: 'Tours' },
   ],
   sobre: [
     { href: '/sobre-mi', label: 'Sobre mí' },

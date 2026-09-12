@@ -51,6 +51,11 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
+    {/* El icono de la pestana: el ojo de la marca, el mismo archivo que el
+        logo. En SVG, asi que se ve nitido a cualquier tamano y pesa una vez.
+        Falta el PNG para el atajo en la pantalla de inicio de un movil. */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
     <meta name="author" content="Aline" />
     {/* Unico hex literal del proyecto: una meta no puede leer una variable CSS.
         Es --blanc. Si cambia el token, hay que cambiarlo aqui tambien. */}
