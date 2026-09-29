@@ -1,7 +1,7 @@
 import type { Pregunta } from './faq';
 
 /**
- * Preguntas propias de cada servicio. Cinco a ocho por landing, y ninguna
+ * Preguntas propias de cada servicio. Cuatro a seis por landing, y ninguna
  * reciclada del home: si una pregunta ya esta contestada arriba, aqui se
  * contesta desde el angulo de este servicio o no se pone.
  */
@@ -17,19 +17,11 @@ export const FAQ_PRIVADAS: Pregunta[] = [
   },
   {
     q: '¿Trabajas la pronunciación o solo la gramática?',
-    a: 'Las dos, y la pronunciación desde el primer día. El hispanohablante arrastra errores muy concretos en francés: las vocales nasales, la u francesa, la r. Los conozco porque yo hice el camino inverso aprendiendo español.',
+    a: 'Las dos, y la pronunciación desde el primer día. El hispanohablante arrastra errores muy concretos en francés: las vocales nasales, la u francesa, la r. Los conozco bien porque los he estudiado y porque los he trabajado con muchos alumnos.',
   },
   {
     q: '¿Cuántas clases necesito para notar que avanzo?',
     a: 'No te voy a dar un número, porque dependería de tu punto de partida y de cuánto practiques fuera de clase. Lo que sí puedo decirte es qué vamos a haber cubierto al final de cada mes, y eso lo acordamos en la primera clase.',
-  },
-  {
-    q: '¿Das clase a niños?',
-    a: 'Trabajo con adultos. Es donde tengo la experiencia y donde mi método tiene sentido, porque se apoya en material cultural real y en explicar por qué un idioma funciona como funciona. Para un niño hace falta otro enfoque.',
-  },
-  {
-    q: '¿Puedo pasar de clase privada a clase en grupo, o al contrario?',
-    a: 'Sí, cuando quieras, y lo que ya trabajamos sigue contando: cambia el precio, no el plan.',
   },
 ];
 
@@ -79,7 +71,7 @@ export const FAQ_DELF: Pregunta[] = [
   },
   {
     q: '¿Cuánto cuesta la preparación del DELF?',
-    a: 'Lo mismo que una clase normal: 35 € la hora en privado y 20 € la hora por persona en grupo. No cobro un extra por preparar el examen, y los bonos de varias clases también sirven para esto.',
+    a: '35 € la hora. No cobro un extra por preparar el examen, y los bonos de varias clases también sirven para esto.',
   },
   {
     q: '¿Me inscribes tú al examen?',

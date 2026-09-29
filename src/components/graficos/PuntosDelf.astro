@@ -1,0 +1,134 @@
+---
+/**
+ * ILUSTRACION DE LA PORTADA DE PREPARACION DELF.
+ *
+ * Como se puntua el examen, que es lo primero que quiere saber quien lo
+ * prepara: cuatro partes de 25 puntos, 100 en total, se aprueba con 50 y al
+ * menos 5 en cada parte. Son las reglas oficiales del DELF, no un resultado
+ * inventado. Va dentro del ojo de la portada hasta que haya una foto real.
+ *
+ * Las barras se llenan una detras de otra cuando el ojo ya se ha abierto.
+ */
+const PARTES = [
+  'Compréhension de l’oral',
+  'Compréhension des écrits',
+  'Production écrite',
+  'Production orale',
+];
+---
+
+<div class="delf" aria-hidden="true">
+  <p class="delf__etiqueta">DELF · 100 puntos</p>
+  <ul class="delf__lista">
+    {
+      PARTES.map((parte, i) => (
+        <li class="delf__parte" style={`--i: ${i}`}>
+          <span class="delf__nombre">{parte}</span>
+          <span class="delf__puntos">25</span>
+          <span class="delf__barra">
+            <span class="delf__relleno" />
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="delf__pie">Apruebas con <strong>50</strong>, y al menos 5 en cada parte.</p>
+</div>
+
+<style>
+  .delf {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 0 14%;
+    background-image: linear-gradient(to bottom, var(--color-nuit), var(--color-encre));
+    color: var(--color-blanc);
+  }
+
+  .delf__etiqueta {
+    align-self: center;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ciel);
+  }
+
+  .delf__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .delf__parte {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.35rem;
+    column-gap: 0.75rem;
+    align-items: baseline;
+  }
+
+  .delf__nombre {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .delf__puntos {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-ciel);
+  }
+
+  .delf__barra {
+    grid-column: 1 / -1;
+    height: 0.4rem;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-ciel) 22%, transparent);
+    overflow: hidden;
+  }
+
+  .delf__relleno {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background-image: linear-gradient(to right, var(--color-corail), var(--color-chair));
+    transform-origin: left center;
+    animation: delf-llena 900ms var(--ease-smooth) both;
+    animation-delay: calc(1.1s + var(--i) * 0.28s);
+  }
+
+  .delf__pie {
+    align-self: center;
+    max-width: 22ch;
+    text-align: center;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: color-mix(in srgb, var(--color-blanc) 80%, transparent);
+  }
+
+  .delf__pie strong {
+    color: var(--color-chair);
+  }
+
+  @keyframes delf-llena {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .delf__relleno {
+      animation: none;
+    }
+  }
+</style>

@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ApertureDefs from '../components/ApertureDefs.astro';
+import WhatsappBoton from '../components/WhatsappBoton.astro';
 import { SITE_NAME, SITE_DESCRIPTION } from '../data/site';
 
 interface Props {
@@ -34,8 +35,9 @@ const {
 const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
 const canonical = new URL(path, Astro.site ?? 'https://PENDIENTE-DOMINIO.example').href;
 
-// TODO [PENDIENTE: imagen de compartir en redes] 1200x630, se genera aparte.
-const ogImage = new URL('/og.png', Astro.site ?? 'https://PENDIENTE-DOMINIO.example').href;
+// La imagen que sale al compartir un enlace (WhatsApp, Facebook, LinkedIn).
+// 1200x630 en JPG de unos 100 KB: WhatsApp no siempre muestra las pesadas.
+const ogImage = new URL('/og.jpg', Astro.site ?? 'https://PENDIENTE-DOMINIO.example').href;
 
 const lastUpdated = new Date().toISOString().slice(0, 10);
 ---
@@ -53,8 +55,10 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
 
     {/* El icono de la pestana: el ojo de la marca, el mismo archivo que el
         logo. En SVG, asi que se ve nitido a cualquier tamano y pesa una vez.
-        Falta el PNG para el atajo en la pantalla de inicio de un movil. */}
+        Los PNG van para quien no lee SVG: el atajo del iPhone y Google. */}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <meta name="author" content="Aline" />
     {/* Unico hex literal del proyecto: una meta no puede leer una variable CSS.
@@ -68,6 +72,9 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Francés con Aline: clases de francés a tu medida, en línea, con un dibujo de París" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
@@ -132,6 +139,8 @@ const lastUpdated = new Date().toISOString().slice(0, 10);
     </main>
 
     <Footer lastUpdated={lastUpdated} />
+
+    <WhatsappBoton />
 
     <script>
       import '../scripts/motion.ts';

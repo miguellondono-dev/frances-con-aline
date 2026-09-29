@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceLanding from '../components/ServiceLanding.astro';
+import PuntosDelf from '../components/graficos/PuntosDelf.astro';
 import { FAQ_DELF } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
 import { BONOS, PENDIENTE, CTA } from '../data/site';
@@ -25,7 +26,7 @@ const schema = [
       'Preparación del DELF una a una o en grupo, con simulacros completos en el formato y los tiempos oficiales.',
     path: '/preparacion-delf',
     precio: 35,
-    unidad: '35 € la hora en privado, 20 € la hora por persona en grupo',
+    unidad: '35 € la hora',
     site: Astro.site,
   }),
   breadcrumb(migas, Astro.site),
@@ -40,12 +41,12 @@ const schema = [
   schema={schema}
 >
   <ServiceLanding
-    label="DELF · mismo precio que privada o grupo"
+    label="DELF · 35 € la hora"
     titulo="Llegar al examen sabiendo cómo funciona el examen"
   acento="sabiendo"
     intro="Preparo el DELF con simulacros en el formato y los tiempos oficiales. Quiero ser precisa en una cosa: preparo y hago simulacros, no soy examinadora acreditada y no evalúo oficialmente. Quien te pone la nota es el centro donde te presentes."
     apertura={{
-      alt: 'Mesa de estudio con hojas de examen y un reloj',
+      alt: 'Cómo se puntúa el DELF: cuatro partes de 25 puntos; se aprueba con 50 y al menos 5 en cada parte',
       todo: 'Mesa de examen con reloj y hojas',
     }}
     paraQuienSi={[
@@ -88,10 +89,13 @@ const schema = [
           'Cuántas clases por semana y qué cubrimos cada semana hasta el día del examen. Si el calendario no da, lo digo antes de empezar y no después.',
       },
       {
-        titulo: 'Niveles que preparo',
+        // TODO [PENDIENTE] Niveles exactos que prepara Aline (PENDIENTE.nivelesDelf).
+        // Mientras no esten, no se publica un "Pendiente": se cuenta lo que ya
+        // es cierto, que el nivel se decide en la clase gratis.
+        titulo: PENDIENTE.nivelesDelf ? 'Niveles que preparo' : 'El nivel que te conviene',
         texto: PENDIENTE.nivelesDelf
           ? PENDIENTE.nivelesDelf
-          : 'Pendiente de confirmar el rango exacto de niveles antes de publicar.',
+          : 'En la clase gratis te digo a qué nivel del DELF te conviene presentarte, según dónde estás hoy y la fecha de tu examen.',
       },
     ]}
     pasos={[
@@ -112,8 +116,8 @@ const schema = [
       },
     ]}
     precio={{
-      valor: 'Mismo precio',
-      unidad: '35 € la hora en privado, 20 € por persona en grupo',
+      valor: '35 €',
+      unidad: 'la hora',
       nota: 'No cobro un extra por preparar el examen, y los bonos de varias clases también sirven para esto.',
     }}
     bonos={{
@@ -130,5 +134,7 @@ const schema = [
     breadcrumb={migas}
     ctaHero={CTA.heroDelf}
     ctaCierre={CTA.cierreDelf}
-  />
+  >
+    <PuntosDelf slot="apertura" />
+  </ServiceLanding>
 </BaseLayout>

@@ -17,6 +17,44 @@ export const SITE_DESCRIPTION =
 export const CORREO_CONTACTO = 'contacto@francesconaline.com';
 
 /**
+ * WhatsApp directo (Miguel, septiembre de 2026). Es la via mas rapida para
+ * quien ya esta decidido: un toque y escribe. El numero va sin "+" ni
+ * espacios porque asi lo pide wa.me.
+ */
+export const WHATSAPP = {
+  numero: '33757194967',
+  visible: '+33 7 57 19 49 67',
+};
+
+/**
+ * Mensaje ya escrito segun la pagina desde la que se abre WhatsApp. Asi quien
+ * contesta sabe de que viene la persona sin preguntarlo, y a quien escribe le
+ * cuesta menos empezar: solo tiene que pulsar enviar.
+ */
+const MENSAJES_WHATSAPP: Record<string, string> = {
+  '/': 'Hola, vengo de la web de Francés con Aline y me gustaría empezar con el francés.',
+  '/clases-privadas': 'Hola, vengo de la web de Francés con Aline y me interesan las clases privadas.',
+  '/clases-en-grupo': 'Hola, vengo de la web de Francés con Aline y me interesan las clases en grupo.',
+  '/preparacion-delf': 'Hola, vengo de la web de Francés con Aline y quiero preparar el DELF.',
+  '/talleres': 'Hola, vengo de la web de Francés con Aline y me interesan los talleres en París.',
+  '/talleres/teatro': 'Hola, vengo de la web de Francés con Aline y me interesa el taller de teatro.',
+  '/talleres/acuarela': 'Hola, vengo de la web de Francés con Aline y me interesa el taller de acuarela.',
+  '/tours-en-paris': 'Hola, vengo de la web de Francés con Aline y me interesan los tours por París.',
+  '/test-de-nivel': 'Hola, vengo de la web de Francés con Aline y tengo una pregunta sobre el test de nivel.',
+  '/agenda': 'Hola, vengo de la web de Francés con Aline y quiero agendar mi primera clase gratis.',
+};
+
+/** Enlace a WhatsApp con el mensaje de la pagina, o uno general. */
+export function enlaceWhatsapp(ruta = '/', mensaje?: string): string {
+  const limpia = ruta.length > 1 ? ruta.replace(/\/$/, '') : ruta;
+  const texto =
+    mensaje ??
+    MENSAJES_WHATSAPP[limpia] ??
+    'Hola, vengo de la web de Francés con Aline y tengo una pregunta.';
+  return `https://wa.me/${WHATSAPP.numero}?text=${encodeURIComponent(texto)}`;
+}
+
+/**
  * PENDIENTES del brief. Se dejan en null a proposito.
  * Cada consumidor tiene que saber renderizar el hueco marcado.
  */
@@ -136,8 +174,8 @@ export const CTA = {
   header: 'Empezar',
   heroHome: 'Agenda tu primera clase sin costo',
   cierreHome: 'Agendar conversación',
-  heroPrivadas: 'Prueba una clase conmigo',
-  cierrePrivadas: 'Quiero empezar',
+  heroPrivadas: 'Reserva tu clase gratis',
+  cierrePrivadas: 'Reservar mi clase gratis',
   heroGrupo: 'Probar una clase en grupo',
   cierreGrupo: 'Quiero empezar',
   heroDelf: 'Evalúa tu nivel conmigo',

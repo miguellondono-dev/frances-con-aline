@@ -16,7 +16,7 @@ const schema = [
   service({
     name: 'Clases particulares de francés en línea',
     description:
-      'Clases de francés individuales en línea, con plan hecho a partir del objetivo y la fecha de cada estudiante hispanohablante.',
+      'Clases de francés individuales en línea, a la medida del nivel, el objetivo y el ritmo de cada estudiante hispanohablante.',
     path: '/clases-privadas',
     precio: 35,
     unidad: '35 € la hora',
@@ -25,102 +25,105 @@ const schema = [
   breadcrumb(migas, Astro.site),
   faqSchema(FAQ_PRIVADAS),
 ];
+
+/**
+ * Copy reescrito en septiembre de 2026 a peticion de Miguel: centrado en lo
+ * que la persona consigue (se adapta, cualquier nivel, clases dinamicas) y
+ * sin "profesora francesa". Solo hechos que ya estaban en el sitio: hablar
+ * desde la primera clase, correccion en el momento, plan con objetivo,
+ * material real, explicaciones en español, mover la clase si cambia la
+ * agenda, primera clase gratis.
+ */
 ---
 
 <BaseLayout
   title="Clases privadas"
-  description="Clases de francés una a una, en línea, con una profesora francesa que habla español. El plan sale de tu objetivo y tu fecha. Primera clase gratis."
+  description="Clases de francés individuales en línea, a tu medida y para cualquier nivel. Clases dinámicas para que hables desde el primer día. Primera clase gratis."
   path="/clases-privadas"
   schema={schema}
 >
   <ServiceLanding
-    label="Clase individual · 35 € la hora"
-    titulo="Una hora entera hablando tú"
-  acento="tú"
-    intro="En una clase privada no hay turno que esperar. La hora es tuya, el plan sale de para qué necesitas el francés y de cuándo lo necesitas, y los errores se corrigen en el momento en que aparecen."
+    gsap
+    titulo="Habla francés con confianza desde la primera clase"
+    acento="confianza"
+    intro="Clases individuales en línea que se adaptan a tu nivel, a tu objetivo y a tu ritmo. Da igual si empiezas desde cero o si ya te defiendes: cada clase es dinámica y está pensada para que hables más y con más soltura."
+    garantias={['Para cualquier nivel', 'Clases dinámicas', 'Primera clase gratis']}
     apertura={{
       alt: 'Aline en Montmartre, frente al Sacré-Cœur',
       todo: 'Aline dando clase',
       // Provisional, hasta tener la foto de Aline dando clase.
       foto: alineClases,
     }}
-    paraQuienSi={[
-      'Tienes una fecha encima: una mudanza, un traslado de trabajo, un trámite.',
-      'Ya intentaste con una aplicación o con un grupo grande y te quedaste a medias.',
-      'Necesitas vocabulario muy concreto de tu vida: tu oficio, tus trámites, tu barrio.',
-      'Quieres que alguien te oiga hablar y te corrija la pronunciación desde el primer día.',
-      'Tu horario se mueve y necesitas poder cambiar la clase sin perder el hilo.',
-    ]}
-    paraQuienNo={[
-      'Buscas el precio más bajo por hora. Una aplicación o una plataforma de tutores te va a costar menos.',
-      'Quieres un certificado oficial al terminar. Yo preparo y enseño, no expido títulos.',
-      'Prefieres estudiar solo y a tu aire, sin que nadie te ponga tarea ni te la revise.',
-      'Buscas clases para un niño. Trabajo con adultos.',
-    ]}
-    incluye={[
-      {
-        titulo: 'Un diagnóstico real antes de empezar',
-        texto:
-          'La primera media hora sirve para saber dónde estás de verdad. Te escucho hablar, veo qué reconoces y qué se te escapa, y te digo qué encontré antes de proponerte nada.',
-      },
-      {
-        titulo: 'Un plan escrito con tu objetivo y tu fecha',
-        texto:
-          'Qué vamos a cubrir, en qué orden y por qué. Se ajusta cuando tu situación cambia, y tu situación cambia más de lo que crees.',
-      },
-      {
-        titulo: 'Material cultural real, no un libro',
-        texto:
-          'Prensa, canciones, menús, formularios y escenas de película. Cosas que existen fuera del aula y que te vas a encontrar en la calle. Yo lo preparo y te lo mando antes de cada clase.',
-      },
-      {
-        titulo: 'Tarea corta y revisada contigo',
-        texto:
-          'Poca y concreta. La clase siguiente empieza mirándola juntos: no te la devuelvo corregida, la corregimos, que es distinto y es donde de verdad se aprende.',
-      },
-      {
-        titulo: 'Explicaciones en español cuando hacen falta',
-        texto:
-          'Aprendí español de adulta, viviendo en Latinoamérica. Cuando algo no entra, cambio de idioma, lo explico y volvemos al francés. No te dejo colgado en una explicación que no entiendes.',
-      },
-      {
-        titulo: 'La misma profesora siempre',
-        texto:
-          'No rotamos. Sé en qué te trabaste el mes pasado y no tienes que volver a contar tu historia cada vez.',
-      },
-    ]}
+    beneficios={{
+      titulo: 'Lo que vas a conseguir',
+      intro: 'Clases que se adaptan a ti, no al revés.',
+      lista: [
+        {
+          icono: 'conversacion',
+          titulo: 'Hablar desde el primer día',
+          texto:
+            'La hora es tuya: conversas, pruebas y corriges en el momento, sin esperar turno.',
+        },
+        {
+          icono: 'nivel',
+          titulo: 'Avanzar desde tu nivel',
+          texto:
+            'Desde cero o con base previa: vemos dónde estás y construimos a partir de ahí.',
+        },
+        {
+          icono: 'objetivo',
+          titulo: 'Llegar a tu objetivo',
+          texto:
+            'Viajar, trabajar, estudiar o un trámite: el plan apunta a lo que necesitas y se ajusta cuando cambia.',
+        },
+        {
+          icono: 'real',
+          titulo: 'Entender el francés real',
+          texto:
+            'Canciones, prensa, series y situaciones del día a día, junto con el libro.',
+        },
+        {
+          icono: 'entender',
+          titulo: 'Saber por qué se dice así',
+          texto: 'Si algo no queda claro, te lo explico en español y seguimos en francés.',
+        },
+        {
+          icono: 'dinamico',
+          titulo: 'Aprender sin aburrirte',
+          texto:
+            'Clases dinámicas que cambian de actividad y de ritmo. Y si tu agenda se mueve, movemos la clase.',
+        },
+      ],
+    }}
     pasos={[
       {
-        titulo: 'La clase gratis',
-        texto:
-          'Media hora en línea para escucharte y salir con una idea clara de tu nivel y de lo que necesitas.',
+        titulo: 'Clase gratis',
+        texto: 'Media hora en línea para conocerte y ver tu nivel. Sin compromiso.',
       },
       {
-        titulo: 'El plan',
-        texto:
-          'Un plan con tu objetivo y tu fecha, y la frecuencia por semana que le corresponde.',
+        titulo: 'Tu plan',
+        texto: 'Te propongo un plan a tu medida: objetivo, ritmo y frecuencia.',
       },
       {
-        titulo: 'Las clases',
-        texto:
-          'Una hora cada vez, siempre conmigo. Tarea corta entre clase y clase, y revisión conjunta al empezar la siguiente.',
+        titulo: 'A hablar',
+        texto: 'Clases de una hora, dinámicas y siempre conmigo.',
       },
     ]}
     precio={{
       valor: '35 €',
-      unidad: 'la hora, clase individual',
-      nota: 'Todos los precios están en euros. El sitio no cobra nada: aquí solo se agenda.',
+      unidad: 'la hora',
+      nota: 'Precios en euros. Desde aquí solo reservas: el pago lo acordamos directamente.',
     }}
     bonos={{
-      titulo: 'Bonos de varias clases',
+      titulo: 'Bonos de clases',
       confirmado: BONOS.confirmado,
       lista: BONOS.privada,
     }}
     faq={FAQ_PRIVADAS}
     cierre={{
-      titulo: 'Empecemos por media hora',
+      titulo: 'Empieza a hablar francés',
       texto:
-        'Media hora en línea para escucharte y decidir juntos con qué frecuencia trabajar.',
+        'Tu primera clase es gratis: media hora para conocerte, ver tu nivel y decidir juntos cómo seguir.',
     }}
     breadcrumb={migas}
     ctaHero={CTA.heroPrivadas}

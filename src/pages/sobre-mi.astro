@@ -1,4 +1,5 @@
 ---
+import AvisoPrivacidad from '../components/AvisoPrivacidad.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato-2026.png';
@@ -130,7 +131,7 @@ const abanico = TEMAS.map((tema, i) => {
 
 <BaseLayout
   title="Sobre mí"
-  description="El francés es mi idioma natal y hablo cinco idiomas. Estudié la pedagogía y los métodos de aprendizaje para poder compartir mi pasión. También te ayudo con Campus France y con tu CV en francés."
+  description="Soy francesa, hablo cinco idiomas y enseño francés a hispanohablantes con clases a tu medida. También te ayudo con Campus France y tu CV en francés."
   path="/sobre-mi"
   schema={schema}
 >
@@ -205,7 +206,7 @@ const abanico = TEMAS.map((tema, i) => {
         debajo de las banderas y sumando los dos el titular caia muy hondo. */}
     <div class="shell relative z-10 pb-section pt-10">
       <h2 id="clases" class="clases__titulo" data-reveal>
-        Aprender un idioma es mucho más fácil cuando tienes algo que decir
+        Hablar francés es más fácil cuando hablas de lo que te gusta
       </h2>
 
       {/* Seis cartas abiertas en abanico. Entran apiladas en el centro y se
@@ -280,7 +281,7 @@ const abanico = TEMAS.map((tema, i) => {
           </h2>
           <p class="hablemos__apoyo" data-reveal>
             Te contesto yo, en persona. Y si lo que quieres es empezar ya,
-            sáltate esto y coge hora directamente.
+            sáltate esto y reserva tu hora directamente.
           </p>
 
           <div class="mt-8" data-reveal>
@@ -338,6 +339,8 @@ const abanico = TEMAS.map((tema, i) => {
               name="mensaje" rows="4" required></textarea>
             <p class="campo__error" data-error-mensaje role="alert"></p>
           </div>
+
+          <AvisoPrivacidad id="hablemos" />
 
           <div class="campo">
             <button class="hablemos__boton" type="submit">Enviar</button>

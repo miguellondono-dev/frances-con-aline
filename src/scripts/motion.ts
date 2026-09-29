@@ -32,6 +32,13 @@ function setupLineReveal() {
   ).filter(
     (el) =>
       !el.classList.contains('sr-only') &&
+      // Un titular que pide la entrada palabra a palabra no se parte tambien
+      // por lineas. Si pasaba por las dos, cada linea quedaba dentro de dos
+      // mascaras con su colchon cada una: "Como es una clase conmigo" medía
+      // 143px en dos lineas en vez de 122 y se veia con el interlineado abierto.
+      !el.hasAttribute('data-palabras') &&
+      // Los titulares que parte GSAP en las paginas de clases, tampoco.
+      !el.hasAttribute('data-g-titulo') &&
       el.children.length === 0 &&
       (el.textContent ?? '').trim().length > 0,
   );
@@ -387,9 +394,18 @@ function setupNav() {
     });
   }
 
-  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  // Hay dos botones: "Menú" en la barra y "Cerrar" dentro del panel. Antes
+  // solo se enganchaba el primero, asi que "Cerrar" no hacia nada y la pagina
+  // se quedaba bloqueada con el panel abierto.
+  const botones = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-nav-toggle]'));
+  const toggle = botones.find((boton) => boton.hasAttribute('aria-expanded'));
   const panel = document.querySelector<HTMLElement>('[data-nav-panel]');
   if (!toggle || !panel) return;
+
+  // El panel sale de la barra. Al bajar, la barra lleva backdrop-filter, y
+  // eso la convierte en la referencia de cualquier hijo con position:fixed:
+  // el panel quedaba del alto de la barra (76px) en vez de toda la pantalla.
+  document.body.append(panel);
 
   const focusables = () =>
     Array.from(
@@ -397,7 +413,7 @@ function setupNav() {
     );
 
   function open() {
-    panel.hidden = false;
+    panel!.hidden = false;
     toggle!.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
     focusables()[0]?.focus();
@@ -410,9 +426,11 @@ function setupNav() {
     toggle!.focus();
   }
 
-  toggle.addEventListener('click', () => {
-    toggle.getAttribute('aria-expanded') === 'true' ? close() : open();
-  });
+  botones.forEach((boton) =>
+    boton.addEventListener('click', () => {
+      toggle.getAttribute('aria-expanded') === 'true' ? close() : open();
+    }),
+  );
 
   panel.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -647,161 +665,124 @@ function setupAccentStroke() {
 }
 
 /**
- * El metodo se queda quieto y lo unico que se mueve son los pasos.
+ * Como es una clase conmigo: el carril se llena mientras se baja por la
+ * seccion y cada paso se enciende cuando el relleno llega a su punto.
  *
- * La seccion se pega mientras se pasa por ella y los cuatro pasos recorren
- * una ventana de alto fijo. El que toca esta arriba y nitido; el siguiente
- * asoma por abajo desenfocado, para que se vea que hay mas sin poder leerlo
- * todavia; y el anterior ya ha salido por arriba deshaciendose.
+ * No hay pista alta ni bloque pegado: la seccion mide lo que mide. El relleno
+ * se mueve con transform, directo desde el scroll, sin transicion: va a la
+ * velocidad de la rueda. Lo que si lleva transicion, en el CSS, es el
+ * encendido de cada paso.
  *
- * Antes compartian celda y en el relevo se pisaban las letras. Repartidos por
- * sitio eso no puede pasar: cada uno ocupa el suyo.
+ * El carril se mide de centro a centro de los puntos, en horizontal en
+ * escritorio y en vertical debajo. Los umbrales salen de la misma medida, asi
+ * que un paso se enciende justo cuando el rojo toca su punto.
  *
- * El apilado lo enciende este guion y solo si va a poder moverlos. Sin
- * JavaScript, o con movimiento reducido, la pista no crece, el bloque no se
- * pega y los cuatro pasos se leen en columna. Esconder desde el CSS lo que
- * levanta el guion ya me costo una seccion invisible; aqui no se repite.
+ * El apagado de los pasos cuelga de data-vivo, que se pone solo despues de
+ * cargar Motion. Si Motion no llega, no se ha apagado nada: la seccion se ve
+ * entera, con el carril lleno.
  */
 async function setupMetodo() {
-  const pista = document.querySelector<HTMLElement>('[data-metodo-pista]');
-  const fija = document.querySelector<HTMLElement>('[data-metodo-fija]');
-  const lista = document.querySelector<HTMLElement>('[data-metodo-pasos]');
-  if (!pista || !fija || !lista) return;
+  const recorrido = document.querySelector<HTMLElement>('[data-metodo]');
+  const relleno = document.querySelector<HTMLElement>('[data-metodo-relleno]');
+  if (!recorrido || !relleno) return;
 
-  const pasos = Array.from(lista.querySelectorAll<HTMLElement>('.paso'));
-  const tramos = Array.from(
-    pista.querySelectorAll<HTMLElement>('.carril__tramo'),
+  // En las paginas de clases con GSAP el carril lo mueve clases-gsap.ts; aqui
+  // no se toca, y asi Motion no se descarga en esas paginas.
+  if (recorrido.dataset.motor === 'gsap') return;
+
+  const pasos = Array.from(
+    recorrido.querySelectorAll<HTMLElement>('[data-metodo-paso]'),
   );
   if (pasos.length < 2) return;
 
-  // Sin movimiento la seccion se lee entera, en columna y sin pista alta.
-  if (reduced.matches) {
-    tramos.forEach((t) => {
-      t.dataset.pasado = 'true';
-    });
-    return;
-  }
+  // Sin movimiento se queda el estado final, que es el de sin guion.
+  if (reduced.matches) return;
 
-  pista.dataset.apilado = 'true';
-  fija.dataset.apilado = 'true';
-  lista.dataset.apilado = 'true';
-
-  const n = pasos.length;
-
-  /**
-   * El avance va de 0 a n-1: al empezar el primero esta centrado y al acabar
-   * lo esta el ultimo. Con n-0.5, que es lo que habia, el cuarto terminaba a
-   * un tercio de opacidad en vez de entero.
-   */
-  const RECORRIDO = n - 1;
-
-  const limitar = (v: number, min: number, max: number) =>
-    v < min ? min : v > max ? max : v;
-
-  /** Arranque y frenada suaves: una recta se siente mecanica. */
-  const suave = (t: number) => t * t * (3 - 2 * t);
-
-  /**
-   * La separacion no puede ser un numero fijo. En una columna estrecha el
-   * texto de un paso se reparte en mas lineas y crece: en escritorio el mas
-   * alto mide 122 y en un movil 228. Con los 132 fijos que habia, en movil se
-   * pisaban. Se mide y se recalcula.
-   */
-  let SEPARACION = 0;
+  const escritorio = window.matchMedia('(min-width: 64rem)');
+  let umbrales: number[] = [];
+  let ultimo = 0;
 
   function medir() {
-    const mayor = Math.max(...pasos.map((paso) => paso.offsetHeight));
-    SEPARACION = mayor + 30;
-    // El ancla no va al medio: lo que sobra por abajo es el sitio del asomo.
-    const ancla = mayor / 2 + 14;
-    lista.style.setProperty('--ancla', ancla.toFixed(0) + 'px');
-    lista.style.setProperty(
-      '--ventana',
-      (ancla + SEPARACION - mayor / 2 + 70).toFixed(0) + 'px',
+    const punto = pasos[0].querySelector<HTMLElement>('.paso__punto');
+    if (!punto) return;
+
+    const horizontal = escritorio.matches;
+    const posiciones = pasos.map((paso) =>
+      horizontal ? paso.offsetLeft : paso.offsetTop,
     );
+    const primero = posiciones[0];
+    const largo = posiciones[posiciones.length - 1] - primero;
+
+    umbrales = posiciones.map((p) => (largo > 0 ? (p - primero) / largo : 0));
+
+    // En la fila el punto va centrado en su columna; en la columna, arriba.
+    const centro = horizontal ? pasos[0].offsetWidth / 2 : punto.offsetHeight / 2;
+    recorrido!.style.setProperty('--carril-inicio', (primero + centro).toFixed(0) + 'px');
+    recorrido!.style.setProperty('--carril-largo', largo.toFixed(0) + 'px');
   }
 
   function pintar(progreso: number) {
-    const avance = progreso * RECORRIDO;
+    ultimo = progreso;
+    relleno!.style.transform = escritorio.matches
+      ? 'scaleX(' + progreso.toFixed(4) + ')'
+      : 'scaleY(' + progreso.toFixed(4) + ')';
 
     pasos.forEach((paso, i) => {
-      // 0 es el que toca. Negativo, los que todavia vienen, abajo. Positivo,
-      // los que ya pasaron, arriba.
-      const d = avance - i;
-
-      // El sitio es lo que reparte: cada paso se separa del activo lo mismo.
-      const desplaza = -d * SEPARACION;
-
-      let opacidad: number;
-      let escala: number;
-      let desenfoque: number;
-
-      if (d <= 0) {
-        // Viene por abajo. El primero de la cola asoma al 34 por ciento y
-        // desenfocado, para que se lea que hay mas y no cual.
-        const cerca = limitar(-d, 0, 1);
-        const lejos = limitar(-d - 1, 0, 1);
-        opacidad = (1 - 0.66 * suave(cerca)) * (1 - suave(lejos));
-        escala = 1 - 0.05 * cerca - 0.03 * lejos;
-        desenfoque = 2.4 * suave(cerca) + 1.4 * lejos;
-      } else {
-        // Ya paso: sube y se deshace. Aguanta entero hasta d = 0,4 y solo
-        // entonces empieza a irse. Con la caida arrancando en d = 0 habia un
-        // tramo en que ninguno estaba nitido: el que salia ya iba por la
-        // mitad y el que entraba todavia no habia llegado.
-        const t = suave(limitar((d - 0.4) / 0.6, 0, 1));
-        opacidad = 1 - t;
-        escala = 1 - 0.09 * t;
-        desenfoque = 1.6 * t;
-      }
-
-      // El desenfoque se redondea a saltos de un cuarto de pixel: cada valor
-      // nuevo obliga a rasterizar el texto otra vez.
-      const dz = Math.round(desenfoque * 4) / 4;
-
-      paso.style.opacity = opacidad.toFixed(3);
-      paso.style.transform =
-        'translate3d(0, calc(-50% + ' +
-        desplaza.toFixed(1) +
-        'px), 0) scale(' +
-        escala.toFixed(4) +
-        ')';
-      paso.style.filter = dz > 0 ? 'blur(' + dz + 'px)' : '';
-      // El que no se lee tampoco se toca ni se tabula.
-      paso.style.visibility = opacidad < 0.03 ? 'hidden' : 'visible';
-    });
-
-    const activo = limitar(Math.floor(avance + 0.25), 0, n - 1);
-    tramos.forEach((tramo, i) => {
-      const esActivo = i === activo ? 'true' : 'false';
-      const esPasado = i < activo ? 'true' : 'false';
-      if (tramo.dataset.activo !== esActivo) tramo.dataset.activo = esActivo;
-      if (tramo.dataset.pasado !== esPasado) tramo.dataset.pasado = esPasado;
+      // Un pelo de margen: el punto se enciende cuando el rojo lo toca, no
+      // cuando ya lo ha cruzado.
+      const activo = progreso >= umbrales[i] - 0.02 ? 'true' : 'false';
+      if (paso.dataset.activo !== activo) paso.dataset.activo = activo;
     });
   }
 
-  // Primer pintado antes de pedir Motion por la red: sin esto los cuatro se
-  // ven amontonados hasta que llega el modulo.
+  const carril = recorrido.querySelector<HTMLElement>('.carril');
+  if (!carril) return;
+
+  const { scroll } = await import('motion');
+
   medir();
+  recorrido.dataset.vivo = 'true';
   pintar(0);
 
-  // Al cambiar el ancho cambian las alturas, y con ellas la separacion. Solo
-  // se rehace si el cambio es real: en movil la barra del navegador aparece y
-  // desaparece y eso dispara resize sin que nada se haya movido.
+  /**
+   * El recorrido se mide sobre el carril, no sobre el bloque entero.
+   *
+   * Antes terminaba cuando el borde de abajo de las tarjetas llegaba al 60 por
+   * ciento de la pantalla. En una ventana baja, para entonces los puntos ya
+   * habian pasado por debajo del menu: habia que subir la seccion hasta
+   * taparla para ver los cuatro encendidos.
+   *
+   * En la fila, el carril es una linea: termina cuando esa linea llega al 40
+   * por ciento desde arriba, con los puntos y las tarjetas a la vista. En la
+   * columna, termina cuando el ultimo punto pasa de la mitad.
+   */
+  let horizontalActivo = escritorio.matches;
+  const conectar = () =>
+    escritorio.matches
+      ? scroll(pintar, { target: carril, offset: ['start 85%', 'start 40%'] })
+      : scroll(pintar, { target: carril, offset: ['start 80%', 'end 55%'] });
+  let desconectar = conectar();
+
+  // Al cambiar de ancho cambian las posiciones, y al cruzar los 64rem cambia
+  // el eje, y con el las medidas del recorrido. En movil la barra del
+  // navegador dispara resize sin mover nada.
   let anchoPrevio = window.innerWidth;
   let reajuste = 0;
   window.addEventListener('resize', () => {
     if (Math.abs(window.innerWidth - anchoPrevio) < 40) return;
     anchoPrevio = window.innerWidth;
     window.clearTimeout(reajuste);
-    reajuste = window.setTimeout(medir, 180);
+    reajuste = window.setTimeout(() => {
+      medir();
+      if (escritorio.matches !== horizontalActivo) {
+        horizontalActivo = escritorio.matches;
+        desconectar();
+        desconectar = conectar();
+      }
+      pintar(ultimo);
+    }, 180);
   });
-
-  const { scroll } = await import('motion');
-
-  scroll(pintar, { target: pista, offset: ['start start', 'end end'] });
 }
-
 
 /**
  * Los tejados del hero se separan por capas al bajar: la de delante se mueve
@@ -923,6 +904,7 @@ function boot() {
   setupLineReveal();
   setupWordReveal();
   setupReveals();
+  setupMetodo();
   setupHeader();
   setupNav();
   setupApertures();
@@ -931,7 +913,6 @@ function boot() {
   setupAccentStroke();
   setupParisBackdrop();
   // Las dos piezas ligadas a scroll cargan Motion aparte, ya pintado el hero.
-  setupMetodo();
   setupTest();
   setupParallax();
 }

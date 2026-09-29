@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceLanding from '../components/ServiceLanding.astro';
+import ConversacionGrupo from '../components/graficos/ConversacionGrupo.astro';
 import { FAQ_GRUPO } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
 import { BONOS, CTA } from '../data/site';
@@ -33,12 +34,13 @@ const schema = [
   schema={schema}
 >
   <ServiceLanding
+    gsap
     label="Clase en grupo · 20 € la hora por persona"
     titulo="Practica con más voces"
   acento="voces"
     intro="Te apuntas por tu cuenta y yo formo el grupo con gente de tu nivel, entre dos y cinco personas. Hablas con más gente que conmigo, y eso cambia cómo suena tu francés."
     apertura={{
-      alt: 'Varias personas en una clase de francés en línea',
+      alt: 'Conversación en francés entre alumnos de un grupo, con una corrección en el momento',
       todo: 'Grupo pequeño en clase',
     }}
     paraQuienSi={[
@@ -123,5 +125,7 @@ const schema = [
     breadcrumb={migas}
     ctaHero={CTA.heroGrupo}
     ctaCierre={CTA.cierreGrupo}
-  />
+  >
+    <ConversacionGrupo slot="apertura" />
+  </ServiceLanding>
 </BaseLayout>

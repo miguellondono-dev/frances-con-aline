@@ -1,8 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Logo from '../components/Logo.astro';
+import Cta from '../components/Cta.astro';
 import { breadcrumb } from '../lib/schema';
-import { PENDIENTE, CORREO_CONTACTO, SITE_NAME } from '../data/site';
+import { PENDIENTE, CORREO_CONTACTO, SITE_NAME, enlaceWhatsapp } from '../data/site';
+import logoWhatsapp from '@phosphor-icons/core/fill/whatsapp-logo-fill.svg?raw';
+
+const iconoWhatsapp = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
 
 /**
  * AGENDAR.
@@ -20,7 +24,8 @@ import { PENDIENTE, CORREO_CONTACTO, SITE_NAME } from '../data/site';
  *
  * Mientras no exista la cuenta de Cal.com el calendario no se puede montar, y
  * en ese hueco no se pone una disculpa que mande a otro formulario: se pone
- * la via que si funciona hoy, que es escribir.
+ * la via que si funciona hoy. Desde septiembre de 2026 es WhatsApp, con el
+ * mensaje ya escrito; el correo queda como segunda opcion.
  */
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -88,16 +93,34 @@ const cal = PENDIENTE.calcom;
             cal ? (
               <div class="calendario__caja" id="cal-embed" data-cal-embed data-cal-link={cal} />
             ) : (
-              <div class="calendario__hueco">
-                <span class="label text-lie">Calendario en camino</span>
+              <div class="calendario__hueco" data-reveal>
+                <span class="label text-lie">Reserva en un mensaje</span>
+                <p class="calendario__titulo">Dime qué horario te viene bien</p>
                 <p class="calendario__texto">
-                  Todavía estoy conectando el calendario. Mientras tanto lo
-                  cerramos en dos correos: escríbeme con dos o tres franjas que
-                  te sirvan y te confirmo una.
+                  Escríbeme por WhatsApp con dos o tres franjas que te sirvan y
+                  te confirmo una. El mensaje ya va escrito: solo tienes que
+                  enviarlo.
                 </p>
-                <a class="calendario__correo" href={`mailto:${CORREO_CONTACTO}?subject=Quiero agendar mi primera sesión`}>
-                  {CORREO_CONTACTO}
-                </a>
+                <div class="calendario__acciones" data-wa-ocultar>
+                  <Cta
+                    href={enlaceWhatsapp('/agenda')}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label="Reservar por WhatsApp (se abre WhatsApp)"
+                  >
+                    <span class="calendario__wa" set:html={iconoWhatsapp} />
+                    Reservar por WhatsApp
+                  </Cta>
+                  <p class="calendario__otra">
+                    ¿Prefieres correo?
+                    <a
+                      class="calendario__correo"
+                      href={`mailto:${CORREO_CONTACTO}?subject=Quiero agendar mi primera sesión`}
+                    >
+                      {CORREO_CONTACTO}
+                    </a>
+                  </p>
+                </div>
               </div>
             )
           }
@@ -316,8 +339,58 @@ const cal = PENDIENTE.calcom;
     padding: 2.5rem 2rem;
   }
 
-  .calendario__texto {
+  /* En escritorio la tarjeta toma el alto de la ficha y centra su contenido:
+     si no, quedaba media columna vacia debajo. */
+  @media (width >= 64rem) {
+    .calendario {
+      align-self: stretch;
+    }
+
+    .calendario__hueco {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      padding: 3rem 3.25rem;
+    }
+  }
+
+  .calendario__titulo {
     margin-top: 0.9rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  .calendario__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  .calendario__wa {
+    display: inline-flex;
+  }
+
+  .calendario__wa :global(svg) {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .calendario__otra {
+    font-size: var(--text-body-s);
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  .calendario__texto {
+    margin-top: 0.75rem;
     max-width: 46ch;
     font-size: var(--text-body);
     line-height: 1.5;
@@ -325,15 +398,11 @@ const cal = PENDIENTE.calcom;
   }
 
   .calendario__correo {
-    display: inline-block;
-    margin-top: 1.5rem;
-    font-family: var(--font-display);
-    font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--color-grenat);
     text-decoration: underline;
-    text-underline-offset: 5px;
+    text-underline-offset: 3px;
     transition: color var(--duration-fast) var(--ease-smooth);
   }
 

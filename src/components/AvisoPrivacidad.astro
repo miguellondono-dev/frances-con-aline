@@ -1,0 +1,105 @@
+---
+/**
+ * AVISO DE PRIVACIDAD DE LOS FORMULARIOS (RGPD).
+ *
+ * Aline trabaja desde Francia, asi que aplica el RGPD europeo. Cada
+ * formulario tiene que decir, junto al boton, para que se usan los datos y
+ * donde leer el resto. Y si algun dia se escribe a esa persona algo que no
+ * pidio (consejos, novedades), hace falta su permiso expreso: una casilla
+ * que ella marca, nunca marcada de antemano.
+ *
+ * La casilla viaja como "novedades=si" solo si se marca. Sin marcar, a esa
+ * persona solo se le contesta a lo que pidio.
+ */
+interface Props {
+  /** Prefijo para el id de la casilla: tiene que ser unico en la pagina. */
+  id: string;
+  /** Sobre fondo oscuro cambian los colores. */
+  oscuro?: boolean;
+  /** Mostrar la casilla de novedades. Por defecto, si. */
+  casilla?: boolean;
+}
+
+const { id, oscuro = false, casilla = true } = Astro.props;
+---
+
+<div class="aviso" data-oscuro={oscuro ? 'true' : undefined}>
+  {
+    casilla && (
+      <label class="aviso__casilla" for={`${id}-novedades`}>
+        <input id={`${id}-novedades`} name="novedades" type="checkbox" value="si" />
+        <span>
+          Quiero recibir consejos de francés y novedades por correo. Me doy de
+          baja cuando quiera.
+        </span>
+      </label>
+    )
+  }
+  <p class="aviso__texto">
+    Uso tus datos solo para contestarte{casilla ? ' y, si marcas la casilla, para escribirte' : ''}.
+    Puedes pedirme que los borre cuando quieras.
+    <a href="/privacidad">Política de privacidad</a>.
+  </p>
+</div>
+
+<style>
+  /* Ocupa la fila entera si el formulario es una rejilla. */
+  .aviso {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .aviso__casilla {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: start;
+    padding-block: 0.2rem;
+    cursor: pointer;
+    font-size: var(--text-body-s);
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-encre) 82%, transparent);
+  }
+
+  .aviso__casilla input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.1rem;
+    accent-color: var(--color-grenat);
+    cursor: pointer;
+  }
+
+  .aviso__texto {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  .aviso__texto a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .aviso__texto a:hover {
+    color: var(--color-grenat);
+  }
+
+  .aviso[data-oscuro] .aviso__casilla {
+    color: var(--color-blanc);
+  }
+
+  .aviso[data-oscuro] .aviso__texto {
+    color: var(--color-ciel);
+  }
+
+  .aviso[data-oscuro] .aviso__texto a:hover {
+    color: var(--color-blanc);
+  }
+
+  .aviso[data-oscuro] .aviso__casilla input {
+    accent-color: var(--color-chair);
+  }
+</style>

@@ -1,4 +1,5 @@
 ---
+import AvisoPrivacidad from './AvisoPrivacidad.astro';
 import { Picture } from 'astro:assets';
 import Cta from './Cta.astro';
 import { CORREO_CONTACTO } from '../data/site';
@@ -273,6 +274,8 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
             placeholder="nombre@correo.com"
           />
         </div>
+
+        <AvisoPrivacidad id={idForma} />
 
         <button class="reserva__boton" type="submit">Guardar mi plaza</button>
 

@@ -1,0 +1,9 @@
+# Los envios de los formularios llevan datos de personas: nunca se sirven.
+# Solo se puede llamar a enviar.php; el resto de la carpeta queda cerrado.
+<FilesMatch "\.(csv|json|txt|log)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^(config|config\.example|smtp)\.php$">
+  Require all denied
+</FilesMatch>
+Options -Indexes

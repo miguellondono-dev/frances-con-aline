@@ -37,8 +37,7 @@ const FORMAS = [
   },
   {
     titulo: 'Preparación DELF',
-    prefijo: 'Desde',
-    precio: '20 €',
+    precio: '35 €',
     unidad: '/ hora',
     incluye: [
       'Simulacros con formato DELF',
@@ -93,7 +92,6 @@ const FORMAS = [
               {/* El precio va al final, justo encima del botón, y en voz baja:
                   tiene que estar, pero no es lo que decide. */}
               <p class="forma__bloque-precio">
-                {forma.prefijo && <span class="forma__unidad">{forma.prefijo}</span>}
                 <span class="forma__precio">{forma.precio}</span>
                 <span class="forma__unidad">{forma.unidad}</span>
               </p>
@@ -113,11 +111,13 @@ const FORMAS = [
     </ul>
 
     <div class="formas-paris" data-reveal data-repite>
+      {/* Antes decia "pronto abriré calendario para mis talleres", y los
+          talleres ya tienen fechas y plazas abiertas: la frase los escondia. */}
       <p>
-        Pronto abriré calendario para mis talleres y estarán disponibles los
-        tours en español por París.
+        En París también hay talleres de teatro y de acuarela en francés, con
+        plazas abiertas. Y pronto, tours en español.
       </p>
-      <a href="/talleres" class="boton-expandido">Avísame cuando esté disponible</a>
+      <a href="/talleres" class="boton-expandido">Ver los talleres</a>
     </div>
   </div>
 </section>

@@ -1,4 +1,5 @@
 ---
+import AvisoPrivacidad from '../components/AvisoPrivacidad.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { breadcrumb } from '../lib/schema';
 import { CORREO_CONTACTO } from '../data/site';
@@ -180,6 +181,8 @@ const DATOS = [
               />
               <p class="campo__error" data-error-correo role="alert"></p>
             </div>
+
+            <AvisoPrivacidad id="test" />
 
             <div class="campo">
               <button class="test-boton test-boton--grande" type="submit">

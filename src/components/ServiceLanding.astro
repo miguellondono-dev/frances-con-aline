@@ -4,16 +4,32 @@ import { Picture } from 'astro:assets';
 import Aperture from './Aperture.astro';
 import Cta from './Cta.astro';
 import Faq from './Faq.astro';
+import Metodo from './home/Method.astro';
+import { icono, type NombreIcono } from '../data/iconos';
 import type { Pregunta } from '../data/faq';
 
 /**
  * PLANTILLA DE LANDING DE SERVICIO.
  *
- * La estructura se comparte entre /clases-privadas, /clases-en-grupo y
- * /preparacion-delf. El copy no: cada pagina trae el suyo y no se recicla.
+ * La comparten /clases-privadas, /clases-en-grupo y /preparacion-delf. El copy
+ * no: cada pagina trae el suyo.
  *
- * El bloque "para quien NO es" es obligatorio. Es lo que da credibilidad al
- * resto de la pagina: si todo sirve para todos, nada sirve para nadie.
+ * Hay dos versiones:
+ *
+ *  - Con `beneficios` (hoy, privadas): portada, "Lo que vas a conseguir",
+ *    como empezamos, precio, preguntas y cierre. El mensaje va de lo que la
+ *    persona consigue, no de lo que se le ofrece, y las secciones van con
+ *    menos relleno. Miguel quito "Para quien" porque no aportaba (septiembre
+ *    de 2026).
+ *  - Sin `beneficios` (grupo y DELF, hasta que se pida): la de siempre, con
+ *    "Para quien" en dos listas y "Que incluye".
+ *
+ * Los fondos alternan sin repetir tono entre vecinas. En la version nueva:
+ * blanco, calido, blanco, azul, blanco, calido.
+ *
+ * Animacion: con `gsap`, la lleva GSAP (scripts/clases-gsap.ts) con los
+ * ganchos data-g-*; sin `gsap`, las entradas de todo el sitio (data-reveal y
+ * data-palabras, en motion.ts). Privadas y grupo usan GSAP.
  */
 interface Bono {
   clases: number;
@@ -22,8 +38,16 @@ interface Bono {
   nota?: string;
 }
 
+/** Un beneficio: icono, lo que se consigue y una frase que lo explica. */
+interface Beneficio {
+  icono: NombreIcono;
+  titulo: string;
+  texto: string;
+}
+
 interface Props {
-  label: string;
+  /** Linea pequeña sobre el titular. Opcional: en privadas sobraba. */
+  label?: string;
   titulo: string;
   /**
    * La palabra del titular que va en italica roja. Es el recurso con el que
@@ -32,15 +56,22 @@ interface Props {
    */
   acento?: string;
   intro: string;
+  /** Tres datos cortos bajo el boton de la portada. Solo hechos, nada inventado. */
+  garantias?: string[];
   /**
    * La imagen de la portada. Sin `foto` se pinta el ojo con el hueco marcado.
    * Con `foto` (aunque sea provisional) va en tarjeta: el ojo esta pensado
    * para la foto de clase definitiva.
    */
   apertura: { alt: string; todo: string; foto?: ImageMetadata };
-  paraQuienSi: string[];
-  paraQuienNo: string[];
-  incluye: { titulo: string; texto: string }[];
+  /** Version nueva: lo que la persona consigue. Sustituye a "Para quien" y "Que incluye". */
+  beneficios?: { titulo: string; intro?: string; lista: Beneficio[] };
+  /** Version de siempre: las dos listas de "Para quien". */
+  paraQuienSi?: string[];
+  paraQuienNo?: string[];
+  /** Version de siempre: "Que incluye". */
+  incluyeIntro?: string;
+  incluye?: { titulo: string; texto: string }[];
   pasos: { titulo: string; texto: string }[];
   precio: { valor: string; unidad: string; nota?: string };
   bonos?: { titulo: string; confirmado: boolean; lista: Bono[] };
@@ -50,6 +81,8 @@ interface Props {
   ctaHero?: string;
   ctaCierre?: string;
   breadcrumb: { name: string; path: string }[];
+  /** Animacion con GSAP en vez de las entradas de siempre. */
+  gsap?: boolean;
 }
 
 const {
@@ -57,28 +90,55 @@ const {
   titulo,
   acento,
   intro,
+  garantias,
   apertura,
-  paraQuienSi,
-  paraQuienNo,
-  incluye,
+  beneficios,
+  paraQuienSi = [],
+  paraQuienNo = [],
+  incluyeIntro,
+  incluye = [],
   pasos,
   precio,
   bonos,
   faq,
   cierre,
-  breadcrumb,
   ctaHero = 'Agenda tu clase gratis',
   ctaCierre = 'Agenda tu clase gratis',
+  gsap = false,
 } = Astro.props;
+
+/**
+ * Atributos segun el sistema de animacion. `siempre` da el valor solo sin
+ * GSAP (las entradas de todo el sitio); `conGsap`, solo con GSAP (sus
+ * ganchos). Un atributo undefined no se escribe en el HTML.
+ */
+const siempre = (valor = '') => (gsap ? undefined : valor);
+const conGsap = (valor = '') => (gsap ? valor : undefined);
+
+/** La version nueva va mas apretada: con 80px por seccion sobraba aire. */
+const nueva = Boolean(beneficios);
+const relleno = nueva ? 'py-section-sm' : 'py-section';
+
+/**
+ * Ancho de cada pieza de "Qué incluye" sobre 12 columnas. Zigzag: la fila
+ * ancha cambia de lado en cada fila, y la tercera se reparte a medias.
+ */
+const ANCHOS = [7, 5, 5, 7, 6, 6];
 ---
 
-<!-- 1. PROMESA. Composicion espejada respecto al home: aqui el texto va a la
-     derecha, para que las dos paginas no se lean como la misma maqueta. -->
-<section class="overflow-hidden bg-blanc">
+<!-- 1. PORTADA. Foto a la izquierda y texto a la derecha: es la composicion
+     que Miguel dio por buena. -->
+<section class="overflow-hidden bg-blanc" data-gsap-pagina={conGsap()}>
   <div
     class="pad-shell-right grid items-center gap-12 pb-section pt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-16"
+    data-g-portada={conGsap()}
+    data-g-oculto={conGsap()}
   >
-    <div class="pad-shell-left order-2 lg:order-1 lg:pl-0" data-reveal="fade">
+    <div
+      class="pad-shell-left order-2 lg:order-1 lg:pl-0"
+      data-reveal={siempre('fade')}
+      data-g={conGsap('foto')}
+    >
       {
         apertura.foto ? (
           <figure class="foto-tarjeta mx-auto w-full max-w-[24rem]">
@@ -93,6 +153,20 @@ const {
               class="foto-tarjeta__img"
             />
           </figure>
+        ) : Astro.slots.has('apertura') ? (
+          /* Sin foto todavia, pero con una ilustracion propia de la pagina
+             (slot "apertura"): nunca el hueco "Pendiente" en una portada. */
+          <Aperture
+            alt={apertura.alt}
+            todo={apertura.todo}
+            ratio="aspect-[4/5]"
+            lids
+            lidColor="blanc"
+            eager
+            class="mx-auto w-full max-w-[24rem]"
+          >
+            <slot name="apertura" />
+          </Aperture>
         ) : (
           <Aperture
             alt={apertura.alt}
@@ -108,8 +182,19 @@ const {
     </div>
 
     <div class="pad-shell-left order-1 lg:order-2 lg:pl-0">
-      <p class="label mt-8 text-nuit" data-reveal>{label}</p>
-      <h1 class="mt-5 text-display-xl text-encre" data-palabras data-repite>
+      {
+        label && (
+          <p class="label mb-5 text-nuit" data-reveal={siempre()} data-g={conGsap('entrada')}>
+            {label}
+          </p>
+        )
+      }
+      <h1
+        class="text-display-xl text-encre"
+        data-palabras={siempre()}
+        data-repite={siempre()}
+        data-g-titulo={conGsap('portada')}
+      >
         {
           acento && titulo.includes(acento) ? (
             <>
@@ -122,136 +207,208 @@ const {
           )
         }
       </h1>
-      <p class="measure mt-7 text-body text-nuit" data-reveal>{intro}</p>
-      <div class="mt-8" data-reveal>
+      <p class="portada__intro measure mt-6" data-reveal={siempre()} data-g={conGsap('entrada')}>
+        {intro}
+      </p>
+      <div class="mt-8" data-reveal={siempre()} data-g={conGsap('entrada')}>
         <Cta href="/agenda">{ctaHero}</Cta>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- 2. PARA QUIEN SI, PARA QUIEN NO -->
-<section class="fondo-calido" aria-labelledby="para-quien">
-  <div class="shell py-section">
-    <h2
-      id="para-quien"
-      class="titulo-seccion mx-auto max-w-[22ch] text-center text-encre"
-      data-reveal
-    >
-      Para quién es esto, y para quién no
-    </h2>
-
-    {/*
-      Dos tarjetas que flotan y se separan, como las de la portada. Antes iban
-      pegadas con una linea de un pixel dentro de una caja: ese recurso no
-      existe en ningun sitio del inicio.
-    */}
-    <div class="mt-12 grid gap-5 lg:grid-cols-2">
-      <div class="tarjeta-sitio p-8 sm:p-10" data-reveal>
-        <p class="label text-bleu">Es para ti si</p>
-        <ul class="mt-6 flex flex-col gap-4">
-          {
-            paraQuienSi.map((item) => (
-              <li class="grid grid-cols-[1.25rem_1fr] gap-3 text-body text-encre">
-                <span class="pt-2.5 text-bleu" aria-hidden="true">
-                  <svg viewBox="0 0 16 2" class="h-0.5 w-4">
-                    <path d="M0 1h16" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                </span>
-                <span>{item}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <div class="tarjeta-sitio p-8 sm:p-10" data-reveal>
-        <p class="label text-lie">No es para ti si</p>
-        <ul class="mt-6 flex flex-col gap-4">
-          {
-            paraQuienNo.map((item) => (
-              <li class="grid grid-cols-[1.25rem_1fr] gap-3 text-body text-encre">
-                <span class="pt-2.5 text-lie" aria-hidden="true">
-                  <svg viewBox="0 0 16 2" class="h-0.5 w-4">
-                    <path d="M0 1h16" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                </span>
-                <span>{item}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 3. QUE INCLUYE -->
-<section class="bg-blanc" aria-labelledby="incluye">
-  <div class="shell grid gap-12 py-section lg:grid-cols-12 lg:gap-8">
-    <div class="lg:col-span-4">
-      <h2 id="incluye" class="titulo-seccion text-encre lg:sticky lg:top-28" data-reveal>
-        Qué incluye
-      </h2>
-    </div>
-    <dl class="lg:col-span-7 lg:col-start-6">
       {
-        incluye.map((item) => (
-          <div class="border-t border-pierre py-7 first:border-t-0 first:pt-0" data-reveal>
-            <dt class="text-title text-encre">{item.titulo}</dt>
-            <dd class="measure mt-2 text-body text-nuit">{item.texto}</dd>
+        garantias && (
+          <ul class="garantias mt-7" data-reveal={siempre()} data-g-garantias={conGsap()}>
+            {garantias.map((garantia) => (
+              <li>
+                <Fragment set:html={icono('check')} />
+                <span>{garantia}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+{
+  beneficios && (
+    /* 2. LO QUE VAS A CONSEGUIR. Titular a la izquierda y la idea en una
+       frase a la derecha; debajo, seis tarjetas en dos columnas con el icono
+       al lado del texto, que asi llenan su ancho sin huecos. */
+    <section class="fondo-calido" aria-labelledby="beneficios">
+      <div class:list={['shell', relleno]}>
+        <div class="beneficios__cabecera">
+          <h2
+            id="beneficios"
+            class="titulo-seccion text-encre"
+            data-reveal={siempre()}
+            data-g-titulo={conGsap('seccion')}
+          >
+            {beneficios.titulo}
+          </h2>
+          {beneficios.intro && (
+            <p class="beneficios__intro" data-reveal={siempre()} data-g={conGsap('entrada')}>
+              {beneficios.intro}
+            </p>
+          )}
+        </div>
+
+        <ul class="beneficios__rejilla">
+          {beneficios.lista.map((beneficio, i) => (
+            <li
+              class="beneficios__celda"
+              data-reveal={siempre()}
+              data-g-beneficio={conGsap(i % 2 === 0 ? 'izq' : 'der')}
+            >
+              <div class="beneficio">
+                <span class="beneficio__icono" set:html={icono(beneficio.icono)} />
+                <div>
+                  <h3 class="beneficio__titulo">{beneficio.titulo}</h3>
+                  <p class="beneficio__texto">{beneficio.texto}</p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+{
+  !nueva && paraQuienSi.length > 0 && (
+    /* 2. PARA QUIEN (version de siempre). Titulo y tarjeta discreta a la
+       izquierda, la principal a la derecha ocupando todo el alto. */
+    <section class="fondo-calido" aria-labelledby="para-quien">
+      <div class:list={['shell', relleno]}>
+        <div class="publico">
+          <h2
+            id="para-quien"
+            class="publico__titulo titulo-seccion text-encre"
+            data-reveal={siempre()}
+            data-g-titulo={conGsap('seccion')}
+          >
+            Para quién son estas clases
+          </h2>
+
+          <div
+            class="publico__si tarjeta-sitio"
+            data-reveal={siempre()}
+            data-g={conGsap('derecha')}
+          >
+            <p class="publico__etiqueta text-bleu">Son para ti si</p>
+            <ul class="publico__lista">
+              {paraQuienSi.map((item) => (
+                <li>
+                  <svg class="publico__marca" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path
+                      d="M4.5 10.5l3.5 3.5 7.5-8"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        ))
-      }
-    </dl>
-  </div>
-</section>
 
-<!-- 4. COMO FUNCIONA. Unica fila de tres del sitio: es una secuencia real. -->
-<section class="fondo-suave" aria-labelledby="como-funciona">
-  <div class="shell py-section">
-    <h2 id="como-funciona" class="titulo-seccion text-center text-encre" data-reveal>
-      Cómo funciona
-    </h2>
-    <ol class="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
-      {
-        pasos.map((paso, i) => (
-          <li class="border-t border-encre/20 pt-6" data-reveal>
-            <span class="numerals text-title text-corail" aria-hidden="true">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <h3 class="mt-3 text-display-m text-encre">{paso.titulo}</h3>
-            <p class="mt-3 text-body text-nuit">{paso.texto}</p>
-          </li>
-        ))
-      }
-    </ol>
-  </div>
-</section>
+          <div class="publico__no" data-reveal={siempre()} data-g={conGsap('izquierda')}>
+            <p class="publico__etiqueta text-nuit">Te conviene otra opción si</p>
+            <ul class="publico__lista publico__lista--no">
+              {paraQuienNo.map((item) => (
+                <li>
+                  <span class="publico__raya" aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
-<!-- 5. PRECIO Y BONOS. Es el unico bloque oscuro en mitad de la pagina, asi
-     que lleva el parpadeo del cierre del inicio: sin el, sus dos cantos rectos
-     cortarian la pagina en franjas. -->
+{
+  !nueva && incluye.length > 0 && (
+    /* 3. QUE INCLUYE (version de siempre). Cabecera partida y piezas en
+       zigzag. */
+    <section class="bg-blanc" aria-labelledby="incluye">
+      <div class:list={['shell', relleno]}>
+        <div class="incluye__cabecera">
+          <h2
+            id="incluye"
+            class="titulo-seccion text-encre"
+            data-reveal={siempre()}
+            data-g-titulo={conGsap('seccion')}
+          >
+            Qué incluye trabajar conmigo
+          </h2>
+          {incluyeIntro && (
+            <p class="incluye__intro" data-reveal={siempre()} data-g={conGsap('entrada')}>
+              {incluyeIntro}
+            </p>
+          )}
+        </div>
+
+        <ul class="incluye__rejilla">
+          {incluye.map((item, i) => (
+            <li
+              class="incluye__pieza"
+              data-reveal={siempre()}
+              data-g-pieza={conGsap(i % 2 === 0 ? 'izq' : 'der')}
+              style={`--ancho: ${ANCHOS[i % ANCHOS.length]}`}
+            >
+              <span class="incluye__numero" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="incluye__titulo">{item.titulo}</h3>
+              <p class="incluye__texto">{item.texto}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<!-- 4. COMO EMPEZAMOS. La linea de tiempo del inicio. En la version nueva va
+     en blanco (la de arriba es calida y la de abajo azul); en la de siempre,
+     en fondo suave. Con GSAP, el carril lo mueve GSAP y Motion no se descarga. -->
+<Metodo
+  titulo="Cómo empezamos"
+  pasos={pasos}
+  fondo={nueva ? 'bg-blanc' : 'fondo-suave'}
+  motor={gsap ? 'gsap' : 'motion'}
+/>
+
+<!-- 5. PRECIO Y BONOS. El unico bloque oscuro en mitad de la pagina, asi que
+     lleva el parpadeo del cierre del inicio. Asimetrico: precio a la izquierda,
+     bonos a la derecha. -->
 <section
   class="surface-dark relative overflow-hidden"
   data-blink="closed"
   aria-labelledby="precio"
 >
-  <div class="shell relative z-10 flex flex-col items-center py-section text-center">
-    <p class="label text-ciel" data-reveal>Precio</p>
+  <div class:list={['shell relative z-10 precio', relleno, { 'precio--con-bonos': bonos }]}>
     <h2 id="precio" class="sr-only">Precio y bonos</h2>
 
-    <div class="mt-8 flex flex-col items-center" data-reveal>
-      <p>
-        <span class="numerals block text-display-xl text-blanc">{precio.valor}</span>
-        <span class="mt-3 block text-body text-ciel">{precio.unidad}</span>
+    <div class="precio__principal" data-reveal={siempre()} data-g={conGsap('entrada')}>
+      <p class="label text-ciel">Precio</p>
+      <p class="mt-5">
+        <span class="numerals block text-display-xl text-blanc" data-g-cifra={conGsap()}>
+          {precio.valor}
+        </span>
+        <span class="mt-2 block text-body text-ciel">{precio.unidad}</span>
       </p>
-      {precio.nota && <p class="measure-tight mt-6 text-body text-ciel">{precio.nota}</p>}
+      {precio.nota && <p class="precio__nota">{precio.nota}</p>}
     </div>
 
     {
       bonos && (
-        <div class="mt-16 w-full max-w-4xl border-t border-nuit pt-12" data-reveal>
+        <div class="precio__bonos" data-reveal={siempre()} data-g={conGsap('entrada')}>
           <h3 class="text-display-m text-blanc">{bonos.titulo}</h3>
 
           {!bonos.confirmado && (
@@ -263,17 +420,16 @@ const {
             </p>
           )}
 
-          {/* auto-fit y no un numero fijo de columnas: cada pagina trae los
-              bonos que tiene, y asi la fila queda llena y centrada con
-              cualquier cantidad. */}
-          <ul class="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-5">
+          <ul class="precio__lista">
             {bonos.lista.map((bono) => (
-              <li class="border-t border-nuit pt-5">
-                <p class="numerals text-display-m text-blanc">{bono.precio} €</p>
-                <p class="mt-2 text-body text-blanc">
-                  {bono.clases} clases {bono.nota ? bono.nota : ''}
-                </p>
-                <p class="text-body-s text-ciel">Vence en {bono.vence}</p>
+              <li class="precio__fila" data-g-fila={conGsap()}>
+                <div>
+                  <p class="precio__clases">
+                    {bono.clases} clases{bono.nota ? ` ${bono.nota}` : ''}
+                  </p>
+                  <p class="precio__vence">Vence en {bono.vence}</p>
+                </div>
+                <p class="numerals precio__importe">{bono.precio} €</p>
               </li>
             ))}
           </ul>
@@ -289,20 +445,96 @@ const {
 <!-- 6. FAQ propia del servicio -->
 <Faq preguntas={faq} id="preguntas" />
 
-<!-- 7. CTA -->
+<!-- 7. CIERRE. Centrado: es corto. El boton en el mismo rojo que el de arriba,
+     que hace lo mismo. -->
 <section class="fondo-calido" aria-labelledby="cierre">
-  <div class="shell flex flex-col items-center py-section text-center">
-    <h2 id="cierre" class="titulo-seccion max-w-[20ch] text-encre" data-reveal>
+  <div class:list={['shell flex flex-col items-center text-center', relleno]}>
+    <h2
+      id="cierre"
+      class="titulo-seccion max-w-[20ch] text-encre"
+      data-reveal={siempre()}
+      data-g-titulo={conGsap('seccion')}
+    >
       {cierre.titulo}
     </h2>
-    <p class="measure mt-7 text-body text-encre" data-reveal>{cierre.texto}</p>
-    <div class="mt-10" data-reveal>
-      <Cta href="/agenda" variant="lie">{ctaCierre}</Cta>
+    <p class="cierre__texto measure mt-5" data-reveal={siempre()} data-g={conGsap('entrada')}>
+      {cierre.texto}
+    </p>
+    <div class="mt-8" data-reveal={siempre()} data-g={conGsap('entrada')}>
+      <Cta href="/agenda">{ctaCierre}</Cta>
     </div>
   </div>
 </section>
 
+<script>
+  // Sale en la primera linea si la pagina no pidio GSAP; GSAP va en import()
+  // dinamico, asi que en DELF no se descarga.
+  import '../scripts/clases-gsap';
+</script>
+
 <style>
+  /* --- Animacion con GSAP ---
+     La portada empieza oculta hasta que GSAP pone sus estados iniciales; si no
+     llega, clases-gsap.ts la destapa a los 3 segundos. */
+  :global(.js) [data-g-oculto] {
+    visibility: hidden;
+  }
+
+  /* Lo que mueve GSAP no puede llevar ademas una transicion de CSS sobre la
+     misma propiedad: la tarjeta del sitio la trae y hacia que el movimiento
+     llegara con retraso. */
+  [data-g],
+  [data-g-pieza],
+  [data-g-fila],
+  [data-g-beneficio] {
+    transition: none;
+  }
+
+  /* Colchon de la mascara de cada linea para que no corte tildes ni colas. */
+  :global(.g-linea-mask) {
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
+
+  /* Las tarjetas entran de lado: sin esto, mientras vienen de fuera, la pagina
+     ganaba scroll horizontal. clip no crea contenedor de scroll, asi que no
+     rompe los sticky. */
+  :global(main:has([data-gsap-pagina])) {
+    overflow-x: clip;
+  }
+
+  /* --- 1. Portada --- */
+
+  .portada__intro {
+    font-size: var(--text-body);
+    line-height: 1.45;
+    color: var(--color-nuit);
+  }
+
+  .garantias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.5rem;
+  }
+
+  .garantias li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: var(--text-body-s);
+    font-weight: 500;
+    line-height: 1.3;
+    color: color-mix(in srgb, var(--color-encre) 80%, transparent);
+  }
+
+  /* El icono llega incrustado, sin el atributo de ambito: selector global. */
+  .garantias :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--color-grenat);
+  }
+
   /**
    * La foto de la portada, en tarjeta. Mismo radio y misma curva que las
    * tarjetas del sitio. Va un poco girada y se endereza al pasar por encima,
@@ -336,6 +568,402 @@ const {
     .foto-tarjeta:hover {
       transform: rotate(0deg) translateY(-6px);
     }
+  }
+
+  /* --- 2. Lo que vas a conseguir --- */
+
+  .beneficios__cabecera {
+    display: grid;
+    gap: 0.9rem;
+    margin-bottom: 2.25rem;
+  }
+
+  @media (width >= 64rem) {
+    .beneficios__cabecera {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      column-gap: 4rem;
+      align-items: end;
+      margin-bottom: 2.75rem;
+    }
+  }
+
+  .beneficios__intro {
+    max-width: 30ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.1rem + 0.55vw, 1.625rem);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--color-nuit);
+  }
+
+  @media (width >= 64rem) {
+    .beneficios__intro {
+      justify-self: end;
+      padding-bottom: 0.35rem;
+    }
+  }
+
+  .beneficios__rejilla {
+    display: grid;
+    gap: 0.875rem;
+  }
+
+  @media (width >= 48rem) {
+    .beneficios__rejilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  /* La celda la anima GSAP; la tarjeta de dentro sube al pasar por encima.
+     Asi no se pisan dos movimientos en el mismo elemento. */
+  .beneficios__celda {
+    display: flex;
+  }
+
+  .beneficio {
+    flex: 1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.1rem;
+    align-items: start;
+    padding: 1.3rem 1.4rem 1.4rem;
+    border-radius: 18px;
+    background-color: var(--color-blanc);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-encre) 7%, transparent),
+      var(--shadow-flota);
+    transition: transform 320ms var(--ease-smooth);
+  }
+
+  @media (width >= 64rem) {
+    .beneficio {
+      padding: 1.5rem 1.6rem 1.6rem;
+    }
+  }
+
+  .beneficio__icono {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 13px;
+    background-color: color-mix(in srgb, var(--color-ciel) 38%, var(--color-blanc));
+    color: var(--color-bleu);
+    transition: transform 320ms var(--ease-smooth);
+  }
+
+  .beneficio__icono :global(svg) {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .beneficio__titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  .beneficio__texto {
+    margin-top: 0.35rem;
+    font-size: var(--text-body);
+    line-height: 1.42;
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+    text-wrap: pretty;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .beneficio:hover {
+      transform: translateY(-3px);
+    }
+
+    .beneficio:hover .beneficio__icono {
+      transform: scale(1.06) rotate(-4deg);
+    }
+  }
+
+  /* --- 2b. Para quien (version de siempre) --- */
+
+  /**
+   * En movil, una columna: titulo, "para ti" y "otra opcion", en ese orden.
+   * En escritorio, dos columnas: a la izquierda el titulo y debajo la tarjeta
+   * discreta; a la derecha la principal, que ocupa las dos filas.
+   */
+  .publico {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-areas:
+      'titulo'
+      'si'
+      'no';
+  }
+
+  @media (width >= 64rem) {
+    .publico {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas:
+        'titulo si'
+        'no si';
+      column-gap: 3.5rem;
+      row-gap: 2.25rem;
+      align-items: start;
+    }
+  }
+
+  .publico__titulo {
+    grid-area: titulo;
+    max-width: 14ch;
+  }
+
+  .publico__si {
+    grid-area: si;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: stretch;
+    padding: 2rem 1.75rem 2.25rem;
+  }
+
+  @media (width >= 40rem) {
+    .publico__si {
+      padding: 2.5rem 2.75rem 2.75rem;
+    }
+  }
+
+  /* La de "otra opcion" sin sombra y sin blanco pleno: se lee, pero pesa
+     menos que la principal. */
+  .publico__no {
+    grid-area: no;
+    padding: 1.75rem;
+    border-radius: 22px;
+    background-color: color-mix(in srgb, var(--color-blanc) 55%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 8%, transparent);
+  }
+
+  .publico__etiqueta {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .publico__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 1.25rem;
+  }
+
+  .publico__lista li {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+    font-size: var(--text-body);
+    line-height: 1.4;
+    color: var(--color-encre);
+  }
+
+  .publico__marca {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.1rem;
+    color: var(--color-grenat);
+  }
+
+  .publico__lista--no {
+    gap: 0.7rem;
+  }
+
+  .publico__lista--no li {
+    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
+  }
+
+  .publico__raya {
+    display: block;
+    width: 0.75rem;
+    height: 2px;
+    margin-top: 0.68rem;
+    background-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
+  }
+
+  /* --- 3. Que incluye (version de siempre) --- */
+
+  .incluye__cabecera {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (width >= 64rem) {
+    .incluye__cabecera {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      column-gap: 4rem;
+      align-items: end;
+      margin-bottom: 3rem;
+    }
+  }
+
+  .incluye__intro {
+    max-width: 46ch;
+    font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+    line-height: 1.4;
+    color: var(--color-nuit);
+  }
+
+  @media (width >= 64rem) {
+    .incluye__intro {
+      justify-self: end;
+    }
+  }
+
+  .incluye__rejilla {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  @media (width >= 40rem) {
+    .incluye__rejilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .incluye__rejilla {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+
+    .incluye__pieza {
+      grid-column: span var(--ancho, 6);
+    }
+  }
+
+  /* En movil las seis van una debajo de otra: con el relleno de escritorio la
+     seccion media 1.891px. Aqui va mas ajustado. */
+  .incluye__pieza {
+    padding: 1.3rem 1.3rem 1.45rem;
+    border-radius: 18px;
+    background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
+  }
+
+  @media (width >= 40rem) {
+    .incluye__pieza {
+      padding: 1.75rem 1.75rem 2rem;
+      border-radius: 22px;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .incluye__pieza {
+      padding: 2rem 2.25rem 2.25rem;
+    }
+  }
+
+  .incluye__numero {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-grenat);
+  }
+
+  .incluye__titulo {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.1rem + 0.4vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+    text-wrap: balance;
+  }
+
+  .incluye__texto {
+    margin-top: 0.55rem;
+    max-width: 54ch;
+    font-size: var(--text-body);
+    line-height: 1.42;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+    text-wrap: pretty;
+  }
+
+  /* --- 5. Precio --- */
+
+  .precio {
+    display: grid;
+    gap: 3rem;
+  }
+
+  /* Sin bonos, el precio va solo y centrado. */
+  .precio:not(.precio--con-bonos) {
+    justify-items: center;
+    text-align: center;
+  }
+
+  @media (width >= 64rem) {
+    .precio--con-bonos {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: 5rem;
+      align-items: center;
+    }
+  }
+
+  .precio__nota {
+    max-width: 36ch;
+    margin-top: 1.5rem;
+    font-size: var(--text-body);
+    line-height: 1.42;
+    color: var(--color-ciel);
+  }
+
+  .precio__lista {
+    margin-top: 1.75rem;
+    border-bottom: 1px solid var(--color-nuit);
+  }
+
+  .precio__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 1.1rem;
+    border-top: 1px solid var(--color-nuit);
+  }
+
+  .precio__clases {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-blanc);
+  }
+
+  .precio__vence {
+    margin-top: 0.2rem;
+    font-size: var(--text-body-s);
+    line-height: 1.3;
+    color: var(--color-ciel);
+  }
+
+  .precio__importe {
+    font-size: var(--text-display-m);
+    line-height: 1;
+    color: var(--color-blanc);
+  }
+
+  /* --- 7. Cierre --- */
+
+  .cierre__texto {
+    font-size: var(--text-body);
+    line-height: 1.42;
+    color: var(--color-encre);
   }
 
   /**
@@ -375,7 +1003,9 @@ const {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .foto-tarjeta {
+    .foto-tarjeta,
+    .beneficio,
+    .beneficio__icono {
       transition: none;
     }
     .blink-lid {

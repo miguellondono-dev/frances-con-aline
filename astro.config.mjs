@@ -2,6 +2,16 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import fs from 'node:fs';
+
+/**
+ * El diario no entra en el sitemap mientras no tenga ninguna entrada: una
+ * pagina que solo dice "todavia no hay entradas" no le sirve a Google. Con la
+ * primera entrada publicada vuelve a entrar sola.
+ */
+const hayDiario = fs
+  .readdirSync('./src/content/diario')
+  .some((f) => f.endsWith('.md') && f !== 'README.md');
 
 // De este valor dependen el sitemap, los canonical y las etiquetas Open Graph.
 export const SITE = 'https://francesconaline.com';
@@ -25,7 +35,7 @@ export default defineConfig({
   // renombrando la carpeta, cuando decidamos como resolver los formularios.
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/gracias'),
+      filter: (page) => !page.includes('/gracias') && (hayDiario || !page.includes('/diario')),
     }),
   ],
   vite: {

@@ -1,5 +1,6 @@
 ---
 import Cta from './Cta.astro';
+import AvisoPrivacidad from './AvisoPrivacidad.astro';
 
 /**
  * Lista de espera de talleres y tours.
@@ -88,8 +89,7 @@ const etiqueta = oscuro ? 'text-ciel' : 'text-nuit';
   >
   </p>
 
-  <p class={`mt-2 text-body-s ${oscuro ? 'text-ciel' : 'text-nuit'}`}>
-    Te escribo cuando haya fecha. Nada más. Puedes salir de la lista cuando
-    quieras.
-  </p>
+  <div class="mt-5">
+    <AvisoPrivacidad id={id} oscuro={oscuro} />
+  </div>
 </form>

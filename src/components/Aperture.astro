@@ -15,6 +15,8 @@
  *
  * Mientras no haya fotos reales, renderiza un hueco marcado y legible. El bloque
  * esta disenado para no romperse sin imagen: si se cae sin foto, esta mal hecho.
+ * Si en vez de foto se le pasa contenido (una ilustracion), pinta eso: asi no
+ * se publica el hueco "Pendiente" en una portada.
  */
 interface Props {
   /** Alt descriptivo, ya redactado. Obligatorio: toda apertura lleva contenido. */
@@ -61,6 +63,12 @@ const {
           decoding={eager ? 'sync' : 'async'}
           fetchpriority={eager ? 'high' : undefined}
         />
+      ) : Astro.slots.has('default') ? (
+        /* Sin foto, pero con una ilustracion hecha para este hueco. El alt
+           describe la ilustracion; lo de dentro es decorativo. */
+        <div class="h-full w-full" role="img" aria-label={alt}>
+          <slot />
+        </div>
       ) : (
         /* TODO [PENDIENTE: foto real] {todo} */
         <div

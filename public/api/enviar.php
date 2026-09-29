@@ -107,6 +107,9 @@ $interes    = limpiar('interes', 60);
 $nivel      = limpiar('nivel', 40);
 $origenForm = limpiar('origen', 40);
 $resultado  = limpiar('resultado', 20000);
+// Permiso para escribirle consejos y novedades (RGPD): solo si marco la
+// casilla. Se guarda con la fecha del envio, que es la prueba del permiso.
+$novedades  = limpiar('novedades', 3) === 'si' ? 'si' : 'no';
 
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
   responder(false, 400, 'campo:correo|Ese correo no parece válido. Revísalo.');
@@ -172,7 +175,7 @@ $guardado = false;
 if ($f = @fopen($csv, 'a')) {
   if (flock($f, LOCK_EX)) {
     if ($nuevo) {
-      fputcsv($f, ['fecha', 'tipo', 'correo', 'nombre', 'apellido', 'interes', 'nivel', 'mensaje']);
+      fputcsv($f, ['fecha', 'tipo', 'correo', 'nombre', 'apellido', 'interes', 'nivel', 'mensaje', 'novedades']);
     }
     fputcsv($f, [
       $fecha,
@@ -183,6 +186,7 @@ if ($f = @fopen($csv, 'a')) {
       $interes !== '' ? $interes : $origenForm,
       $nivel,
       str_replace("\n", ' ', $mensaje),
+      $novedades,
     ]);
     flock($f, LOCK_UN);
     $guardado = true;
@@ -212,6 +216,7 @@ $resumen = "Tipo: $tipo\nCorreo: $correo\n"
   . ($interes    !== '' ? "Interés: $interes\n" : '')
   . ($origenForm !== '' ? "Desde: $origenForm\n" : '')
   . ($nivel      !== '' ? "Nivel: $nivel\n" : '')
+  . "Acepta novedades por correo: $novedades\n"
   . ($mensaje    !== '' ? "\n$mensaje\n" : '')
   . "\nRecibido: $fecha";
 

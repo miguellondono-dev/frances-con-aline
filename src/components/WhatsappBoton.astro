@@ -1,0 +1,266 @@
+---
+import logo from '@phosphor-icons/core/fill/whatsapp-logo-fill.svg?raw';
+import { enlaceWhatsapp } from '../data/site';
+
+/**
+ * BOTON FLOTANTE DE WHATSAPP.
+ *
+ * Pedido por Miguel en septiembre de 2026: una via directa para quien ya esta
+ * decidido y no quiere rellenar un formulario. Lo que lo hace estrategico:
+ *
+ *  - Lleva el mensaje ya escrito segun la pagina ("me interesa el taller de
+ *    teatro"). A quien escribe solo le queda pulsar enviar.
+ *  - No aparece en la portada: ahi manda el boton rojo. Sale al bajar, cuando
+ *    la persona ya ha leido algo y le puede surgir la duda.
+ *  - Se aparta cuando hay un formulario o el pie en pantalla, para no tapar
+ *    el boton de enviar ni los enlaces del pie, y cuando la pagina ya tiene su
+ *    propio boton de WhatsApp a la vista (data-wa-ocultar).
+ *  - En movil es solo el icono. La primera vez que sale en la visita dice
+ *    "¿Dudas? Escríbeme" unos segundos y se recoge.
+ *
+ * Va en tinta y no en verde WhatsApp: el icono ya se reconoce solo, y un
+ * verde fuera de la paleta competiria con el rojo de los botones principales.
+ */
+const href = enlaceWhatsapp(Astro.url.pathname);
+const icono = logo.replace('<svg ', '<svg class="wa__icono" aria-hidden="true" focusable="false" ');
+---
+
+<div class="wa__marca" data-wa-marca aria-hidden="true"></div>
+
+<a
+  href={href}
+  class="wa"
+  data-wa
+  data-visible="false"
+  target="_blank"
+  rel="noopener"
+  aria-label="Escríbeme por WhatsApp (se abre WhatsApp)"
+>
+  <span class="wa__circulo" set:html={icono} />
+  <span class="wa__texto">Escríbeme por WhatsApp</span>
+  <span class="wa__burbuja" aria-hidden="true">¿Dudas? Escríbeme</span>
+</a>
+
+<script>
+  const boton = document.querySelector<HTMLElement>('[data-wa]');
+  const marca = document.querySelector('[data-wa-marca]');
+
+  if (boton && marca) {
+    let pasado = false;
+    const tapando = new Set<Element>();
+
+    const pintar = () => {
+      const visible = pasado && tapando.size === 0;
+      if (boton.dataset.visible === String(visible)) return;
+      boton.dataset.visible = String(visible);
+      if (visible) saludar();
+    };
+
+    // El saludo del movil, una vez por visita. Si el navegador no deja
+    // guardar nada (modo privado), se saluda y ya.
+    let saludado = false;
+    const saludar = () => {
+      if (saludado) return;
+      saludado = true;
+      try {
+        if (sessionStorage.getItem('wa-saludo')) return;
+        sessionStorage.setItem('wa-saludo', '1');
+      } catch {
+        /* sin almacenamiento: se saluda igual */
+      }
+      window.setTimeout(() => {
+        boton.dataset.saludo = 'true';
+        window.setTimeout(() => delete boton.dataset.saludo, 4200);
+      }, 700);
+    };
+
+    // La marca mide el 70% de la pantalla desde arriba del todo: cuando sale
+    // por arriba, la persona ya ha dejado atras la portada.
+    new IntersectionObserver(([entrada]) => {
+      pasado = !entrada.isIntersecting && entrada.boundingClientRect.top < 0;
+      pintar();
+    }).observe(marca);
+
+    const estorbos = document.querySelectorAll('footer, main form, [data-wa-ocultar]');
+    const vigia = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => (e.isIntersecting ? tapando.add(e.target) : tapando.delete(e.target)));
+      pintar();
+    });
+    estorbos.forEach((el) => vigia.observe(el));
+  }
+</script>
+
+<style>
+  .wa__marca {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 70svh;
+    pointer-events: none;
+  }
+
+  /* Por debajo de la barra (z-40) y del menu movil (z-50). */
+  .wa {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(18px) scale(0.86);
+    transition:
+      opacity 280ms var(--ease-smooth),
+      transform 280ms var(--ease-smooth),
+      background-color var(--duration-fast) var(--ease-smooth),
+      visibility 0s linear 280ms;
+  }
+
+  /* Entra con un pequeño rebote; sale sin el. */
+  .wa[data-visible='true'] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 320ms var(--ease-smooth),
+      transform 560ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color var(--duration-fast) var(--ease-smooth),
+      visibility 0s;
+  }
+
+  .wa__circulo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+  }
+
+  /* Un aro que se abre dos veces al aparecer, para que el ojo lo encuentre. */
+  .wa__circulo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--color-encre);
+    opacity: 0;
+  }
+
+  .wa[data-visible='true'] .wa__circulo::after {
+    animation: wa-aro 1.4s var(--ease-smooth) 0.5s 2;
+  }
+
+  @keyframes wa-aro {
+    from {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.7);
+    }
+  }
+
+  .wa__circulo :global(.wa__icono) {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  /* En movil, solo el icono. */
+  .wa__texto {
+    display: none;
+  }
+
+  .wa__burbuja {
+    position: absolute;
+    right: calc(100% + 0.6rem);
+    top: 50%;
+    padding: 0.55rem 0.9rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-blanc);
+    color: var(--color-encre);
+    box-shadow: var(--shadow-alta);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(10px, -50%);
+    transition:
+      opacity 300ms var(--ease-smooth),
+      transform 420ms var(--ease-smooth);
+  }
+
+  .wa[data-saludo='true'] .wa__burbuja {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .wa:hover {
+      background-color: var(--color-nuit);
+    }
+  }
+
+  /* En pantalla ancha, pastilla con texto: se lee sin tener que adivinar. */
+  @media (width >= 40rem) {
+    .wa {
+      padding: 0.4rem 1.3rem 0.4rem 0.4rem;
+    }
+
+    .wa__circulo {
+      width: 2.75rem;
+      height: 2.75rem;
+      background-color: color-mix(in srgb, var(--color-blanc) 14%, transparent);
+    }
+
+    .wa__circulo :global(.wa__icono) {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .wa__texto {
+      display: inline;
+    }
+
+    .wa__burbuja {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wa,
+    .wa[data-visible='true'],
+    .wa__burbuja {
+      transition: opacity 200ms linear, visibility 0s;
+      transform: none;
+    }
+
+    .wa__burbuja,
+    .wa[data-saludo='true'] .wa__burbuja {
+      transform: translate(0, -50%);
+    }
+
+    .wa[data-visible='true'] .wa__circulo::after {
+      animation: none;
+    }
+  }
+
+  @media print {
+    .wa {
+      display: none;
+    }
+  }
+</style>

@@ -28,7 +28,9 @@ const schema = [
     name: SITE_NAME,
     url: site,
     inLanguage: 'es',
-    publisher: { '@id': `${site}quien-soy#aline` },
+    // Antes apuntaba a /quien-soy#aline, una pagina que no existe. La web la
+    // publica la marca, que ya se declara abajo con este mismo @id.
+    publisher: { '@id': marca(Astro.site)['@id'] },
   },
   marca(Astro.site),
   faqSchema(FAQ_HOME),

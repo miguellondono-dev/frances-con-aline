@@ -27,6 +27,7 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
   description="Vídeos cortos sobre el idioma francés y la cultura que lo rodea, con transcripción completa. Escritos y grabados por Aline."
   path="/diario"
   schema={schema}
+  noindex={entradas.length === 0}
 >
   <section class="bg-blanc">
     <div class="shell pb-section-sm pt-6">

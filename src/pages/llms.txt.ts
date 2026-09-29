@@ -39,7 +39,7 @@ Todos los precios están en euros.
 
 - Clase privada, una a una, en línea: ${PRECIOS.privada.valor} € la hora.
 - Clase en grupo, en línea, de dos a cinco personas: ${PRECIOS.grupo.valor} € la hora por persona.
-- Preparación del DELF: mismo precio que la clase privada o la clase en grupo.
+- Preparación del DELF: 35 € la hora.
 - Primera sesión: gratuita, 30 minutos.
 - Talleres presenciales en París: teatro (4 sábados de octubre, 65 €) y acuarela (un domingo, 30 €).
 - Tours guiados en español por París: ${PENDIENTE.precioTours ?? 'precio pendiente de definir, en construcción'}.
@@ -50,7 +50,7 @@ Hay bonos de varias clases con precio más bajo${
 
 ## Cómo es una clase
 
-Cada clase dura una hora. El método tiene seis pasos: diagnóstico inicial, plan según el objetivo y la fecha del estudiante, material cultural real en lugar de libro de texto, tarea corta, revisión conjunta de esa tarea al empezar la clase siguiente, y ajuste del horario cuando la semana del estudiante cambia.
+Cada clase dura una hora. El método tiene seis pasos: diagnóstico inicial, plan según el objetivo y la fecha del estudiante, material cultural real junto con el libro de texto, tarea corta, revisión conjunta de esa tarea al empezar la clase siguiente, y ajuste del horario cuando la semana del estudiante cambia.
 
 Las clases se apoyan en material cultural real: prensa, canciones, menús, formularios y escenas de película. Cuando algo no se entiende, Aline lo explica en español y vuelve al francés.
 

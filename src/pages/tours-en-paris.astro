@@ -4,6 +4,15 @@ import Aperture from '../components/Aperture.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import { breadcrumb } from '../lib/schema';
 import { PENDIENTE } from '../data/site';
+import { getImage } from 'astro:assets';
+import parisSena from '../assets/paris-sena.jpg';
+
+/**
+ * La portada lleva el dibujo de Paris con el Sena, el barco y la torre, el
+ * mismo trazo que el fondo del inicio, dentro del ojo de la marca. Sustituye
+ * al hueco "Pendiente" hasta que haya una foto real de un recorrido.
+ */
+const dibujo = await getImage({ src: parisSena, width: 900, format: 'webp' });
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -15,7 +24,7 @@ const schema = [breadcrumb(migas, Astro.site)];
 
 <BaseLayout
   title="Tours"
-  description="Recorridos por París guiados en español por una gestora cultural francesa. Para familias y grupos de amigos. Están en construcción: deja tu correo."
+  description="Recorridos por París en español con una gestora cultural francesa, para familias y grupos de amigos. Déjame tu correo y te aviso de las primeras fechas."
   path="/tours-en-paris"
   schema={schema}
 >
@@ -40,15 +49,16 @@ const schema = [breadcrumb(migas, Astro.site)];
       </div>
 
       <div class="pad-shell-right lg:pr-0" data-reveal="fade">
-        {/* TODO [PENDIENTE: foto real] Calle o escalinata de Montmartre. */}
+        {/* TODO [PENDIENTE: foto real] Una foto de un recorrido. Mientras, el dibujo. */}
         <Aperture
-          alt="Calle en cuesta de Montmartre a primera hora"
+          alt="Dibujo de París: el Sena con un barco, un puente y la torre Eiffel al fondo"
           todo="Calle de Montmartre"
+          src={dibujo.src}
           ratio="aspect-[4/5]"
           lids
           lidColor="blanc"
           eager
-          class="mx-auto w-full max-w-[24rem]"
+          class="tours__dibujo mx-auto w-full max-w-[24rem]"
         />
       </div>
     </div>
@@ -94,14 +104,14 @@ const schema = [breadcrumb(migas, Astro.site)];
         <div>
           <dt class="label text-nuit">Precio</dt>
           {/* TODO [PENDIENTE] Precio y formato definitivo de los tours. */}
-          <dd class="mt-2 text-body text-lie">
-            {PENDIENTE.precioTours ?? 'Pendiente de definir'}
+          <dd class="mt-2 text-body text-encre">
+            {PENDIENTE.precioTours ?? 'Lo anuncio con las primeras fechas'}
           </dd>
         </div>
         <div>
           <dt class="label text-nuit">Recorridos</dt>
           {/* TODO [PENDIENTE] Lista de recorridos y duracion. */}
-          <dd class="mt-2 text-body text-lie">Pendiente de definir</dd>
+          <dd class="mt-2 text-body text-encre">Privados, en grupo pequeño y en español</dd>
         </div>
       </dl>
     </div>
@@ -122,3 +132,18 @@ const schema = [breadcrumb(migas, Astro.site)];
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* El dibujo es trazo fino sobre blanco: sobre la pagina blanca, el ojo no
+     tenia forma. Se multiplica sobre un fondo calido, que es lo que dibuja la
+     almendra, y el encuadre se corre hacia la torre y el barco. */
+  /* La clase la pinta Aperture, no esta pagina: el selector entero es global. */
+  :global(.tours__dibujo .aperture) {
+    background-color: color-mix(in srgb, var(--color-papier) 75%, var(--color-blanc));
+  }
+
+  :global(.tours__dibujo .aperture img) {
+    mix-blend-mode: multiply;
+    object-position: 62% 60%;
+  }
+</style>
