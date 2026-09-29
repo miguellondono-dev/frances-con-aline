@@ -23,13 +23,6 @@ const actualizado = new Date().toISOString().slice(0, 10);
  * tenerla. Antes de publicar, hay que rellenar los PENDIENTE y conviene que lo
  * revise alguien que sepa de proteccion de datos en Francia y en la UE.
  */
-const PENDIENTES_LEGALES = [
-  'Identidad y datos de contacto del responsable del tratamiento (nombre completo o razón social, dirección, correo).',
-  'Base jurídica elegida para cada tratamiento (consentimiento, ejecución de contrato o interés legítimo).',
-  'Plazo de conservación concreto de cada tipo de dato.',
-  'Si se hacen transferencias internacionales de datos y con qué garantías.',
-  'Autoridad de control ante la que reclamar, según el país de establecimiento.',
-];
 ---
 
 <BaseLayout
@@ -51,51 +44,40 @@ const PENDIENTES_LEGALES = [
 
   <section class="fondo-calido">
     <div class="shell py-section">
-      <div
-        class="mx-auto max-w-3xl rounded-panel border border-corail/40 bg-blanc p-8"
-      >
-        <span class="label mb-3 block text-lie">Borrador, no publicable todavía</span>
-        <p class="measure text-body text-encre">
-          Lo que sigue describe con exactitud lo que este sitio hace por dentro.
-          Faltan los datos legales que solo puede aportar Aline, y que están
-          listados abajo. Antes de publicar hay que rellenarlos y conviene que lo
-          revise alguien que sepa de protección de datos.
+      <div class="mx-auto max-w-3xl">
+        <h2 class="text-display-m text-encre">Quién es responsable</h2>
+        <p class="measure mt-4 text-body text-nuit">
+          Aline, profesora de francés y responsable de Francés con Aline. Para
+          cualquier cosa sobre tus datos puedes escribirle a
+          <a href="mailto:contacto@francesconaline.com" class="text-bleu underline underline-offset-4 hover:no-underline">contacto@francesconaline.com</a>
+          o por WhatsApp.
         </p>
-        <ul class="mt-6 flex flex-col gap-2">
-          {
-            PENDIENTES_LEGALES.map((item) => (
-              <li class="measure text-body-s text-nuit">{item}</li>
-            ))
-          }
-        </ul>
       </div>
 
-      <div class="mx-auto mt-16 max-w-3xl">
+      <div class="mx-auto mt-12 max-w-3xl">
         <h2 class="text-display-m text-encre">Qué datos recojo</h2>
         <p class="measure mt-4 text-body text-nuit">
-          Solo lo que tú escribes en un formulario. En la lista de espera, tu
-          correo y qué te interesa. En los talleres, tu nombre y tu correo. En el
-          test de nivel, tu nombre, tu correo y tus respuestas. En contacto, tu
-          nombre, tu correo y tu mensaje. En todos, si marcas la casilla de
-          consejos y novedades, que la marcaste y cuándo.
+          Este sitio no tiene formularios y no guarda nada de lo que haces en
+          él. Solo recibo lo que tú me mandas cuando me escribes por WhatsApp o
+          por correo: tu nombre, tu número o tu correo y tu mensaje. Si haces el
+          test de nivel, tus respuestas se quedan en tu navegador y solo me
+          llegan si tú decides mandármelas.
         </p>
 
         <h2 class="mt-12 text-display-m text-encre">Para qué los uso</h2>
         <p class="measure mt-4 text-body text-nuit">
-          Para contestarte, para avisarte cuando haya fechas si te apuntaste a
-          una lista de espera, y para mandarte tu resultado si hiciste el test.
-          Si marcaste la casilla de consejos y novedades, también para
-          escribirte eso, y puedes darte de baja cuando quieras. Sin la casilla
-          no te escribo nada que no hayas pedido. No vendo ni cedo tus datos a
-          terceros con fines comerciales.
+          Para contestarte, para organizar tus clases, para avisarte cuando
+          haya fechas si me lo pediste y para darte tu resultado si hiciste el
+          test. No te escribo nada que no hayas pedido, y no vendo ni cedo tus
+          datos a terceros con fines comerciales.
         </p>
 
         <h2 class="mt-12 text-display-m text-encre">Dónde se guardan</h2>
         <p class="measure mt-4 text-body text-nuit">
-          Los envíos se guardan en el servidor donde está alojado este sitio
-          (Hostinger) y llegan a mi correo. Si me escribes por WhatsApp, esa
-          conversación la gestiona WhatsApp (Meta) según su propia política de
-          privacidad. No hay ninguna otra base de datos.
+          En la conversación de WhatsApp o en mi correo, según por dónde me
+          escribas. WhatsApp pertenece a Meta y trata tus datos según su propia
+          política de privacidad. El sitio está alojado en Hostinger y no tiene
+          ninguna base de datos.
         </p>
 
         <h2 class="mt-12 text-display-m text-encre">Analítica</h2>
@@ -107,12 +89,9 @@ const PENDIENTES_LEGALES = [
         </p>
 
         <h2 class="mt-12 text-display-m text-encre">Cuánto tiempo</h2>
-        {/* TODO [PENDIENTE] Plazos concretos de conservacion por tipo de dato. */}
-        <p
-          class="measure mt-4 rounded-panel border border-corail/40 bg-blanc px-5 py-4 text-body text-encre"
-        >
-          <span class="label mb-1 block text-lie">Pendiente</span>
-          Falta fijar el plazo concreto de conservación de cada tipo de dato.
+        <p class="measure mt-4 text-body text-nuit">
+          Guardo tus mensajes mientras los necesito para contestarte y para
+          darte clase. Si me pides que los borre, los borro.
         </p>
 
         <h2 class="mt-12 text-display-m text-encre">Tus derechos</h2>
@@ -123,6 +102,10 @@ const PENDIENTES_LEGALES = [
             href="/sobre-mi#hablemos"
             class="text-bleu underline underline-offset-4 hover:no-underline">contacto</a
           > y lo hago. No hace falta que expliques por qué.
+        </p>
+        <p class="measure mt-4 text-body text-nuit">
+          Si crees que no he tratado bien tus datos, también puedes reclamar ante
+          la autoridad de protección de datos, que en Francia es la CNIL.
         </p>
       </div>
     </div>

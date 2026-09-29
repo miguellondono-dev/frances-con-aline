@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Aperture from '../components/Aperture.astro';
-import WaitlistForm from '../components/WaitlistForm.astro';
+import ChatWhatsapp from '../components/ChatWhatsapp.astro';
 import { breadcrumb } from '../lib/schema';
-import { PENDIENTE } from '../data/site';
+import { PENDIENTE, WA } from '../data/site';
 import { getImage } from 'astro:assets';
 import parisSena from '../assets/paris-sena.jpg';
 
@@ -118,17 +118,18 @@ const schema = [breadcrumb(migas, Astro.site)];
   </section>
 
   <section class="fondo-oscuro" aria-labelledby="lista">
-    <div class="shell py-section">
-      <h2 id="lista" class="titulo-seccion max-w-[20ch] text-blanc" data-reveal>
-        Avísame cuando abra fechas
-      </h2>
-      <p class="measure mt-7 text-body text-ciel" data-reveal>
-        Si ya sabes cuándo vienes a París, dímelo en el correo y lo tengo en
-        cuenta al organizar los primeros recorridos.
-      </p>
-      <div class="mt-10 max-w-3xl" data-reveal>
-        <WaitlistForm origen="tours" oscuro id="lista-tours" />
+    <div class="shell grid items-center gap-10 py-section lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
+      <div>
+        <h2 id="lista" class="titulo-seccion max-w-[20ch] text-blanc" data-reveal>
+          Avísame cuando abra fechas
+        </h2>
+        <p class="measure mt-7 text-body text-ciel" data-reveal>
+          Escríbeme y te aviso en cuanto haya fechas. Si ya sabes cuándo vienes
+          a París, dímelo y lo tengo en cuenta al organizar los primeros
+          recorridos.
+        </p>
       </div>
+      <ChatWhatsapp mensaje={WA.tours} boton="Avísame por WhatsApp" asunto="Avísame cuando abras fechas para los tours" />
     </div>
   </section>
 </BaseLayout>

@@ -71,7 +71,9 @@ const ano = new Date(lastUpdated).getFullYear();
         como un duplicado y le quita fuerza a los dos. Aqui basta con que la
         accion siga disponible.
       */}
-      <a class="pie__boton" href={CTA_AGENDA.href}>{CTA_AGENDA.label}</a>
+      <a class="pie__boton" href={CTA_AGENDA.href} target="_blank" rel="noopener">
+        {CTA_AGENDA.label}<span class="sr-only"> (por WhatsApp)</span>
+      </a>
     </div>
 
     <div class="pie__enlaces">

@@ -1,0 +1,478 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+import Logo from '../Logo.astro';
+import { icono } from '../../data/iconos';
+
+/**
+ * COLLAGE DE LA PORTADA DE CLASES PRIVADAS.
+ *
+ * Miguel veia la pagina "muy plana" al lado de /talleres, que abre con un
+ * collage. Aqui solo hay una foto de Aline, asi que el collage se arma con
+ * lo que pasa en una clase:
+ *
+ *  - La foto, en tarjeta girada, con una etiqueta de clase en linea.
+ *  - Un mensaje de Aline que se esta escribiendo y dice "On y va ?".
+ *  - Una correccion en el momento, con un error tipico de quien habla
+ *    español: "a casa de" traducido palabra por palabra.
+ *  - El sello giratorio con el ojo de la marca, el mismo de talleres.
+ *  - Detras, una mancha calida y una orbita que gira.
+ *
+ * Sin JavaScript, o con movimiento reducido, se ve todo quieto y completo:
+ * el mensaje escrito, la correccion hecha. La animacion (entrada, flotar,
+ * seguir al raton y el bucle del mensaje y la correccion) esta en
+ * scripts/clases-gsap.ts, en coleccion().
+ *
+ * Solo la foto tiene texto alternativo: lo demas es decorado.
+ */
+interface Props {
+  foto: ImageMetadata;
+  alt: string;
+}
+
+const { foto, alt } = Astro.props;
+---
+
+<div class="colage" data-g-collage>
+  <span class="colage__mancha" aria-hidden="true" data-g-fondo></span>
+  <span class="colage__orbita" aria-hidden="true" data-g-fondo></span>
+
+  <div class="colage__capa colage__capa--foto" data-profundidad="0.45">
+    <figure class="colage__foto" data-g-pieza>
+      <Picture
+        src={foto}
+        alt={alt}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[360, 540, 720]}
+        sizes="(min-width: 64rem) 17rem, 58vw"
+        loading="eager"
+        class="colage__img"
+      />
+      <span class="colage__directo" aria-hidden="true">
+        <span class="colage__punto"></span>
+        Clase en línea
+      </span>
+    </figure>
+  </div>
+
+  <div class="colage__capa colage__capa--burbuja" data-profundidad="1.1" aria-hidden="true">
+    <div class="mensaje" data-g-pieza>
+      <p class="mensaje__quien">
+        <span class="mensaje__avatar"><Logo viewBox="195 258 860 691" /></span>
+        Aline
+      </p>
+      <div class="mensaje__cuerpo">
+        <p class="mensaje__escribe" data-g-escribe><i></i><i></i><i></i></p>
+        <div class="mensaje__texto" data-g-frase>
+          <p class="mensaje__frase" lang="fr">On y va&#8239;?</p>
+          <p class="mensaje__traduccion">¿Empezamos?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="colage__capa colage__capa--correccion" data-profundidad="0.8" aria-hidden="true">
+    <div class="correccion" data-g-pieza>
+      <p class="correccion__etiqueta">Te corrijo al momento</p>
+      <p class="correccion__mal" lang="fr">
+        Je vais <span class="correccion__tachado">à la maison de<span class="correccion__raya" data-g-raya
+          ></span></span> Marie
+      </p>
+      <p class="correccion__bien" lang="fr" data-g-bien>
+        <span class="correccion__check" set:html={icono('check')} />
+        Je vais <strong>chez</strong> Marie
+      </p>
+    </div>
+  </div>
+
+  <div class="colage__capa colage__capa--sello" data-profundidad="1.35" aria-hidden="true">
+    <div class="sello-p" data-g-pieza>
+      <svg class="sello-p__texto" viewBox="0 0 120 120">
+        <defs>
+          <path id="sello-privadas" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0" />
+        </defs>
+        <text>
+          <textPath href="#sello-privadas" textLength="292">PRIMERA CLASE GRATIS · EN LÍNEA ·</textPath>
+        </text>
+      </svg>
+      <span class="sello-p__ojo"><Logo viewBox="195 258 860 691" /></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* La caja manda: todo se coloca en porcentajes y los textos crecen con
+     ella, asi el collage es el mismo en un movil que en escritorio. */
+  .colage {
+    position: relative;
+    width: 100%;
+    max-width: 31rem;
+    aspect-ratio: 1 / 1.08;
+    margin-inline: auto;
+    container-type: inline-size;
+  }
+
+  .colage__mancha {
+    position: absolute;
+    left: 10%;
+    top: 7%;
+    width: 82%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 40% 35%,
+      color-mix(in srgb, var(--color-papier) 90%, var(--color-blanc)),
+      color-mix(in srgb, var(--color-papier) 55%, var(--color-blanc)) 70%
+    );
+  }
+
+  .colage__orbita {
+    position: absolute;
+    left: 2%;
+    top: 2%;
+    width: 96%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px dashed color-mix(in srgb, var(--color-grenat) 28%, transparent);
+    animation: colage-gira 38s linear infinite;
+  }
+
+  /* Un punto rojo que da la vuelta sobre la orbita. */
+  .colage__orbita::after {
+    content: '';
+    position: absolute;
+    top: 14%;
+    left: 14%;
+    width: 11px;
+    height: 11px;
+    margin: -5.5px 0 0 -5.5px;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-grenat) 18%, transparent);
+  }
+
+  @keyframes colage-gira {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  .colage__capa {
+    position: absolute;
+  }
+
+  .colage__capa--foto {
+    left: 19%;
+    top: 5%;
+    width: 57%;
+  }
+
+  .colage__capa--burbuja {
+    right: -2%;
+    top: 13%;
+    width: 47%;
+  }
+
+  .colage__capa--correccion {
+    left: -2%;
+    bottom: 3%;
+    width: 62%;
+  }
+
+  .colage__capa--sello {
+    right: 4%;
+    bottom: 8%;
+    width: 24%;
+  }
+
+  /* --- La foto --- */
+
+  .colage__foto {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: 6px solid var(--color-blanc);
+    border-radius: 24px;
+    background-color: var(--color-papier);
+    box-shadow: var(--shadow-alta);
+    transform: rotate(-4deg);
+  }
+
+  .colage__foto :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .colage__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+  }
+
+  .colage__directo {
+    position: absolute;
+    left: 0.65rem;
+    top: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.32rem 0.75rem 0.32rem 0.6rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: clamp(0.72rem, 2.6cqw, 0.85rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* El punto late: dice "en directo" sin tener que leerlo. */
+  .colage__punto {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--color-vermeil);
+  }
+
+  .colage__punto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: var(--color-vermeil);
+    animation: colage-late 1.8s ease-out infinite;
+  }
+
+  @keyframes colage-late {
+    from {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  /* --- El mensaje de Aline --- */
+
+  .mensaje {
+    position: relative;
+    padding: 0.8rem 1rem 0.95rem;
+    border-radius: 20px 20px 20px 6px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    transform: rotate(4deg);
+  }
+
+  .mensaje__quien {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-size: clamp(0.72rem, 2.5cqw, 0.85rem);
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  .mensaje__avatar {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+  }
+
+  .mensaje__avatar :global(svg) {
+    width: 62%;
+    height: auto;
+  }
+
+  /* Los puntos y la frase comparten hueco: el globo no cambia de alto. */
+  .mensaje__cuerpo {
+    display: grid;
+    margin-top: 0.45rem;
+  }
+
+  .mensaje__escribe,
+  .mensaje__texto {
+    grid-area: 1 / 1;
+  }
+
+  .mensaje__escribe {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0;
+  }
+
+  .mensaje__escribe i {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-encre) 35%, transparent);
+    animation: colage-escribe 1s ease-in-out infinite;
+  }
+
+  .mensaje__escribe i:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .mensaje__escribe i:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes colage-escribe {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .mensaje__frase {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 5.6cqw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+  }
+
+  .mensaje__traduccion {
+    margin-top: 0.2rem;
+    font-size: clamp(0.8rem, 2.8cqw, 0.95rem);
+    color: color-mix(in srgb, var(--color-encre) 60%, transparent);
+  }
+
+  /* --- La correccion --- */
+
+  .correccion {
+    padding: 0.85rem 1rem 0.95rem;
+    border-radius: 18px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    transform: rotate(-3deg);
+  }
+
+  .correccion__etiqueta {
+    font-family: var(--font-display);
+    font-size: clamp(0.68rem, 2.4cqw, 0.8rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  .correccion__mal,
+  .correccion__bien {
+    font-size: clamp(0.82rem, 3cqw, 1rem);
+    line-height: 1.35;
+  }
+
+  .correccion__mal {
+    margin-top: 0.4rem;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .correccion__tachado {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  /* La raya roja se dibuja de izquierda a derecha. */
+  .correccion__raya {
+    position: absolute;
+    left: -2%;
+    top: 55%;
+    width: 104%;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--color-grenat);
+    transform-origin: left center;
+  }
+
+  .correccion__bien {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+    color: var(--color-encre);
+  }
+
+  .correccion__bien strong {
+    font-weight: 700;
+    color: var(--color-grenat);
+  }
+
+  .correccion__check {
+    display: grid;
+    place-items: center;
+    width: 1.3rem;
+    height: 1.3rem;
+    flex-shrink: 0;
+    color: var(--color-bleu);
+  }
+
+  .correccion__check :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --- El sello --- */
+
+  .sello-p {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .sello-p__texto {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: var(--color-ciel);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    animation: colage-gira 22s linear infinite;
+  }
+
+  .sello-p__ojo {
+    display: block;
+    width: 44%;
+  }
+
+  .sello-p__ojo :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .colage__orbita,
+    .colage__punto::after,
+    .mensaje__escribe i,
+    .sello-p__texto {
+      animation: none;
+    }
+  }
+</style>

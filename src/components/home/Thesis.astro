@@ -9,7 +9,7 @@
  * Corre a velocidad constante. Antes aceleraba con el scroll y se descontrolaba.
  * Cada palabra francesa va con su traducción: nunca decoración.
  */
-const VOCABULARIO = [
+const VOCABULARIO_INICIO = [
   { fr: 'flâner', es: 'pasear sin rumbo' },
   { fr: 'la vitrine', es: 'la vitrina' },
   { fr: 'le quotidien', es: 'la vida diaria' },
@@ -21,11 +21,25 @@ const VOCABULARIO = [
   { fr: 'le boulot', es: 'el trabajo' },
   { fr: 'dépaysé', es: 'fuera de tu elemento' },
 ];
+
+/**
+ * Otras paginas pueden pasar su propio vocabulario (los talleres llevan el
+ * del escenario y el de la pintura). Sin props, la del inicio, tal cual.
+ */
+interface Props {
+  palabras?: { fr: string; es: string }[];
+  etiqueta?: string;
+}
+
+const {
+  palabras: VOCABULARIO = VOCABULARIO_INICIO,
+  etiqueta = 'Vocabulario francés con su traducción',
+} = Astro.props;
 ---
 
 <div
   class="marquee surface-dark relative py-7"
-  aria-label="Vocabulario francés con su traducción"
+  aria-label={etiqueta}
 >
   <div class="marquee__track">
     {

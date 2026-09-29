@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceLanding from '../components/ServiceLanding.astro';
+import ColagePrivadas from '../components/graficos/ColagePrivadas.astro';
 import { FAQ_PRIVADAS } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
-import { BONOS, CTA } from '../data/site';
+import { BONOS, CTA, WA } from '../data/site';
 import { breadcrumb, service } from '../lib/schema';
 import alineClases from '../assets/aline-clases.jpeg';
 
@@ -33,7 +34,25 @@ const schema = [
  * desde la primera clase, correccion en el momento, plan con objetivo,
  * material real, explicaciones en español, mover la clase si cambia la
  * agenda, primera clase gratis.
+ *
+ * Portada con collage, banda de frases de clase y cierre con WhatsApp: Miguel
+ * la veia muy plana al lado de /talleres.
  */
+
+/** Frases que salen en cualquier clase, con su traduccion. */
+const FRASES_DE_CLASE = [
+  // Antes de "?" va el espacio fino frances, que no se parte.
+  { fr: 'On y va ?', es: '¿empezamos?' },
+  { fr: 'Tu peux répéter ?', es: '¿puedes repetir?' },
+  { fr: 'Comment on dit… ?', es: '¿cómo se dice…?' },
+  { fr: 'Je n’ai pas compris', es: 'no entendí' },
+  { fr: 'Ça se prononce comment ?', es: '¿cómo se pronuncia?' },
+  { fr: 'Petit à petit', es: 'poco a poco' },
+  { fr: 'Je me lance', es: 'me lanzo' },
+  { fr: 'Encore une fois', es: 'otra vez' },
+  { fr: 'C’est-à-dire', es: 'es decir' },
+  { fr: 'Pas de souci', es: 'sin problema' },
+];
 ---
 
 <BaseLayout
@@ -50,7 +69,6 @@ const schema = [
     garantias={['Para cualquier nivel', 'Clases dinámicas', 'Primera clase gratis']}
     apertura={{
       alt: 'Aline en Montmartre, frente al Sacré-Cœur',
-      todo: 'Aline dando clase',
       // Provisional, hasta tener la foto de Aline dando clase.
       foto: alineClases,
     }}
@@ -120,13 +138,19 @@ const schema = [
       lista: BONOS.privada,
     }}
     faq={FAQ_PRIVADAS}
+    vocabulario={{ palabras: FRASES_DE_CLASE, etiqueta: 'Frases de clase en francés con su traducción' }}
     cierre={{
       titulo: 'Empieza a hablar francés',
       texto:
         'Tu primera clase es gratis: media hora para conocerte, ver tu nivel y decidir juntos cómo seguir.',
+      chat: { boton: CTA.cierrePrivadas, asunto: 'Clases privadas de francés' },
     }}
     breadcrumb={migas}
     ctaHero={CTA.heroPrivadas}
     ctaCierre={CTA.cierrePrivadas}
-  />
+    waHero={WA.privadas}
+    waCierre={WA.privadas}
+  >
+    <ColagePrivadas slot="collage" foto={alineClases} alt="Aline en Montmartre, frente al Sacré-Cœur" />
+  </ServiceLanding>
 </BaseLayout>

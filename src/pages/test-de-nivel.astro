@@ -1,24 +1,30 @@
 ---
-import AvisoPrivacidad from '../components/AvisoPrivacidad.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Cta from '../components/Cta.astro';
+import Logo from '../components/Logo.astro';
 import { breadcrumb } from '../lib/schema';
-import { CORREO_CONTACTO } from '../data/site';
-import { PREGUNTAS } from '../data/test-nivel';
+import { CORREO_CONTACTO, WA, whatsapp } from '../data/site';
+import { PREGUNTAS, BLOQUES, NIVELES, OBJETIVOS } from '../data/test-nivel';
+import { icono } from '../data/iconos';
 
 /**
  * TEST DE NIVEL.
  *
- * Tres pantallas: la portada, el test y el cierre.
+ * Rediseño de septiembre de 2026, a peticion de Miguel: que motive a hacerlo
+ * y que al final entregue algo de verdad. Cuatro pantallas:
  *
- * Los enunciados no se imprimen aqui. Los pinta el guion uno a uno, porque
- * son veinticinco y en el HTML quedarian todos a la vista de golpe. Lo unico
- * que va en el marcado es el andamio: la barra, la zona donde caen las
- * preguntas y los dos botones.
+ *  1. Portada: lo que se gana haciendolo y una escalera de niveles animada.
+ *  2. El test: una pregunta por pantalla, en un orden distinto cada vez. La
+ *     barra tiene un tramo por pregunta y no dice de que nivel es ninguna,
+ *     para que nadie sepa por donde va ni pueda hacer trampa.
+ *  3. Antes del resultado: nombre y objetivo. Sirven para personalizarlo.
+ *  4. El resultado: nivel estimado, lo que ya sabe hacer, fortalezas, donde
+ *     mejorar con un consejo para cada cosa, aciertos por nivel y el boton
+ *     para pedir la clase gratis. Ese boton manda a Aline por WhatsApp todo
+ *     el resultado y los tres textos.
  *
- * Al final no se ensena el nivel. Se piden nombre, apellido y correo, y el
- * resultado llega por ahi. Es deliberado: ver un nivel en pantalla y
- * marcharse no deja nada, y ademas las tres redacciones las tiene que leer
- * Aline antes de confirmar nada.
+ * Los enunciados no se imprimen aqui: los pinta el guion uno a uno. Sin
+ * JavaScript se dice y se da el correo.
  */
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -27,77 +33,102 @@ const migas = [
 
 const schema = [breadcrumb(migas, Astro.site)];
 
-/** Lo que alguien quiere saber antes de empezar. */
-const DATOS = [
-  { clave: 'Preguntas', valor: String(PREGUNTAS.length) },
-  { clave: 'Tiempo', valor: 'Entre 10 y 15 minutos' },
-  { clave: 'Niveles', valor: 'De A1 a C1' },
-  { clave: 'Precio', valor: 'Sin costo' },
+const VENTAJAS = [
+  { icono: 'reloj' as const, texto: 'Entre 10 y 15 minutos' },
+  { icono: 'nivel' as const, texto: `${PREGUNTAS.length} preguntas, de A1 a C1` },
+  { icono: 'objetivo' as const, texto: 'Tus fortalezas y en qué mejorar' },
+  { icono: 'regalo' as const, texto: 'Gratis y sin registrarte' },
 ];
+
+/** Altura de cada peldaño de la escalera, en porcentaje. */
+const PELDANOS = BLOQUES.map((b, i) => ({ nivel: b, etiqueta: NIVELES[b].etiqueta, alto: 22 + i * 16 }));
 ---
 
 <BaseLayout
   title="Test de nivel"
-  description="Veinticinco preguntas y unos doce minutos para saber en qué punto estás de verdad. Gramática, lectura, escucha y escritura. El resultado te llega al correo."
+  description="Veinticinco preguntas y unos diez minutos para saber tu nivel de francés, de A1 a C1. Al terminar ves tus fortalezas y en qué mejorar. Gratis."
   path="/test-de-nivel"
   schema={schema}
 >
   <section class="test-pagina">
-    <div class="shell pb-section pt-14">
+    <div class="shell pb-section pt-8">
+      <!-- 1. PORTADA -->
+      <div class="intro" data-test-intro>
+        <div class="intro__texto">
+          <p class="label text-lie">Test de nivel gratuito</p>
+          <h1 class="intro__titulo" data-palabras>
+            Descubre tu nivel de francés en <em class="destacado">diez minutos</em>
+          </h1>
+          <p class="intro__apoyo" data-reveal>
+            Gramática, lectura, escucha y escritura. Al terminar ves tu nivel, lo que
+            ya dominas y en qué te conviene mejorar.
+          </p>
 
-      <!-- Portada -->
-      <div class="portada" data-test-intro>
-        <h1 class="portada__titulo" data-palabras data-repite>
-          Descubre tu nivel de francés en solo
-          <em class="portada__acento destacado">diez minutos</em>
-        </h1>
-        <p class="portada__apoyo" data-reveal>
-          Son veinticinco preguntas, de A1 a C1, con gramática, lectura,
-          escucha y escritura. Por eso el resultado sirve para algo.
-        </p>
+          <ul class="ventajas">
+            {
+              VENTAJAS.map((v, i) => (
+                <li class="ventaja" style={`--i: ${i}`}>
+                  <span class="ventaja__icono" set:html={icono(v.icono)} />
+                  {v.texto}
+                </li>
+              ))
+            }
+          </ul>
 
-        <dl class="portada__datos" data-reveal>
+          <div class="intro__accion">
+            <button class="test-boton test-boton--grande" type="button" data-test-empezar>
+              Empezar el test
+              <svg viewBox="0 0 24 16" class="h-3.5 w-5" fill="none" aria-hidden="true">
+                <path d="M0 8h22M15 1l7 7-7 7" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </button>
+          </div>
+
+          <noscript>
+            <p class="intro__noscript">
+              El test necesita JavaScript para funcionar. Si no puedes activarlo,
+              escríbeme a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+              y lo vemos en una sesión.
+            </p>
+          </noscript>
+        </div>
+
+        {/* La escalera: cinco niveles y alguien que va subiendo. */}
+        <div class="escalera" aria-hidden="true">
           {
-            DATOS.map((dato) => (
-              <div class="portada__dato">
-                <dt>{dato.clave}</dt>
-                <dd>{dato.valor}</dd>
+            PELDANOS.map((p, i) => (
+              <div class="peldano" style={`--alto: ${p.alto}%; --i: ${i}`}>
+                <span class="peldano__nivel">{p.nivel}</span>
+                <span class="peldano__etiqueta">{p.etiqueta}</span>
               </div>
             ))
           }
-        </dl>
-
-        <div class="mt-9" data-reveal>
-          <button class="test-boton test-boton--grande" type="button" data-test-empezar>
-            Empezar el test
-          </button>
+          <span class="escalera__marcador">
+            <span class="escalera__ojo"><Logo viewBox="195 258 860 691" /></span>
+            <span class="escalera__tu">Tú</span>
+          </span>
         </div>
-
-        {/* Sin JavaScript el test no puede funcionar: son veinticinco pantallas
-            que se pintan una a una. Se dice, en vez de dejar un boton muerto. */}
-        <noscript>
-          <p class="portada__noscript">
-            El test necesita JavaScript para funcionar. Si no puedes activarlo,
-            escríbeme a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
-            y lo vemos en una sesión.
-          </p>
-        </noscript>
       </div>
 
-      <!-- El test -->
+      <!-- 2. EL TEST -->
       <div class="prueba" data-test hidden>
         <div class="prueba__cabecera">
+          <div class="prueba__fila">
+            <span class="chip" data-test-chip>Pregunta 1 de {PREGUNTAS.length}</span>
+            <span class="prueba__cuenta" data-test-cuenta></span>
+          </div>
           <div
-            class="prueba__barra"
+            class="segmentos"
+            style={`--n: ${PREGUNTAS.length}`}
             data-test-barra
             role="progressbar"
             aria-label="Progreso del test"
             aria-valuemin="1"
             aria-valuemax={PREGUNTAS.length}
           >
-            <span class="prueba__avance"></span>
+            {PREGUNTAS.map(() => <span class="segmento" data-test-segmento />)}
           </div>
-          <p class="prueba__cuenta" data-test-cuenta aria-live="polite"></p>
+          <p class="hito" data-test-hito aria-live="polite"></p>
         </div>
 
         <div class="prueba__zona" data-test-zona tabindex="-1"></div>
@@ -110,87 +141,116 @@ const DATOS = [
         </div>
       </div>
 
-      <!-- Cierre -->
-      <div class="cierre" data-test-cierre hidden>
-        <div class="cierre__caja">
-          <p class="label text-lie">Ya está</p>
-          <h2 class="cierre__titulo" tabindex="-1">
-            Te envío tu resultado al correo
-          </h2>
-          <p class="cierre__apoyo">
-            Leo tus tres textos escritos, confirmo el nivel y te mando el
-            resultado con lo que ya sabes hacer y lo que te falta para el
-            siguiente escalón. Lo reviso yo, una redacción por una.
+      <!-- 3. ANTES DEL RESULTADO -->
+      <div class="datos" data-test-datos hidden>
+        <span class="datos__sello" set:html={icono('check')} />
+        <p class="label text-lie">¡Terminaste!</p>
+        <h2 class="datos__titulo" tabindex="-1">Tu resultado está listo</h2>
+        <p class="datos__apoyo">Dos datos y te lo enseño, pensado para ti.</p>
+
+        <label class="datos__campo">
+          <span class="datos__etiqueta">¿Cómo te llamas?</span>
+          <input
+            class="datos__caja"
+            type="text"
+            autocomplete="given-name"
+            maxlength="40"
+            data-test-nombre
+          />
+        </label>
+
+        <fieldset class="datos__objetivos">
+          <legend class="datos__etiqueta">¿Para qué quieres el francés?</legend>
+          <div class="datos__chips">
+            {
+              OBJETIVOS.map((o) => (
+                <button type="button" class="objetivo" aria-pressed="false" data-test-objetivo={o}>
+                  {o}
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <button class="test-boton test-boton--grande datos__ver" type="button" data-test-ver disabled>
+          Ver mi resultado
+        </button>
+      </div>
+
+      <!-- 4. EL RESULTADO -->
+      <div class="resultado" data-test-resultado hidden>
+        <div class="r-cabeza">
+          <p class="r-cabeza__saludo" data-r-saludo>Tu resultado</p>
+          <div class="r-cabeza__reparto">
+            <div>
+              <p class="r-cabeza__pre">Tu nivel estimado</p>
+              <h2 class="r-cabeza__nivel" tabindex="-1" data-r-nivel>A1</h2>
+              <p class="r-cabeza__etiqueta" data-r-etiqueta></p>
+            </div>
+            <p class="r-cabeza__puedes" data-r-puedes></p>
+          </div>
+          <ol class="escala" aria-hidden="true">
+            {
+              BLOQUES.map((b) => (
+                <li class="escala__paso" data-r-escala={b}>
+                  <span class="escala__barra">
+                    <span class="escala__relleno" />
+                  </span>
+                  <span class="escala__nombre">{b}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div class="r-cuerpo">
+          <div class="r-tarjeta r-tarjeta--bien">
+            <h3 class="r-tarjeta__titulo">
+              <span class="r-tarjeta__icono" set:html={icono('check')} />
+              Tus fortalezas
+            </h3>
+            <ul class="r-lista" data-r-fortalezas></ul>
+          </div>
+          <div class="r-tarjeta r-tarjeta--mejorar">
+            <h3 class="r-tarjeta__titulo">
+              <span class="r-tarjeta__icono" set:html={icono('objetivo')} />
+              Dónde mejorar
+            </h3>
+            <ul class="r-lista" data-r-mejorar></ul>
+          </div>
+        </div>
+
+        <div class="r-tarjeta r-niveles">
+          <h3 class="r-tarjeta__titulo">Aciertos por nivel</h3>
+          <ul class="barras">
+            {
+              BLOQUES.map((b) => (
+                <li class="barras__fila">
+                  <span class="barras__nombre">{b}</span>
+                  <span class="barras__pista">
+                    <span class="barras__relleno" data-r-barra={b} />
+                  </span>
+                  <span class="barras__pct" data-r-pct={b}>0 %</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="r-niveles__nota">
+            Tus tres textos escritos no entran aquí: los leo yo y con ellos te confirmo
+            el nivel.
           </p>
+        </div>
 
-          <form
-            class="cierre__forma"
-            method="post"
-            action="/api/enviar.php"
-            data-plan
-            novalidate
-          >
-            {/* Campo trampa. Invisible para personas, visible para robots. */}
-            <div
-              class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
-              aria-hidden="true"
-            >
-              <label for="test-empresa">No rellenes este campo</label>
-              <input id="test-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
-            </div>
-
-            {/* El resultado completo viaja aqui: nivel, porcentaje por bloque,
-                las tres redacciones y todas las respuestas. */}
-            <input type="hidden" name="resultado" data-test-carga />
-            <input type="hidden" name="tipo" value="test" />
-            <input type="hidden" name="origen" value="test-de-nivel" />
-
-            <div class="campo campo--mitad">
-              <label class="campo__etiqueta" for="test-nombre">Nombre</label>
-              <input
-                class="campo__caja"
-                id="test-nombre"
-                name="nombre"
-                type="text"
-                autocomplete="given-name"
-                required
-              />
-              <p class="campo__error" data-error-nombre role="alert"></p>
-            </div>
-
-            <div class="campo campo--mitad">
-              <label class="campo__etiqueta" for="test-apellido">Apellido</label>
-              <input
-                class="campo__caja"
-                id="test-apellido"
-                name="apellido"
-                type="text"
-                autocomplete="family-name"
-              />
-            </div>
-
-            <div class="campo">
-              <label class="campo__etiqueta" for="test-correo">Correo</label>
-              <input
-                class="campo__caja"
-                id="test-correo"
-                name="correo"
-                type="email"
-                autocomplete="email"
-                required
-              />
-              <p class="campo__error" data-error-correo role="alert"></p>
-            </div>
-
-            <AvisoPrivacidad id="test" />
-
-            <div class="campo">
-              <button class="test-boton test-boton--grande" type="submit">
-                Enviarme el resultado
-              </button>
-              <p class="campo__aviso" data-plan-message role="status" aria-live="polite"></p>
-            </div>
-          </form>
+        <div class="r-cta">
+          <h3 class="r-cta__titulo" data-r-cta-titulo>Da el siguiente paso</h3>
+          <p class="r-cta__texto">
+            En tu clase gratis repasamos juntos tu resultado, leo tus textos y salimos
+            con un plan para mejorar justo en lo que te falta.
+          </p>
+          <div class="r-cta__acciones">
+            <Cta href={whatsapp(WA.agendar)} data-r-cta>Quiero mi clase gratis</Cta>
+            <button type="button" class="r-cta__repetir" data-r-repetir>Repetir el test</button>
+          </div>
         </div>
       </div>
     </div>
@@ -209,133 +269,295 @@ const DATOS = [
     );
   }
 
-  /* --- Portada --- */
-
-  .portada__titulo {
-    margin-top: 1.25rem;
-    font-family: var(--font-display);
-    font-size: var(--text-display-xl);
-    font-weight: 700;
-    line-height: 1.04;
-    letter-spacing: -0.03em;
-    color: var(--color-encre);
-    max-width: 15ch;
-    text-wrap: balance;
-  }
-
-  /* El color y la italica los pone .destacado, que es la palabra marcada de
-     todo el sitio. Aqui solo se le pide el salto de linea. */
-  .portada__acento {
-    display: block;
-  }
-
-  /* La entrada por palabras envuelve cada etiqueta en una mascara en linea, y
-     ahi el display: block del acento deja de partir la linea. El salto se lo
-     pide entonces la mascara que lo contiene. */
-  :global(.js .palabra:has(.portada__acento)) {
-    display: block;
-  }
-
-  .portada__apoyo {
-    margin-top: 1.5rem;
-    max-width: 52ch;
-    font-size: var(--text-body);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
-  }
-
-  /* La cabecera es sticky, asi que el desplazamiento tiene que dejarle sitio
-     o la tarjeta aparece cortada por arriba. */
   .prueba,
-  .cierre {
+  .datos,
+  .resultado {
     scroll-margin-top: 6.5rem;
   }
 
-  .portada__datos {
+  /* --- 1. Portada --- */
+
+  .intro {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin-top: 2.5rem;
-    max-width: 42rem;
+    gap: 3rem;
+    align-items: center;
   }
 
-  @media (width >= 40rem) {
-    .portada__datos {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1rem;
+  @media (width >= 64rem) {
+    .intro {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 4rem;
+      min-height: min(40rem, calc(100svh - 7rem));
     }
   }
 
-  .portada__dato {
-    border-radius: 18px;
-    background-color: color-mix(in srgb, var(--color-blanc) 84%, transparent);
-    box-shadow: var(--shadow-flota);
-    padding: 1rem 1.1rem;
-  }
-
-  .portada__dato dt {
-    font-size: 0.8125rem;
-    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
-  }
-
-  .portada__dato dd {
-    margin: 0.3rem 0 0;
+  .intro__titulo {
+    margin-top: 1.1rem;
+    max-width: 14ch;
     font-family: var(--font-display);
-    font-size: var(--text-body-s);
-    font-weight: 600;
+    font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.4rem);
+    font-weight: 650;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     color: var(--color-encre);
   }
 
-  .portada__noscript {
+  .intro__apoyo {
+    margin-top: 1.4rem;
+    max-width: 44ch;
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.5;
+    color: var(--color-nuit);
+  }
+
+  .ventajas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: 1.9rem;
+    max-width: 36rem;
+  }
+
+  @media (width < 30rem) {
+    .ventajas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .ventaja {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--color-blanc) 80%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 7%, transparent);
+    font-size: var(--text-body-s);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--color-encre);
+  }
+
+  .ventaja__icono {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--color-ciel) 40%, var(--color-blanc));
+    color: var(--color-bleu);
+  }
+
+  .ventaja__icono :global(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .intro__accion {
+    margin-top: 2rem;
+  }
+
+  .intro__noscript {
     margin-top: 1.5rem;
     max-width: 46ch;
     font-size: var(--text-body-s);
     color: var(--color-lie);
   }
 
-  /* --- El test --- */
-
-  .prueba {
-    margin-top: 2.5rem;
-    border-radius: 26px;
-    background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-    max-width: 46rem;
+  /* La escalera de niveles. */
+  .escalera {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 30rem;
+    height: clamp(17rem, 12rem + 12vw, 24rem);
+    margin-inline: auto;
+    /* El marcador se mueve en fracciones de la escalera (cqw, cqh). */
+    container-type: size;
   }
 
-  .prueba__cabecera {
+  .peldano {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: var(--alto);
+    padding: 0.7rem 0.4rem;
+    border-radius: 14px 14px 6px 6px;
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-encre) 94%, var(--color-nuit)),
+      var(--color-nuit)
+    );
+    color: var(--color-blanc);
+    text-align: center;
+    box-shadow: var(--shadow-flota);
+    transform-origin: bottom center;
+  }
+
+  .peldano:nth-child(5) {
+    background-image: linear-gradient(to top, var(--color-lie), var(--color-grenat));
+  }
+
+  .peldano__nivel {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .peldano__etiqueta {
+    margin-top: 0.3rem;
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    color: var(--color-ciel);
+  }
+
+  .peldano:nth-child(5) .peldano__etiqueta {
+    color: var(--color-papier);
+  }
+
+  /* El marcador sube de peldaño en peldaño. Se mueve con translate en
+     unidades de la escalera, y salta con transform: son dos propiedades
+     distintas y no se pisan. */
+  .escalera__marcador {
+    position: absolute;
+    left: calc(10% - 1.4rem);
+    bottom: calc(22% + 0.6rem);
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    width: 2.8rem;
+    pointer-events: none;
+  }
+
+  .escalera__ojo {
+    display: grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    background-color: var(--color-blanc);
+    color: var(--color-encre);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .escalera__ojo :global(svg) {
+    width: 1.8rem;
+    height: auto;
+  }
+
+  .escalera__tu {
+    order: -1;
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .peldano {
+      animation: peldano-sube 700ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+      animation-delay: calc(200ms + var(--i) * 110ms);
+    }
+
+    :global(.js) .ventaja {
+      animation: aparece 600ms var(--ease-smooth) backwards;
+      animation-delay: calc(500ms + var(--i) * 90ms);
+    }
+
+    .escalera__marcador {
+      animation:
+        subir 7s cubic-bezier(0.65, 0, 0.35, 1) 1.2s infinite,
+        salto 1.4s ease-in-out 1.2s infinite;
+    }
+  }
+
+  @keyframes peldano-sube {
+    from {
+      opacity: 0;
+      transform: scaleY(0.2);
+    }
+  }
+
+  @keyframes aparece {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
+  /* Cinco paradas, una por peldaño. Cada peldaño es un 20% del ancho y sube
+     un 16% de alto respecto al anterior. */
+  @keyframes subir {
+    0%,
+    12% {
+      translate: 0 0;
+    }
+    20%,
+    32% {
+      translate: 20.4cqw -16cqh;
+    }
+    40%,
+    52% {
+      translate: 40.8cqw -32cqh;
+    }
+    60%,
+    72% {
+      translate: 61.2cqw -48cqh;
+    }
+    80%,
+    92% {
+      translate: 81.6cqw -64cqh;
+    }
+    100% {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes salto {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  /* --- 2. El test --- */
+
+  .prueba {
+    max-width: 48rem;
+    margin-inline: auto;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    padding: clamp(1.4rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .prueba__fila {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
   }
 
-  .prueba__barra {
-    position: relative;
-    flex: 1;
-    height: 6px;
-    overflow: hidden;
+  .chip {
+    padding: 0.35rem 0.8rem;
     border-radius: var(--radius-pill);
-    background-color: color-mix(in srgb, var(--color-encre) 10%, transparent);
-  }
-
-  /* Solo transform: la barra crece sin recalcular la maquetacion. */
-  .prueba__avance {
-    position: absolute;
-    inset: 0;
-    transform-origin: left;
-    transform: scaleX(0);
-    border-radius: inherit;
-    background-color: var(--color-grenat);
-    transition: transform 420ms var(--ease-fluid);
-  }
-
-  .prueba__barra {
-    --avance: 0%;
-  }
-
-  .prueba__avance {
-    transform: scaleX(calc(var(--avance) / 100%));
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
   }
 
   .prueba__cuenta {
@@ -344,12 +566,68 @@ const DATOS = [
     font-size: var(--text-body-s);
     font-weight: 600;
     color: color-mix(in srgb, var(--color-encre) 60%, transparent);
-    white-space: nowrap;
+  }
+
+  /* La barra: un tramo por pregunta, sin nombres de nivel. */
+  .segmentos {
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: 3px;
+    margin-top: 1rem;
+  }
+
+  .segmento {
+    position: relative;
+    height: 7px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  .segmento::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: var(--color-grenat);
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 480ms var(--ease-fluid);
+  }
+
+  .segmento[data-estado='hecho']::after {
+    transform: scaleX(1);
+  }
+
+  /* La de ahora late, a medio color. */
+  .segmento[data-estado='actual']::after {
+    transform: scaleX(1);
+    background-color: color-mix(in srgb, var(--color-grenat) 45%, transparent);
+    animation: segmento-latido 1.4s ease-in-out infinite;
+  }
+
+  @keyframes segmento-latido {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Los avisos de ritmo: al empezar, al cuarto, a la mitad y al final. */
+  .hito {
+    min-height: 0;
+    margin-top: 0.75rem;
+    font-size: var(--text-body-s);
+    font-weight: 600;
+    color: var(--color-lie);
+  }
+
+  .hito:empty {
+    display: none;
   }
 
   .prueba__zona {
-    margin-top: 2rem;
-    min-height: 18rem;
+    margin-top: 1.75rem;
+    min-height: 17rem;
     outline: none;
   }
 
@@ -363,210 +641,278 @@ const DATOS = [
     border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
   }
 
-  /* --- Las preguntas --- */
+  /* En movil los botones quedan pegados abajo: no hay que buscarlos tras una
+     pregunta larga. */
+  @media (width < 40rem) {
+    .prueba__pasos {
+      position: sticky;
+      bottom: 0;
+      margin-inline: -1.4rem;
+      margin-bottom: -1.4rem;
+      padding: 1rem 1.4rem;
+      border-radius: 0 0 26px 26px;
+      background-color: color-mix(in srgb, var(--color-blanc) 94%, transparent);
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  /* --- Las preguntas (las pinta el guion) --- */
+
+  :global(.test-pista) {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lie);
+  }
 
   :global(.test-enunciado) {
+    margin-top: 0.6rem;
     font-family: var(--font-display);
-    font-size: clamp(1.125rem, 1rem + 0.7vw, 1.4375rem);
+    font-size: clamp(1.2rem, 1rem + 0.8vw, 1.55rem);
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.32;
     letter-spacing: -0.015em;
     color: var(--color-encre);
     white-space: pre-line;
     text-wrap: pretty;
   }
 
-  :global(.test-opciones){
+  :global(.test-opciones) {
     display: grid;
     gap: 0.65rem;
     margin-top: 1.5rem;
   }
 
-  :global(.test-opciones--fichas){
+  :global(.test-opciones--fichas) {
     display: flex;
     flex-wrap: wrap;
   }
 
-  :global(.test-opcion){
-    display: block;
+  :global(.test-opcion) {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
     width: 100%;
-    border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
+    border-radius: 16px;
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 12%, transparent);
     background-color: var(--color-blanc);
-    padding: 0.85rem 1.1rem;
+    padding: 0.8rem 1rem;
     text-align: left;
-    font-size: var(--text-body-s);
-    line-height: 1.4;
+    font-size: var(--text-body);
+    line-height: 1.35;
     color: var(--color-encre);
     transition:
       border-color 200ms var(--ease-smooth),
       background-color 200ms var(--ease-smooth),
-      transform 200ms var(--ease-smooth);
+      box-shadow 200ms var(--ease-smooth);
   }
 
-  :global(.test-opcion:hover){
-    border-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
-    transform: translateY(-1px);
+  :global(.test-opcion:hover) {
+    border-color: color-mix(in srgb, var(--color-encre) 32%, transparent);
+    box-shadow: var(--shadow-flota);
   }
 
-  /* Elegida: se marca con relleno y con el borde, no solo con color. */
-  .test-opcion[aria-pressed='true'] {
+  :global(.test-letra) {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--color-papier) 55%, var(--color-blanc));
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-encre);
+    transition:
+      background-color 200ms var(--ease-smooth),
+      color 200ms var(--ease-smooth);
+  }
+
+  /* Elegida: relleno, borde y la letra en rojo. Nunca solo color. */
+  :global(.test-opcion[aria-pressed='true']) {
     border-color: var(--color-grenat);
-    background-color: color-mix(in srgb, var(--color-grenat) 8%, var(--color-blanc));
-    color: var(--color-lie);
+    background-color: color-mix(in srgb, var(--color-grenat) 7%, var(--color-blanc));
     font-weight: 600;
   }
 
-  :global(.test-opcion--corta){
+  :global(.test-opcion[aria-pressed='true'] .test-letra) {
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+  }
+
+  :global(.test-opcion--corta) {
     display: inline-flex;
-    align-items: center;
     justify-content: center;
     min-height: 2.75rem;
     width: auto;
     padding: 0.5rem 1.1rem;
     text-align: center;
+    font-size: var(--text-body-s);
   }
 
-  :global(.test-afirmaciones){
+  :global(.test-afirmaciones) {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-top: 1.5rem;
   }
 
-  :global(.test-afirmacion){
+  :global(.test-afirmacion) {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    border-radius: 14px;
-    background-color: color-mix(in srgb, var(--color-papier) 32%, var(--color-blanc));
+    border-radius: 16px;
+    background-color: color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc));
     padding: 0.9rem 1rem;
   }
 
-  :global(.test-afirmacion p){
+  :global(.test-afirmacion p) {
     flex: 1 1 14rem;
-    font-size: var(--text-body-s);
+    font-size: var(--text-body);
     line-height: 1.4;
     color: var(--color-encre);
   }
 
-  :global(.test-vf){
+  :global(.test-vf) {
     display: flex;
     gap: 0.4rem;
   }
 
-  :global(.test-huecos){
+  :global(.test-huecos) {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.35rem;
     margin-top: 1.5rem;
-    font-size: var(--text-body-s);
-    line-height: 2.2;
+    font-size: var(--text-body);
+    line-height: 2.3;
     color: var(--color-encre);
   }
 
-  :global(.test-huecos--columna){
+  :global(.test-huecos--columna) {
     display: grid;
     gap: 1rem;
     line-height: 1.4;
   }
 
-  :global(.test-huecos__texto){
+  :global(.test-huecos__texto) {
     white-space: pre-line;
   }
 
-  :global(.test-campo){
+  :global(.test-campo) {
     min-width: 7rem;
     min-height: 2.75rem;
     border: 0;
     border-bottom: 2px solid var(--color-grenat);
-    background-color: color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc));
-    border-radius: 8px 8px 0 0;
-    padding: 0.3rem 0.6rem;
+    background-color: color-mix(in srgb, var(--color-papier) 34%, var(--color-blanc));
+    border-radius: 10px 10px 0 0;
+    padding: 0.3rem 0.7rem;
     font-family: var(--font-body);
-    font-size: var(--text-body-s);
+    font-size: var(--text-body);
     color: var(--color-encre);
   }
 
-  :global(.test-campo:focus){
+  :global(.test-campo:focus) {
     outline: 2px solid var(--color-grenat);
     outline-offset: 2px;
   }
 
-  :global(.test-campo--largo){
+  :global(.test-campo--largo) {
     width: 100%;
     min-height: 9rem;
     margin-top: 1.5rem;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
-    border-radius: 14px;
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
+    border-radius: 16px;
     padding: 0.9rem 1rem;
     line-height: 1.5;
     resize: vertical;
   }
 
-  :global(.test-subpregunta){
+  :global(.test-subpregunta) {
     display: grid;
     gap: 0.4rem;
-    font-size: var(--text-body-s);
+    font-size: var(--text-body);
     color: var(--color-encre);
   }
 
-  :global(.test-contador){
-    margin-top: 0.6rem;
+  /* El contador de palabras, con barra: se ve cuanto falta. */
+  :global(.test-contador) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.7rem;
     font-size: 0.8125rem;
-    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+    color: color-mix(in srgb, var(--color-encre) 60%, transparent);
   }
 
-  :global(.test-contador[data-suficiente='true']){
+  :global(.test-contador__pista) {
+    position: relative;
+    flex: 1;
+    height: 4px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  :global(.test-contador__relleno) {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-grenat);
+    transform-origin: left center;
+    transform: scaleX(var(--lleno, 0));
+    transition: transform 240ms var(--ease-smooth);
+  }
+
+  :global(.test-contador[data-suficiente='true']) {
     color: var(--color-lie);
+    font-weight: 600;
   }
 
-  :global(.test-frase){
+  :global(.test-frase) {
     margin-top: 1.5rem;
     min-height: 3.5rem;
-    border-radius: 14px;
-    border: 1px dashed color-mix(in srgb, var(--color-encre) 22%, transparent);
-    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
+    border-radius: 16px;
+    border: 1.5px dashed color-mix(in srgb, var(--color-encre) 22%, transparent);
+    background-color: color-mix(in srgb, var(--color-papier) 28%, var(--color-blanc));
     padding: 0.9rem 1rem;
-    font-size: var(--text-body-s);
+    font-size: var(--text-body);
     line-height: 1.5;
     color: var(--color-encre);
   }
 
-  :global(.test-frase[data-vacia='true']){
+  :global(.test-frase[data-vacia='true']) {
     color: color-mix(in srgb, var(--color-encre) 45%, transparent);
     font-style: italic;
   }
 
-  :global(.test-ficha){
+  :global(.test-ficha) {
     display: inline-flex;
     align-items: center;
-    /* 44px es el minimo para tocar sin fallar en movil. */
     min-height: 2.75rem;
     border-radius: var(--radius-pill);
-    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
     background-color: var(--color-blanc);
     padding: 0.4rem 1rem;
-    font-size: var(--text-body-s);
+    font-size: var(--text-body);
     color: var(--color-encre);
     transition:
-      transform 200ms var(--ease-smooth),
+      border-color 200ms var(--ease-smooth),
       opacity 200ms var(--ease-smooth);
   }
 
-  :global(.test-ficha:hover:not(:disabled)){
-    transform: translateY(-2px);
+  :global(.test-ficha:hover:not(:disabled)) {
     border-color: var(--color-grenat);
   }
 
-  :global(.test-ficha:disabled){
+  :global(.test-ficha:disabled) {
     opacity: 0.3;
   }
 
-  :global(.test-deshacer){
-    /* Fila propia: entre las fichas parecia una palabra mas. */
+  :global(.test-deshacer) {
     flex-basis: 100%;
     margin-top: 0.35rem;
     text-align: right;
@@ -576,19 +922,19 @@ const DATOS = [
     text-underline-offset: 4px;
   }
 
-  :global(.test-deshacer:disabled){
+  :global(.test-deshacer:disabled) {
     opacity: 0.35;
     text-decoration: none;
   }
 
-  :global(.test-audio){
+  :global(.test-audio) {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
     margin-top: 1.5rem;
     border-radius: var(--radius-pill);
     background-color: var(--color-encre);
-    padding: 0.7rem 1.4rem;
+    padding: 0.75rem 1.4rem 0.75rem 1.1rem;
     font-family: var(--font-display);
     font-size: var(--text-body-s);
     font-weight: 600;
@@ -596,13 +942,50 @@ const DATOS = [
     transition: background-color 200ms var(--ease-smooth);
   }
 
-  :global(.test-audio:hover){
+  :global(.test-audio:hover) {
     background-color: var(--color-nuit);
   }
 
-  /* Si el navegador no sabe leer en voz alta, se da el texto: peor, pero se
-     puede responder. */
-  .test-aviso {
+  /* Tres barritas que bailan mientras suena. */
+  :global(.test-audio__ondas) {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 1rem;
+  }
+
+  :global(.test-audio__ondas i) {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background-color: var(--color-chair);
+    transform: scaleY(0.4);
+    transform-origin: bottom center;
+  }
+
+  :global(.test-audio[data-sonando='true'] .test-audio__ondas i) {
+    animation: onda 700ms ease-in-out infinite;
+  }
+
+  :global(.test-audio[data-sonando='true'] .test-audio__ondas i:nth-child(2)) {
+    animation-delay: 120ms;
+  }
+
+  :global(.test-audio[data-sonando='true'] .test-audio__ondas i:nth-child(3)) {
+    animation-delay: 240ms;
+  }
+
+  @keyframes onda {
+    0%,
+    100% {
+      transform: scaleY(0.3);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  :global(.test-aviso) {
     margin-top: 1rem;
     border-radius: 14px;
     background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
@@ -619,11 +1002,12 @@ const DATOS = [
     min-height: 3rem;
     align-items: center;
     justify-content: center;
+    gap: 0.75rem;
     border-radius: var(--radius-pill);
     background-color: var(--color-grenat);
     padding-inline: 1.75rem;
     font-family: var(--font-display);
-    font-size: var(--text-body-s);
+    font-size: 1rem;
     font-weight: 600;
     color: var(--color-blanc);
     transition:
@@ -637,8 +1021,13 @@ const DATOS = [
     background-color: var(--color-lie);
   }
 
+  .test-boton:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
   .test-boton:disabled {
     opacity: 0.35;
+    cursor: not-allowed;
   }
 
   .test-boton--grande {
@@ -649,7 +1038,7 @@ const DATOS = [
 
   .test-boton--suave {
     background-color: transparent;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 20%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 18%, transparent);
     color: var(--color-encre);
   }
 
@@ -658,112 +1047,457 @@ const DATOS = [
     color: var(--color-blanc);
   }
 
-  /* --- Cierre --- */
+  /* --- 3. Antes del resultado --- */
 
-  .cierre {
-    margin-top: 2.5rem;
-    max-width: 46rem;
-  }
-
-  .cierre__caja {
+  .datos {
+    max-width: 38rem;
+    margin-inline: auto;
     border-radius: 26px;
     background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    padding: clamp(1.75rem, 1rem + 3vw, 2.75rem);
+    box-shadow: var(--shadow-alta);
+    padding: clamp(1.6rem, 1rem + 2.5vw, 2.75rem);
+    text-align: center;
   }
 
-  .cierre__titulo {
-    margin-top: 1.1rem;
+  .datos__sello {
+    display: inline-grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-grenat) 10%, var(--color-blanc));
+    color: var(--color-grenat);
+  }
+
+  .datos__sello :global(svg) {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .datos__titulo {
+    margin-top: 0.6rem;
     font-family: var(--font-display);
-    font-size: var(--text-display-l);
+    font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.6rem);
     font-weight: 700;
-    line-height: 1.06;
+    line-height: 1.05;
     letter-spacing: -0.03em;
     color: var(--color-encre);
-    max-width: 18ch;
-    text-wrap: balance;
     outline: none;
   }
 
-  .cierre__apoyo {
-    margin-top: 1.25rem;
-    max-width: 48ch;
+  .datos__apoyo {
+    margin-top: 0.7rem;
     font-size: var(--text-body);
-    line-height: 1.5;
-    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
   }
 
-  .cierre__forma {
-    position: relative;
+  .datos__campo {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
-    margin-top: 2rem;
+    gap: 0.5rem;
+    margin-top: 1.9rem;
+    text-align: left;
   }
 
-  .campo {
-    grid-column: 1 / -1;
-  }
-
-  @media (width >= 30rem) {
-    .campo--mitad {
-      grid-column: span 1;
-    }
-  }
-
-  .campo__etiqueta {
-    display: block;
-    margin-bottom: 0.45rem;
+  .datos__etiqueta {
     font-family: var(--font-display);
     font-size: var(--text-body-s);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-encre);
   }
 
-  .campo__caja {
-    width: 100%;
-    min-height: 3rem;
+  .datos__caja {
+    min-height: 3.25rem;
     border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
-    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
-    padding: 0.7rem 0.9rem;
-    font-family: var(--font-body);
-    font-size: var(--text-body-s);
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
+    background-color: color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc));
+    padding: 0.7rem 1rem;
+    font-size: var(--text-body);
     color: var(--color-encre);
   }
 
-  .campo__caja:focus {
+  .datos__caja:focus {
     outline: 2px solid var(--color-grenat);
     outline-offset: 2px;
     background-color: var(--color-blanc);
   }
 
-  .campo__error:not(:empty) {
-    margin-top: 0.4rem;
+  .datos__objetivos {
+    margin-top: 1.5rem;
+    border: 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  .datos__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .objetivo {
+    min-height: 2.75rem;
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid color-mix(in srgb, var(--color-encre) 14%, transparent);
+    background-color: var(--color-blanc);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition:
+      background-color 200ms var(--ease-smooth),
+      color 200ms var(--ease-smooth),
+      border-color 200ms var(--ease-smooth);
+  }
+
+  .objetivo:hover {
+    border-color: var(--color-encre);
+  }
+
+  .objetivo[aria-pressed='true'] {
+    border-color: var(--color-encre);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+  }
+
+  .datos__ver {
+    width: 100%;
+    margin-top: 2rem;
+  }
+
+  /* --- 4. El resultado --- */
+
+  .resultado {
+    display: grid;
+    gap: 1rem;
+    max-width: 60rem;
+    margin-inline: auto;
+  }
+
+  .r-cabeza {
+    border-radius: 26px;
+    background-image: linear-gradient(135deg, var(--color-nuit), var(--color-encre) 70%);
+    color: var(--color-blanc);
+    padding: clamp(1.6rem, 1rem + 3vw, 3rem);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .r-cabeza__saludo {
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--color-ciel);
+  }
+
+  .r-cabeza__reparto {
+    display: grid;
+    gap: 1rem 3rem;
+    margin-top: 1rem;
+  }
+
+  @media (width >= 48rem) {
+    .r-cabeza__reparto {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: end;
+    }
+  }
+
+  .r-cabeza__pre {
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-blanc) 75%, transparent);
+  }
+
+  .r-cabeza__nivel {
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 3rem + 8vw, 8.5rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-chair);
+    font-variant-numeric: tabular-nums;
+    outline: none;
+  }
+
+  .r-cabeza__etiqueta {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-blanc);
+  }
+
+  .r-cabeza__puedes {
+    max-width: 38ch;
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-blanc) 88%, transparent);
+  }
+
+  .escala {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin-top: 2rem;
+  }
+
+  .escala__paso {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .escala__barra {
+    position: relative;
+    height: 10px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-blanc) 14%, transparent);
+  }
+
+  .escala__relleno {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: var(--color-chair);
+    transform-origin: left center;
+    transform: scaleX(var(--lleno, 0));
+  }
+
+  .escala__nombre {
+    font-family: var(--font-display);
     font-size: 0.8125rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-blanc) 60%, transparent);
+  }
+
+  .escala__paso[data-estado='dominado'] .escala__nombre,
+  .escala__paso[data-estado='curso'] .escala__nombre {
+    color: var(--color-blanc);
+  }
+
+  .r-cuerpo {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (width >= 48rem) {
+    .r-cuerpo {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .r-tarjeta {
+    border-radius: 22px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    padding: clamp(1.3rem, 1rem + 1.5vw, 2rem);
+  }
+
+  .r-tarjeta__titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--color-encre);
+  }
+
+  .r-tarjeta__icono {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 11px;
+  }
+
+  .r-tarjeta__icono :global(svg) {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .r-tarjeta--bien .r-tarjeta__icono {
+    background-color: color-mix(in srgb, var(--color-ciel) 40%, var(--color-blanc));
+    color: var(--color-bleu);
+  }
+
+  .r-tarjeta--mejorar .r-tarjeta__icono {
+    background-color: color-mix(in srgb, var(--color-grenat) 10%, var(--color-blanc));
     color: var(--color-grenat);
   }
 
-  .campo__aviso:not(:empty) {
-    margin-top: 0.9rem;
+  .r-lista {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.1rem;
+  }
+
+  :global(.r-item) {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--color-papier) 32%, var(--color-blanc));
+  }
+
+  :global(.r-item__cabeza) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  :global(.r-item__nombre) {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-encre);
+  }
+
+  :global(.r-item__pct) {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-body-s);
+    font-weight: 700;
+    color: var(--color-bleu);
+  }
+
+  .r-tarjeta--mejorar :global(.r-item__pct) {
+    color: var(--color-grenat);
+  }
+
+  :global(.r-item__texto) {
     font-size: var(--text-body-s);
     line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
+  }
+
+  .barras {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+
+  .barras__fila {
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr) 3.2rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .barras__nombre {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-encre);
+  }
+
+  .barras__pista {
+    position: relative;
+    height: 12px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 8%, transparent);
+  }
+
+  .barras__relleno {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: linear-gradient(to right, var(--color-bleu), var(--color-azur));
+    transform-origin: left center;
+    transform: scaleX(var(--lleno, 0));
+  }
+
+  .barras__pct {
+    text-align: right;
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-body-s);
+    font-weight: 700;
+    color: var(--color-encre);
+  }
+
+  .r-niveles__nota {
+    margin-top: 1.1rem;
+    font-size: var(--text-body-s);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  .r-cta {
+    border-radius: 26px;
+    background-image: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-papier) 85%, var(--color-blanc)),
+      color-mix(in srgb, var(--color-chair) 35%, var(--color-blanc))
+    );
+    padding: clamp(1.6rem, 1rem + 3vw, 3rem);
+    box-shadow: var(--shadow-flota);
+  }
+
+  .r-cta__titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+  }
+
+  .r-cta__texto {
+    margin-top: 0.9rem;
+    max-width: 50ch;
+    font-size: var(--text-body);
+    line-height: 1.5;
     color: color-mix(in srgb, var(--color-encre) 78%, transparent);
   }
 
+  .r-cta__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .r-cta__repetir {
+    min-height: 2.75rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-encre);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
+  }
+
+  .r-cta__repetir:hover {
+    text-decoration-color: var(--color-grenat);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .prueba__avance,
+    .segmento::after {
+      transition: none;
+      animation: none;
+    }
+
     :global(.test-opcion),
+    :global(.test-letra),
     :global(.test-ficha),
     :global(.test-audio),
-    .test-boton {
+    :global(.test-contador__relleno),
+    .test-boton,
+    .objetivo {
       transition: none;
     }
 
-    :global(.test-opcion:hover),
-    :global(.test-ficha:hover:not(:disabled)),
-    .test-boton:hover:not(:disabled) {
+    .test-boton:hover:not(:disabled),
+    .test-boton:active:not(:disabled) {
       transform: none;
+    }
+
+    :global(.test-audio[data-sonando='true'] .test-audio__ondas i) {
+      animation: none;
     }
   }
 </style>

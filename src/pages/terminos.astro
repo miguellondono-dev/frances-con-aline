@@ -11,41 +11,15 @@ const schema = [breadcrumb(migas, Astro.site)];
 const actualizado = new Date().toISOString().slice(0, 10);
 
 /**
- * Mismo criterio que en privacidad: se describe lo que ya esta decidido y
- * verificable, y lo que falta se marca. No se inventa una politica de
- * cancelacion ni un metodo de pago que nadie ha decidido todavia.
+ * Solo lo que esta decidido. Lo que no tiene regla fija (cambios, cancelaciones,
+ * formas de pago) se dice tal cual: se acuerda directamente con Aline. No se
+ * inventa una politica que nadie ha decidido.
  */
-const PENDIENTES = [
-  {
-    titulo: 'Política de cancelación y reprogramación',
-    texto:
-      'Con cuánta antelación se puede mover una clase, qué pasa si se avisa tarde y qué pasa si la persona no aparece.',
-  },
-  {
-    titulo: 'Métodos de pago y momento del cobro',
-    texto:
-      'Qué medios se aceptan y si se paga antes o después de cada clase o bono.',
-  },
-  {
-    titulo: 'Condiciones de los bonos',
-    texto:
-      'Precio final, vencimiento y qué ocurre con las clases no usadas al vencer.',
-  },
-  {
-    titulo: 'Devoluciones',
-    texto: 'En qué casos se devuelve dinero de un bono ya pagado y en cuáles no.',
-  },
-  {
-    titulo: 'Identidad legal y jurisdicción',
-    texto:
-      'Nombre completo o razón social, país de establecimiento y ley aplicable.',
-  },
-];
 ---
 
 <BaseLayout
   title="Términos y condiciones"
-  description="Las condiciones de las clases: qué incluye cada formato, cómo se agenda y qué está todavía por definir antes de publicar."
+  description="Las condiciones de las clases de Francés con Aline: qué incluye cada formato, precios, cómo se agenda y cómo se acuerdan cambios y pagos."
   path="/terminos"
   schema={schema}
 >
@@ -63,7 +37,7 @@ const PENDIENTES = [
   <section class="fondo-calido">
     <div class="shell py-section">
       <div class="mx-auto max-w-3xl">
-        <h2 class="text-display-m text-encre">Lo que ya está decidido</h2>
+        <h2 class="text-display-m text-encre">Condiciones</h2>
 
         <dl class="mt-8 flex flex-col">
           <div class="border-t border-encre/20 py-6 first:border-t-0 first:pt-0">
@@ -84,9 +58,9 @@ const PENDIENTES = [
           <div class="border-t border-encre/20 py-6">
             <dt class="text-title text-encre">El sitio no cobra</dt>
             <dd class="measure mt-2 text-body text-nuit">
-              Esta web solo sirve para agendar. No hay pasarela de pago y no se
-              introducen aquí datos bancarios ni de tarjeta. El pago se acuerda
-              directamente con Aline, fuera de la web.
+              Esta web solo sirve para contactar y agendar. No hay pasarela de
+              pago y no se introducen aquí datos bancarios ni de tarjeta. El
+              pago se acuerda directamente con Aline, fuera de la web.
             </dd>
           </div>
           <div class="border-t border-encre/20 py-6">
@@ -100,31 +74,22 @@ const PENDIENTES = [
           <div class="border-t border-encre/20 py-6">
             <dt class="text-title text-encre">Talleres y tours</dt>
             <dd class="measure mt-2 text-body text-nuit">
-              Están en construcción. Apuntarse a la lista de espera no reserva
-              plaza ni obliga a comprar nada.
+              Los talleres son presenciales, en París, con las fechas y el precio
+              que indica cada uno. La plaza se confirma por WhatsApp. Los tours
+              se anuncian con sus primeras fechas.
+            </dd>
+          </div>
+          <div class="border-t border-encre/20 py-6">
+            <dt class="text-title text-encre">Cambios, cancelaciones y pagos</dt>
+            <dd class="measure mt-2 text-body text-nuit">
+              Si necesitas mover o cancelar una clase, avísame por WhatsApp lo
+              antes posible y buscamos otra hora. La forma de pago y las
+              condiciones de los bonos las acordamos directamente antes de
+              empezar.
             </dd>
           </div>
         </dl>
 
-        <h2 class="mt-16 text-display-m text-encre">Lo que falta por definir</h2>
-        <p class="measure mt-4 text-body text-nuit">
-          Estos puntos no se pueden inventar y hay que cerrarlos antes de
-          publicar el sitio.
-        </p>
-
-        {/* TODO [PENDIENTE] Cada uno de estos puntos necesita una decision de
-            Miguel y de Aline antes de que el sitio se publique. */}
-        <ul class="mt-8 flex flex-col gap-4">
-          {
-            PENDIENTES.map((item) => (
-              <li class="rounded-panel border border-corail/40 bg-blanc p-6">
-                <span class="label mb-2 block text-lie">Pendiente</span>
-                <p class="text-title text-encre">{item.titulo}</p>
-                <p class="measure mt-2 text-body text-nuit">{item.texto}</p>
-              </li>
-            ))
-          }
-        </ul>
       </div>
     </div>
   </section>

@@ -1,40 +1,108 @@
 ---
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Cta from '../../components/Cta.astro';
+import Logo from '../../components/Logo.astro';
+import Vocabulario from '../../components/home/Thesis.astro';
+import ChatWhatsapp from '../../components/ChatWhatsapp.astro';
 import { breadcrumb } from '../../lib/schema';
-import { TALLERES, hechos } from '../../data/talleres';
+import { TALLERES } from '../../data/talleres';
+import { WA, whatsapp } from '../../data/site';
+import { icono } from '../../data/iconos';
 
-import teatroPortada from '../../assets/talleres/teatro-escena-ancha.jpg';
-import acuarelaPortada from '../../assets/talleres/acuarela-lamina.jpg';
+import parisSena from '../../assets/paris-sena.jpg';
+import teatroGrupo from '../../assets/talleres/teatro-grupo.jpg';
+import teatroMesa from '../../assets/talleres/teatro-escena-mesa.jpg';
+import teatroEscena from '../../assets/talleres/teatro-escena-ancha.jpg';
+import acuarelaLamina from '../../assets/talleres/acuarela-lamina.jpg';
+import acuarelaMesa from '../../assets/talleres/acuarela-mesa.jpg';
 
+/**
+ * TALLERES.
+ *
+ * Rediseño de septiembre de 2026. Miguel la vio fea: un bloque centrado sobre
+ * rosa plano con dos tarjetas pequeñas. Ahora:
+ *
+ *  1. Portada partida: texto a la izquierda y, a la derecha, un collage con
+ *     fotos reales de los talleres que se abren en abanico, flotan y siguen
+ *     al raton, con un sello giratorio con el ojo de la marca. Detras, el
+ *     dibujo de Paris del inicio.
+ *  2. La franja oscura de vocabulario del inicio, con palabras del escenario
+ *     y de la pintura.
+ *  3. Cada taller en grande y en zigzag: la foto se descubre con una cortina
+ *     y se mueve al bajar; al lado, los datos con icono, lo que se practica y
+ *     los dos botones.
+ *  4. Cierre con WhatsApp.
+ *
+ * Las animaciones las lleva GSAP (scripts/talleres-gsap.ts), que solo se
+ * descarga en esta pagina. Sin JS o con movimiento reducido, todo se ve
+ * quieto y completo.
+ */
 const migas = [
   { name: 'Inicio', path: '/' },
   { name: 'Talleres', path: '/talleres' },
 ];
 
-const portadas: Record<string, ImageMetadata> = {
-  teatro: teatroPortada,
-  acuarela: acuarelaPortada,
-};
-
-const alt: Record<string, string> = {
-  teatro:
-    'Dos alumnas representan una escena sobre el escenario, con vestuario y luces de colores',
-  acuarela:
-    'Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo',
-};
-
 /**
  * Aqui no va schema de cada taller: cada uno lo lleva en su pagina, que es su
- * URL canonica. Repetirlo en el indice le daria dos Course con la misma ficha
- * a un buscador y ninguno de los dos ganaria.
- *
- * La miga de pan sigue en el schema aunque ya no se pinte: es de ahi de donde
- * un buscador saca la ruta que enseña debajo del resultado. En pantalla
- * sobraba, porque la ultima miga decia "Talleres" justo encima de un titular
- * que dice "Talleres".
+ * URL canonica. La miga de pan sigue en el schema aunque no se pinte.
  */
 const schema = [breadcrumb(migas, Astro.site)];
+
+/** Foto de cada taller en su fila, y su texto alternativo. */
+const FOTOS: Record<string, { src: ImageMetadata; alt: string }> = {
+  teatro: {
+    src: teatroEscena,
+    alt: 'Dos alumnas representan una escena sobre el escenario, con vestuario y luces de colores',
+  },
+  acuarela: {
+    src: acuarelaMesa,
+    alt: 'Mesa de trabajo del taller de acuarela, con la paleta de colores y una lámina a medio pintar',
+  },
+};
+
+const MENSAJE: Record<string, string> = { teatro: WA.teatro, acuarela: WA.acuarela };
+
+/** Palabras del escenario y de la pintura, para la franja. */
+const VOCABULARIO_TALLERES = [
+  { fr: 'la scène', es: 'el escenario' },
+  { fr: 'le trac', es: 'los nervios antes de salir' },
+  { fr: 'improviser', es: 'improvisar' },
+  { fr: 'le rideau', es: 'el telón' },
+  { fr: 'le costume', es: 'el vestuario' },
+  { fr: "l'aquarelle", es: 'la acuarela' },
+  { fr: 'le pinceau', es: 'el pincel' },
+  { fr: 'mélanger', es: 'mezclar' },
+  { fr: 'la teinte', es: 'el tono' },
+  { fr: 'la lumière', es: 'la luz' },
+];
+
+/** Las tres partes del billete, siempre en este orden. */
+const billete = (t: (typeof TALLERES)[number]) => [
+  {
+    icono: 'calendario' as const,
+    clave: 'Cuándo',
+    valor: t.cuando,
+    extra: t.sesiones > 1 ? `Días ${t.dias}` : `Día ${t.dias}`,
+    cifra: false,
+  },
+  { icono: 'reloj' as const, clave: 'Hora', valor: t.hora, extra: t.ciudad, cifra: false },
+  {
+    icono: 'entrada' as const,
+    clave: 'Precio',
+    valor: `${t.precio} €`,
+    extra: t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión',
+    cifra: true,
+  },
+];
+
+/** El titular con su palabra en italica. */
+const partes = (titular: string, acento: string) => {
+  const i = titular.indexOf(acento);
+  return i < 0
+    ? { antes: titular, acento: '', despues: '' }
+    : { antes: titular.slice(0, i), acento, despues: titular.slice(i + acento.length) };
+};
 ---
 
 <BaseLayout
@@ -43,344 +111,909 @@ const schema = [breadcrumb(migas, Astro.site)];
   path="/talleres"
   schema={schema}
 >
-  {/*
-    Mismo patron que la seccion de formatos del inicio: titular centrado con
-    la palabra en italica, rejilla estrecha y centrada, y tarjetas que se
-    llenan de tinta al pasar por encima. El inicio ya habia resuelto el hueco
-    de la derecha con un max-width: a todo el ancho quedaban desparramadas.
-  */}
-  <section class="talleres-seccion" aria-labelledby="talleres-titulo">
-    <div class="shell py-section">
-      <div class="flex flex-col items-center text-center">
-        <p class="label text-lie" data-reveal data-repite>Presencial, en París</p>
-        <h1 id="talleres-titulo" class="talleres-titulo" data-palabras data-repite>
+  <!-- 1. PORTADA -->
+  <section class="portada-t" aria-labelledby="talleres-titulo" data-talleres-pagina>
+    <div class="portada-t__dibujo" aria-hidden="true">
+      <Picture
+        src={parisSena}
+        alt=""
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[800, 1400]}
+        sizes="100vw"
+        class="portada-t__dibujo-img"
+        loading="eager"
+      />
+    </div>
+
+    <div class="shell portada-t__reparto" data-t-portada data-t-oculto>
+      <div class="portada-t__texto">
+        <p class="label text-lie" data-t="entrada">Presencial, en París</p>
+        <h1 id="talleres-titulo" class="portada-t__titulo" data-t-titulo data-g-titulo>
           Usar el <em class="destacado">francés</em> con las manos y con el cuerpo
         </h1>
-        <p class="talleres-entrada" data-reveal data-repite>
-          Dos talleres en octubre, los dos con plaza.
+        <p class="portada-t__entrada" data-t="entrada">
+          Dos talleres en octubre para hablar francés haciendo algo: subir a un
+          escenario o pintar una lámina.
+        </p>
+
+        <div class="portada-t__acciones" data-t="entrada">
+          <Cta href={whatsapp(WA.reservarTaller)}>Reservar</Cta>
+          <a class="enlace-flecha" href="#teatro">
+            Ver los talleres
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 2v12M3 9l5 5 5-5"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <p class="estado" data-t="entrada">
+          <span class="estado__punto" aria-hidden="true"></span>
+          Plazas abiertas para octubre
         </p>
       </div>
 
-      <ul class="rejilla">
-        {
-          TALLERES.map((t) => (
-            <li data-reveal data-repite>
-              <a class="ficha" href={`/talleres/${t.slug}`}>
-                <span class="ficha__foto">
+      {/* El collage repite fotos que salen abajo con su texto: aqui es
+          decorativo. */}
+      <div class="collage" data-t-collage aria-hidden="true">
+        <div class="collage__capa collage__capa--a" data-profundidad="0.5">
+          <figure class="collage__foto collage__foto--a">
+            <Picture
+              src={teatroGrupo}
+              alt=""
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[300, 480]}
+              sizes="(min-width: 64rem) 15rem, 40vw"
+              loading="eager"
+            />
+            <span class="collage__etiqueta">Teatro</span>
+          </figure>
+        </div>
+        <div class="collage__capa collage__capa--c" data-profundidad="0.8">
+          <figure class="collage__foto collage__foto--c">
+            <Picture
+              src={teatroMesa}
+              alt=""
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[300, 480]}
+              sizes="(min-width: 64rem) 13rem, 36vw"
+              loading="eager"
+            />
+          </figure>
+        </div>
+        <div class="collage__capa collage__capa--b" data-profundidad="1.1">
+          <figure class="collage__foto collage__foto--b">
+            <Picture
+              src={acuarelaLamina}
+              alt=""
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[300, 480]}
+              sizes="(min-width: 64rem) 16rem, 44vw"
+              loading="eager"
+            />
+            <span class="collage__etiqueta collage__etiqueta--roja">Acuarela</span>
+          </figure>
+        </div>
+
+        {/* Sello con el ojo de la marca y un texto que gira alrededor. */}
+        <div class="sello" data-t-sello>
+          <svg class="sello__texto" viewBox="0 0 120 120">
+            <defs>
+              <path id="sello-circulo" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0" />
+            </defs>
+            <text>
+              <textPath href="#sello-circulo" textLength="292">
+                PRESENCIAL · EN PARÍS · OCTUBRE ·
+              </textPath>
+            </text>
+          </svg>
+          <span class="sello__ojo"><Logo viewBox="195 258 860 691" /></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. FRANJA DE VOCABULARIO -->
+  <Vocabulario palabras={VOCABULARIO_TALLERES} etiqueta="Vocabulario de los talleres con su traducción" />
+
+  <!-- 3. LOS TALLERES -->
+  <section class="lista-t" aria-label="Los talleres">
+    <div class="shell">
+      {
+        TALLERES.map((t, i) => {
+          const tit = partes(t.titular, t.acento);
+          return (
+            <article class="fila" id={t.slug} data-t-fila aria-labelledby={`${t.slug}-titulo`}>
+              <div class="fila__media">
+                <span class="fila__numero" aria-hidden="true" data-t-numero>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div class="fila__foto">
                   <Picture
-                    src={portadas[t.slug]}
-                    alt={alt[t.slug]}
+                    src={FOTOS[t.slug].src}
+                    alt={FOTOS[t.slug].alt}
                     formats={['avif', 'webp']}
                     fallbackFormat="webp"
-                    widths={[320, 480, 720]}
-                    sizes="(min-width: 48rem) 21rem, 92vw"
-                    class="ficha__img"
-                    loading="eager"
+                    widths={[420, 640, 900]}
+                    sizes="(min-width: 64rem) 30rem, 92vw"
+                    class="fila__img"
+                    data-t-img
                   />
-                </span>
+                  <span class="fila__cortina" aria-hidden="true" data-t-cortina />
+                </div>
+              </div>
 
-                <span class="ficha__cuerpo">
-                  <span class="ficha__nombre">{t.nombre}</span>
+              <div class="fila__texto">
+                <p class="label text-lie" data-t-pieza>{t.nombre}</p>
+                <h2 id={`${t.slug}-titulo`} class="fila__titulo" data-t-titulo data-g-titulo>
+                  {tit.antes}
+                  {tit.acento && <em class="destacado">{tit.acento}</em>}
+                  {tit.despues}
+                </h2>
+                <p class="fila__resumen" data-t-pieza>{t.resumen}</p>
 
-                  {/* Cuando y hora, en el mismo orden que en la pagina del
-                      taller. Quien llega desde aqui los busca donde ya los vio. */}
-                  <span class="ficha__meta">
-                    {t.cuando} · {t.hora}
-                  </span>
+                {/* Los tres datos, como un billete de entrada: una sola pieza con
+                    tres partes separadas por cortes troquelados. */}
+                <div class="billete" role="list" aria-label="Datos del taller" data-t-billete>
+                  {billete(t).map((celda, j) => (
+                    <Fragment>
+                      {j > 0 && <span class="billete__corte" aria-hidden="true" data-t-corte />}
+                      <div class="billete__celda" role="listitem" data-t-dato>
+                        <span class="billete__icono" set:html={icono(celda.icono)} />
+                        <span class="billete__clave">{celda.clave}</span>
+                        <span
+                          class:list={['billete__valor', { numerals: celda.cifra }]}
+                          data-t-cifra={celda.cifra ? '' : undefined}
+                        >
+                          {celda.valor}
+                        </span>
+                        <span class="billete__extra">{celda.extra}</span>
+                      </div>
+                    </Fragment>
+                  ))}
+                </div>
 
-                  <span class="ficha__pie">
-                    <span class="ficha__precio">
-                      <span class="ficha__cifra numerals">{t.precio} €</span>
-                      <span class="ficha__unidad">
-                        {t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión'}
-                      </span>
-                    </span>
+                <div class="fila__practica-bloque">
+                  <p class="fila__practica-titulo" data-t-pieza>Lo que se practica</p>
+                  <ul class="fila__practica">
+                    {t.practica.map((p) => (
+                      <li class="pastilla" data-t-pastilla>
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                    <span class="ficha__flecha" aria-hidden="true">
-                      <svg viewBox="0 0 24 16" class="h-3.5 w-5" fill="none">
-                        <path
-                          d="M1 8h20M15 2l6 6-6 6"
-                          stroke="currentColor"
-                          stroke-width="1.8"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </span>
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+                <p class="estado estado--fila" data-t-pieza>
+                  <span class="estado__punto" aria-hidden="true" />
+                  Plazas abiertas hasta el {t.cierre}
+                </p>
+
+                <div class="fila__acciones" data-t-pieza>
+                  <Cta href={whatsapp(MENSAJE[t.slug] ?? WA.talleres)}>Inscribirme</Cta>
+                  <a class="enlace-flecha" href={`/talleres/${t.slug}`}>
+                    Ver el taller
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2 8h12M9 3l5 5-5 5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- 4. CIERRE -->
+  <section class="fondo-calido" aria-labelledby="talleres-dudas">
+    <div class="shell grid items-center gap-10 py-section lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
+      <div>
+        <p class="label text-lie" data-reveal>Hablemos</p>
+        <h2 id="talleres-dudas" class="cierre-t__titulo" data-reveal>¿Dudas antes de apuntarte?</h2>
+        <p class="cierre-t__texto" data-reveal>
+          Escríbeme y te cuento cómo es cada taller, dónde es exactamente y cómo
+          se paga.
+        </p>
+      </div>
+      <ChatWhatsapp mensaje={WA.dudasTalleres} boton="Escribirme por WhatsApp" asunto="Una pregunta sobre los talleres" />
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  import '../../scripts/talleres-gsap';
+</script>
+
 <style>
-  /* El mismo degradado que la seccion de formatos del inicio: aguanta el tono
-     calido por debajo de las tarjetas y solo entonces se abre al blanco. */
-  .talleres-seccion {
+  /* --- 1. Portada --- */
+
+  .portada-t {
+    position: relative;
+    overflow: hidden;
     background-image: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--color-papier) 72%, var(--color-blanc)) 0%,
-      color-mix(in srgb, var(--color-papier) 72%, var(--color-blanc)) 58%,
-      color-mix(in srgb, var(--color-papier) 46%, var(--color-blanc)) 78%,
-      color-mix(in srgb, var(--color-papier) 14%, var(--color-blanc)) 91%,
-      var(--color-blanc) 100%
+      var(--color-blanc) 0%,
+      color-mix(in srgb, var(--color-papier) 55%, var(--color-blanc)) 55%,
+      color-mix(in srgb, var(--color-papier) 80%, var(--color-blanc)) 100%
     );
   }
 
-  .talleres-titulo {
+  /* El dibujo de Paris del inicio, abajo y muy suave. */
+  .portada-t__dibujo {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 75%;
+    pointer-events: none;
+    opacity: 0.9;
+    mix-blend-mode: multiply;
+    /* Dos mascaras que se multiplican: aparece de abajo hacia arriba, y en
+       la zona del texto se queda en una textura suave para no cruzar las
+       letras. En movil el texto va encima de todo: se atenua entero. */
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, black 40%),
+      linear-gradient(to right, rgb(0 0 0 / 0.2) 0%, rgb(0 0 0 / 0.2) 40%, black 62%);
+    mask-composite: intersect;
+  }
+
+  @media (width < 64rem) {
+    .portada-t__dibujo {
+      opacity: 0.35;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+    }
+  }
+
+  .portada-t__dibujo :global(picture),
+  .portada-t__dibujo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 70%;
+  }
+
+  .portada-t__reparto {
+    position: relative;
+    display: grid;
+    gap: 3rem;
+    padding-block: 2.5rem 5rem;
+  }
+
+  @media (width >= 64rem) {
+    .portada-t__reparto {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 3rem;
+      min-height: min(44rem, calc(100svh - 5rem));
+      padding-block: 2rem 4rem;
+    }
+  }
+
+  :global(.js) [data-t-oculto] {
+    visibility: hidden;
+  }
+
+  /* Colchon de las mascaras de GSAP para que no corten tildes ni colas. */
+  :global(.g-linea-mask),
+  :global(.g-palabra-mask) {
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
+
+  .portada-t__titulo {
     margin-top: 1.25rem;
-    max-width: 17ch;
+    max-width: 14ch;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 1.6rem + 3.6vw, 4.5rem);
+    font-weight: 650;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: var(--color-encre);
+  }
+
+  .portada-t__entrada {
+    margin-top: 1.5rem;
+    max-width: 40ch;
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.5;
+    color: var(--color-nuit);
+  }
+
+  .portada-t__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 2rem;
+  }
+
+  .enlace-flecha {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-encre);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
+    text-underline-offset: 5px;
+    transition: text-decoration-color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .enlace-flecha svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 320ms var(--ease-smooth);
+  }
+
+  .enlace-flecha:hover {
+    text-decoration-color: var(--color-grenat);
+  }
+
+  .enlace-flecha:hover svg {
+    transform: translate(3px, 0);
+  }
+
+  .portada-t__acciones .enlace-flecha:hover svg {
+    transform: translate(0, 3px);
+  }
+
+  /* Un punto que late: dice "abierto" sin tener que leerlo. */
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-blanc) 75%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 10%, transparent);
+    font-size: var(--text-body-s);
+    font-weight: 500;
+    color: var(--color-encre);
+  }
+
+  .estado__punto {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+  }
+
+  .estado__punto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    animation: late 1.8s ease-out infinite;
+  }
+
+  @keyframes late {
+    from {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  /* --- El collage --- */
+
+  .collage {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    aspect-ratio: 1 / 1.02;
+    margin-inline: auto;
+  }
+
+  .collage__capa {
+    position: absolute;
+  }
+
+  .collage__capa--a {
+    left: 0;
+    top: 6%;
+    width: 46%;
+  }
+
+  .collage__capa--c {
+    right: 0;
+    top: 0;
+    width: 42%;
+  }
+
+  .collage__capa--b {
+    left: 27%;
+    top: 26%;
+    width: 48%;
+  }
+
+  .collage__foto {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 3 / 4;
+    border: 6px solid var(--color-blanc);
+    border-radius: 22px;
+    background-color: var(--color-papier);
+    box-shadow: var(--shadow-alta);
+    overflow: hidden;
+  }
+
+  .collage__foto--a {
+    transform: rotate(-8deg);
+  }
+
+  .collage__foto--c {
+    transform: rotate(7deg);
+  }
+
+  .collage__foto--b {
+    transform: rotate(-2deg);
+  }
+
+  .collage__foto :global(picture),
+  .collage__foto :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .collage__etiqueta {
+    position: absolute;
+    left: 0.7rem;
+    bottom: 0.7rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .collage__etiqueta--roja {
+    background-color: var(--color-grenat);
+  }
+
+  /* El sello: el ojo de la marca con un texto que gira alrededor. */
+  .sello {
+    position: absolute;
+    left: 4%;
+    bottom: 0;
+    display: grid;
+    place-items: center;
+    width: clamp(5.5rem, 4rem + 5vw, 7.5rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .sello__texto {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: var(--color-ciel);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    animation: gira 22s linear infinite;
+  }
+
+  .sello__ojo {
+    display: block;
+    width: 44%;
+    color: var(--color-blanc);
+  }
+
+  .sello__ojo :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @keyframes gira {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* --- 3. Los talleres --- */
+
+  .lista-t {
+    background-color: var(--color-blanc);
+    padding-block: clamp(4rem, 3rem + 4vw, 7rem);
+  }
+
+  .fila {
+    display: grid;
+    gap: 2.5rem;
+    scroll-margin-top: 6rem;
+  }
+
+  .fila + .fila {
+    margin-top: clamp(5rem, 4rem + 4vw, 8rem);
+  }
+
+  @media (width >= 64rem) {
+    .fila {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      align-items: center;
+      gap: 5rem;
+    }
+
+    /* Zigzag: la segunda fila pone la foto a la derecha. */
+    .fila:nth-child(even) .fila__media {
+      order: 2;
+    }
+
+    .fila:nth-child(even) {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    }
+  }
+
+  .fila__media {
+    position: relative;
+  }
+
+  /* El numero grande detras de la foto, en contorno. */
+  .fila__numero {
+    position: absolute;
+    top: -0.35em;
+    left: -0.08em;
+    z-index: 0;
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 4rem + 8vw, 11rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 2px color-mix(in srgb, var(--color-grenat) 45%, transparent);
+    pointer-events: none;
+  }
+
+  .fila:nth-child(even) .fila__numero {
+    left: auto;
+    right: -0.08em;
+  }
+
+  .fila__foto {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    margin: 3.5rem 0 0 2.5rem;
+    border-radius: 26px;
+    background-color: var(--color-papier);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .fila:nth-child(even) .fila__foto {
+    margin: 3.5rem 2.5rem 0 0;
+  }
+
+  .fila__foto :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .fila__foto :global(.fila__img) {
+    display: block;
+    width: 100%;
+    height: 115%;
+    object-fit: cover;
+  }
+
+  /* La cortina que descubre la foto: la mueve GSAP. Sin JS no existe. */
+  .fila__cortina {
+    display: none;
+  }
+
+  :global(.js) .fila__cortina {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-encre);
+    transform-origin: right center;
+  }
+
+  .fila:nth-child(even) .fila__cortina {
+    transform-origin: left center;
+  }
+
+  .fila__titulo {
+    margin-top: 1rem;
+    max-width: 18ch;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.4rem + 2.2vw, 3.1rem);
+    font-weight: 650;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
+  }
+
+  .fila__resumen {
+    margin-top: 1.25rem;
+    max-width: 44ch;
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.5;
+    color: var(--color-nuit);
+  }
+
+  /* --- El billete ---
+     Una sola pieza en tres partes. Los cortes llevan una muesca arriba y otra
+     abajo, del color de la pagina, como un billete troquelado. Lo que mueve
+     GSAP (el billete, sus celdas, los cortes) no lleva transicion de CSS en
+     transform: las dos a la vez hacian que las casillas llegaran tarde y se
+     quedaran montadas sobre las pastillas. */
+  .billete {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    margin-top: 1.75rem;
+    border-radius: 18px;
+    background-color: color-mix(in srgb, var(--color-papier) 42%, var(--color-blanc));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 7%, transparent);
+  }
+
+  .billete__celda {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 1.1rem 1.15rem 1.15rem;
+  }
+
+  .billete__icono {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-bottom: 0.55rem;
+    border-radius: 11px;
+    background-color: var(--color-blanc);
+    color: var(--color-grenat);
+    box-shadow: 0 4px 10px -6px color-mix(in srgb, var(--color-encre) 40%, transparent);
+    transition: transform 320ms var(--ease-smooth);
+  }
+
+  .billete__icono :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .billete__clave {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  .billete__valor {
+    margin-top: 0.15rem;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-encre);
+  }
+
+  .billete__extra {
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  /* El corte: linea de puntos con una muesca arriba y otra abajo. */
+  .billete__corte {
+    position: relative;
+    width: 0;
+    margin-block: 0.9rem;
+    border-left: 2px dashed color-mix(in srgb, var(--color-encre) 16%, transparent);
+    transform-origin: center top;
+  }
+
+  .billete__corte::before,
+  .billete__corte::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: var(--color-blanc);
+    translate: -50% 0;
+  }
+
+  .billete__corte::before {
+    top: calc(-0.9rem - 0.5rem);
+  }
+
+  .billete__corte::after {
+    bottom: calc(-0.9rem - 0.5rem);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .billete__celda:hover .billete__icono {
+      transform: rotate(-10deg) scale(1.12);
+    }
+  }
+
+  /* En pantallas estrechas, las tres partes una debajo de otra y los cortes
+     en horizontal. */
+  @media (width < 36rem) {
+    .billete {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .billete__celda {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      column-gap: 0.9rem;
+      align-items: center;
+    }
+
+    .billete__icono {
+      grid-row: 1 / span 3;
+      margin-bottom: 0;
+    }
+
+    .billete__corte {
+      width: auto;
+      height: 0;
+      margin-block: 0;
+      margin-inline: 0.9rem;
+      border-left: none;
+      border-top: 2px dashed color-mix(in srgb, var(--color-encre) 16%, transparent);
+      transform-origin: left center;
+    }
+
+    .billete__corte::before,
+    .billete__corte::after {
+      top: -1px;
+      translate: 0 -50%;
+    }
+
+    .billete__corte::before {
+      left: calc(-0.9rem - 0.5rem);
+    }
+
+    .billete__corte::after {
+      left: auto;
+      right: calc(-0.9rem - 0.5rem);
+    }
+  }
+
+  .fila__practica-bloque {
+    margin-top: 1.75rem;
+  }
+
+  .fila__practica-titulo {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lie);
+  }
+
+  .fila__practica {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .pastilla {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.75rem;
+    border-radius: var(--radius-pill);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 14%, transparent);
+    font-size: var(--text-body-s);
+    color: var(--color-encre);
+    transition:
+      background-color 260ms var(--ease-smooth),
+      color 260ms var(--ease-smooth),
+      box-shadow 260ms var(--ease-smooth);
+  }
+
+  .pastilla::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    transition: background-color 260ms var(--ease-smooth);
+  }
+
+  .pastilla:hover::before {
+    background-color: var(--color-chair);
+  }
+
+  .pastilla:hover {
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    box-shadow: none;
+  }
+
+  .estado--fila {
+    margin-top: 1.5rem;
+    background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
+  }
+
+  .fila__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  /* --- 4. Cierre --- */
+
+  .cierre-t__titulo {
+    margin-top: 1rem;
+    max-width: 16ch;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: 700;
     line-height: 1.04;
     letter-spacing: -0.03em;
-    text-wrap: balance;
     color: var(--color-encre);
   }
 
-  .destacado {
-    font-family: var(--font-body);
-    font-style: italic;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--color-lie);
-  }
-
-  .talleres-entrada {
-    margin-top: 1.5rem;
+  .cierre-t__texto {
+    margin-top: 1.1rem;
     max-width: 42ch;
     font-size: var(--text-body);
-    color: var(--color-nuit);
-  }
-
-  /**
-   * Estrecha y centrada, como la del inicio. A todo el ancho del contenedor,
-   * dos fichas dejaban medio metro de blanco a la derecha.
-   */
-  .rejilla {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 46rem;
-    margin: 3.5rem auto 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  /* Entrada larga y con salida exponencial, la misma que las tarjetas del
-     inicio: recorrido corto y freno brusco se sienten toscos. */
-  .rejilla > li {
-    transition:
-      opacity 820ms var(--ease-fluid),
-      transform 820ms var(--ease-fluid) !important;
-  }
-
-  :global(.js) .rejilla > li[data-reveal] {
-    transform: translateY(34px) scale(0.985);
-  }
-
-  .rejilla > li[data-reveal].is-revealed {
-    transform: none;
-  }
-
-  /* --- La ficha --- */
-
-  .ficha {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    height: 100%;
-    overflow: hidden;
-    border-radius: 22px;
-    background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    transition:
-      transform 520ms var(--ease-fluid),
-      box-shadow 520ms var(--ease-fluid);
-  }
-
-  /* El degradado del estado activo se funde por opacidad, que es lo unico que
-     se puede animar de forma continua en un degradado. */
-  .ficha::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background-image: linear-gradient(
-      to bottom,
-      var(--color-encre) 0%,
-      var(--color-encre) 30%,
-      var(--color-nuit) 100%
-    );
-    opacity: 0;
-    transition: opacity 520ms var(--ease-fluid);
-  }
-
-  .ficha__foto {
-    display: block;
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-  }
-
-  .ficha__img {
-    display: block;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    transition: scale 720ms var(--ease-fluid);
-  }
-
-  .ficha__cuerpo {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-    padding: 1.35rem 1.4rem 1.4rem;
-  }
-
-  .ficha__nombre {
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--color-encre);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .ficha__meta {
-    font-size: 0.875rem;
-    line-height: 1.45;
-    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  /* El precio abajo del todo y a la misma altura en todas: es el dato que se
-     compara, y comparar exige que este siempre en el mismo sitio. */
-  .ficha__pie {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: auto;
-    padding-top: 1.25rem;
-  }
-
-  .ficha__precio {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 0.4rem;
-  }
-
-  .ficha__cifra {
-    font-size: 1.375rem;
-    font-weight: 600;
-    line-height: 1.1;
-    color: color-mix(in srgb, var(--color-encre) 84%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .ficha__unidad {
-    font-size: 0.875rem;
-    color: color-mix(in srgb, var(--color-encre) 58%, transparent);
-    transition: color 420ms var(--ease-fluid);
-  }
-
-  .ficha__flecha {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 2.25rem;
-    width: 2.25rem;
-    flex: none;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 18%, transparent);
-    border-radius: 50%;
-    color: var(--color-encre);
-    transition:
-      background-color 420ms var(--ease-fluid),
-      border-color 420ms var(--ease-fluid),
-      color 420ms var(--ease-fluid),
-      transform 420ms var(--ease-fluid);
-  }
-
-  /* --- Estado activo --- */
-
-  .ficha:hover,
-  .ficha:focus-visible {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-alta);
-  }
-
-  .ficha:hover::before,
-  .ficha:focus-visible::before {
-    opacity: 1;
-  }
-
-  .ficha:hover .ficha__img,
-  .ficha:focus-visible .ficha__img {
-    scale: 1.04;
-  }
-
-  .ficha:hover .ficha__nombre,
-  .ficha:focus-visible .ficha__nombre {
-    color: var(--color-blanc);
-  }
-
-  .ficha:hover .ficha__meta,
-  .ficha:hover .ficha__unidad,
-  .ficha:focus-visible .ficha__meta,
-  .ficha:focus-visible .ficha__unidad {
-    color: var(--color-ciel);
-  }
-
-  .ficha:hover .ficha__cifra,
-  .ficha:focus-visible .ficha__cifra {
-    color: color-mix(in srgb, var(--color-blanc) 88%, transparent);
-  }
-
-  .ficha:hover .ficha__flecha,
-  .ficha:focus-visible .ficha__flecha {
-    border-color: var(--color-blanc);
-    background-color: var(--color-blanc);
-    color: var(--color-encre);
-    transform: translateX(4px);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .rejilla > li,
-    .ficha,
-    .ficha::before,
-    .ficha__img,
-    .ficha__nombre,
-    .ficha__meta,
-    .ficha__cifra,
-    .ficha__unidad,
-    .ficha__flecha {
+    .estado__punto::after,
+    .sello__texto {
+      animation: none;
+    }
+
+    :global(.js) .fila__cortina {
+      display: none;
+    }
+
+    .enlace-flecha svg,
+    .billete__icono,
+    .pastilla,
+    .pastilla::before {
       transition: none;
-    }
-
-    .ficha:hover,
-    .ficha:focus-visible {
-      transform: none;
-    }
-
-    .ficha:hover .ficha__img,
-    .ficha:focus-visible .ficha__img {
-      scale: 1;
-    }
-
-    .ficha:hover .ficha__flecha,
-    .ficha:focus-visible .ficha__flecha {
-      transform: none;
     }
   }
 </style>

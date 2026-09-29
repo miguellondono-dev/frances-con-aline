@@ -15,6 +15,12 @@ import real from '@phosphor-icons/core/duotone/film-slate-duotone.svg?raw';
 import entender from '@phosphor-icons/core/duotone/lightbulb-duotone.svg?raw';
 import dinamico from '@phosphor-icons/core/duotone/lightning-duotone.svg?raw';
 import check from '@phosphor-icons/core/duotone/check-circle-duotone.svg?raw';
+import reloj from '@phosphor-icons/core/duotone/clock-countdown-duotone.svg?raw';
+import video from '@phosphor-icons/core/duotone/video-camera-duotone.svg?raw';
+import regalo from '@phosphor-icons/core/duotone/gift-duotone.svg?raw';
+import idiomas from '@phosphor-icons/core/duotone/translate-duotone.svg?raw';
+import calendario from '@phosphor-icons/core/duotone/calendar-dots-duotone.svg?raw';
+import entrada from '@phosphor-icons/core/duotone/ticket-duotone.svg?raw';
 
 const ICONOS = {
   conversacion,
@@ -24,6 +30,12 @@ const ICONOS = {
   entender,
   dinamico,
   check,
+  reloj,
+  video,
+  regalo,
+  idiomas,
+  calendario,
+  entrada,
 } as const;
 
 export type NombreIcono = keyof typeof ICONOS;

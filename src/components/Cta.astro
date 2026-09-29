@@ -1,4 +1,6 @@
 ---
+import logoWhatsapp from '@phosphor-icons/core/fill/whatsapp-logo-fill.svg?raw';
+
 /**
  * El boton del sitio. Dice lo que hace, nunca "Empezar".
  *
@@ -46,16 +48,41 @@ const variants = {
 };
 
 const classes = `${base} ${variants[variant]} ${className}`;
+
+/**
+ * Si el boton abre WhatsApp (casi todos desde septiembre de 2026, cuando se
+ * quitaron los formularios), lo dice antes del clic: lleva el icono delante,
+ * se abre aparte y el lector de pantalla lo anuncia. Asi nadie se sorprende
+ * de salir de la web.
+ */
+const esWhatsapp = typeof href === 'string' && href.startsWith('https://wa.me/');
+const icono = logoWhatsapp.replace(
+  '<svg ',
+  '<svg class="h-5 w-5 shrink-0" aria-hidden="true" focusable="false" ',
+);
+
+// El aviso para lector de pantalla sobra si el boton ya dice "WhatsApp".
+const contenido = await Astro.slots.render('default');
+const avisar = esWhatsapp && !/whatsapp/i.test(contenido);
 ---
 
 {
   href ? (
-    <a href={href} class={classes} id={id} {...rest}>
-      <slot />
+    <a
+      href={href}
+      class={classes}
+      id={id}
+      target={esWhatsapp ? '_blank' : undefined}
+      rel={esWhatsapp ? 'noopener' : undefined}
+      {...rest}
+    >
+      {esWhatsapp && <Fragment set:html={icono} />}
+      <Fragment set:html={contenido} />
+      {avisar && <span class="sr-only"> (por WhatsApp)</span>}
     </a>
   ) : (
     <button type={type} class={classes} id={id} {...rest}>
-      <slot />
+      <Fragment set:html={contenido} />
     </button>
   )
 }

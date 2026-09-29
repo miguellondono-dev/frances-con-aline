@@ -1,6 +1,6 @@
 ---
 import logo from '@phosphor-icons/core/fill/whatsapp-logo-fill.svg?raw';
-import { enlaceWhatsapp } from '../data/site';
+import { whatsappDePagina } from '../data/site';
 
 /**
  * BOTON FLOTANTE DE WHATSAPP.
@@ -8,20 +8,21 @@ import { enlaceWhatsapp } from '../data/site';
  * Pedido por Miguel en septiembre de 2026: una via directa para quien ya esta
  * decidido y no quiere rellenar un formulario. Lo que lo hace estrategico:
  *
- *  - Lleva el mensaje ya escrito segun la pagina ("me interesa el taller de
- *    teatro"). A quien escribe solo le queda pulsar enviar.
+ *  - Lleva el mensaje ya escrito de la accion principal de la pagina
+ *    ("reservar una plaza en el taller de teatro"). A quien escribe solo le
+ *    queda pulsar enviar.
  *  - No aparece en la portada: ahi manda el boton rojo. Sale al bajar, cuando
  *    la persona ya ha leido algo y le puede surgir la duda.
- *  - Se aparta cuando hay un formulario o el pie en pantalla, para no tapar
- *    el boton de enviar ni los enlaces del pie, y cuando la pagina ya tiene su
- *    propio boton de WhatsApp a la vista (data-wa-ocultar).
+ *  - Se aparta cuando el pie esta en pantalla, para no tapar sus enlaces, y
+ *    cuando la pagina ya tiene su propio bloque de WhatsApp a la vista
+ *    (data-wa-ocultar).
  *  - En movil es solo el icono. La primera vez que sale en la visita dice
  *    "¿Dudas? Escríbeme" unos segundos y se recoge.
  *
  * Va en tinta y no en verde WhatsApp: el icono ya se reconoce solo, y un
  * verde fuera de la paleta competiria con el rojo de los botones principales.
  */
-const href = enlaceWhatsapp(Astro.url.pathname);
+const href = whatsappDePagina(Astro.url.pathname);
 const icono = logo.replace('<svg ', '<svg class="wa__icono" aria-hidden="true" focusable="false" ');
 ---
 
@@ -81,7 +82,7 @@ const icono = logo.replace('<svg ', '<svg class="wa__icono" aria-hidden="true" f
       pintar();
     }).observe(marca);
 
-    const estorbos = document.querySelectorAll('footer, main form, [data-wa-ocultar]');
+    const estorbos = document.querySelectorAll('footer, [data-wa-ocultar]');
     const vigia = new IntersectionObserver((entradas) => {
       entradas.forEach((e) => (e.isIntersecting ? tapando.add(e.target) : tapando.delete(e.target)));
       pintar();

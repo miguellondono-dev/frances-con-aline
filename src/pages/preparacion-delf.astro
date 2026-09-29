@@ -4,7 +4,7 @@ import ServiceLanding from '../components/ServiceLanding.astro';
 import PuntosDelf from '../components/graficos/PuntosDelf.astro';
 import { FAQ_DELF } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
-import { BONOS, PENDIENTE, CTA } from '../data/site';
+import { BONOS, CTA, WA } from '../data/site';
 import { breadcrumb, service, course } from '../lib/schema';
 
 const migas = [
@@ -41,78 +41,53 @@ const schema = [
   schema={schema}
 >
   <ServiceLanding
-    label="DELF · 35 € la hora"
-    titulo="Llegar al examen sabiendo cómo funciona el examen"
-  acento="sabiendo"
-    intro="Preparo el DELF con simulacros en el formato y los tiempos oficiales. Quiero ser precisa en una cosa: preparo y hago simulacros, no soy examinadora acreditada y no evalúo oficialmente. Quien te pone la nota es el centro donde te presentes."
+    gsap
+    label="Preparación DELF · 35 € la hora"
+    titulo="Prepara el DELF sin sorpresas"
+    acento="sin sorpresas"
+    intro="Simulacros con el formato y los tiempos oficiales, y un plan centrado en la parte que más te cuesta."
+    garantias={['Simulacros reales', 'Las 4 partes del examen', 'Primera clase gratis']}
     apertura={{
       alt: 'Cómo se puntúa el DELF: cuatro partes de 25 puntos; se aprueba con 50 y al menos 5 en cada parte',
-      todo: 'Mesa de examen con reloj y hojas',
     }}
-    paraQuienSi={[
-      'Necesitas el DELF para una universidad, un trabajo o un trámite migratorio.',
-      'Ya tienes base en francés y quieres convertirla en un resultado concreto.',
-      'Tienes una fecha de examen y quieres organizar la preparación hacia ella.',
-      'Se te va el tiempo en las pruebas y no sabes exactamente dónde.',
-      'Quieres hacer el examen completo, cronometrado, antes de hacerlo de verdad.',
-    ]}
-    paraQuienNo={[
-      'Quieres aprender francés desde cero en un mes y presentarte a un B2. No es realista y te lo voy a decir en la primera clase.',
-      'Buscas quien te corrija pruebas oficiales o te dé la nota. Eso lo hace el centro examinador, no yo.',
-      'Necesitas que te inscriba al examen. La inscripción se hace en un centro autorizado.',
-      'No tienes claro para qué quieres el título. Si el objetivo es hablar, hay caminos mejores que preparar un examen.',
-    ]}
-    incluye={[
-      {
-        titulo: 'Las cuatro partes medidas por separado',
-        texto:
-          'Comprensión oral, comprensión escrita, producción escrita y producción oral. Casi nadie las tiene al mismo nivel, así que primero las medimos una por una y luego el plan se concentra en la que más va a costar.',
-      },
-      {
-        titulo: 'Simulacros completos y cronometrados',
-        texto:
-          'El examen entero, de una sentada, con el formato y los tiempos oficiales. Sin pausas y sin ayuda. Después lo revisamos parte por parte.',
-      },
-      {
-        titulo: 'Trabajo específico sobre el reloj',
-        texto:
-          'La mayoría de los puntos que se pierden no se pierden por no saber, se pierden por llegar tarde al final de la prueba. Eso se entrena.',
-      },
-      {
-        titulo: 'La producción oral, ensayada en voz alta',
-        texto:
-          'La parte que más se descuida porque es la más incómoda. La practicamos con el formato real de la prueba, con preparación cronometrada incluida.',
-      },
-      {
-        titulo: 'Calendario hacia tu fecha',
-        texto:
-          'Cuántas clases por semana y qué cubrimos cada semana hasta el día del examen. Si el calendario no da, lo digo antes de empezar y no después.',
-      },
-      {
-        // TODO [PENDIENTE] Niveles exactos que prepara Aline (PENDIENTE.nivelesDelf).
-        // Mientras no esten, no se publica un "Pendiente": se cuenta lo que ya
-        // es cierto, que el nivel se decide en la clase gratis.
-        titulo: PENDIENTE.nivelesDelf ? 'Niveles que preparo' : 'El nivel que te conviene',
-        texto: PENDIENTE.nivelesDelf
-          ? PENDIENTE.nivelesDelf
-          : 'En la clase gratis te digo a qué nivel del DELF te conviene presentarte, según dónde estás hoy y la fecha de tu examen.',
-      },
-    ]}
+    beneficios={{
+      titulo: 'Lo que vas a conseguir',
+      intro: 'Llegar al examen sabiendo exactamente qué te van a pedir.',
+      lista: [
+        {
+          icono: 'objetivo',
+          titulo: 'Conocer el examen por dentro',
+          texto: 'Simulacros completos, de una sentada, con el formato y los tiempos oficiales.',
+        },
+        {
+          icono: 'nivel',
+          titulo: 'Un plan para tu punto débil',
+          texto: 'Medimos las cuatro partes por separado y el plan se centra en la que más te cuesta.',
+        },
+        {
+          icono: 'reloj',
+          titulo: 'Dominar el reloj',
+          texto: 'La mayoría de los puntos se pierden por llegar tarde al final de la prueba. Eso se entrena.',
+        },
+        {
+          icono: 'conversacion',
+          titulo: 'Soltura en la prueba oral',
+          texto: 'La ensayamos en voz alta con el formato real y la preparación cronometrada incluida.',
+        },
+      ],
+    }}
     pasos={[
       {
         titulo: 'La clase gratis',
-        texto:
-          'Media hora para medir por dónde andas y para saber a qué nivel te conviene presentarte, que no siempre es el que traías pensado.',
+        texto: 'Media hora para medir por dónde andas y ver a qué nivel te conviene presentarte.',
       },
       {
         titulo: 'El calendario',
-        texto:
-          'Un plan semana a semana hacia tu fecha de examen, con los simulacros ya colocados. Si la fecha es demasiado justa, te lo digo aquí.',
+        texto: 'Un plan semana a semana hacia tu fecha de examen, con los simulacros ya colocados.',
       },
       {
         titulo: 'Preparación y simulacros',
-        texto:
-          'Clases de una hora más simulacros completos en los momentos clave. Revisión de cada simulacro parte por parte.',
+        texto: 'Clases de una hora y simulacros completos en los momentos clave, revisados parte por parte.',
       },
     ]}
     precio={{
@@ -134,6 +109,8 @@ const schema = [
     breadcrumb={migas}
     ctaHero={CTA.heroDelf}
     ctaCierre={CTA.cierreDelf}
+    waHero={WA.delf}
+    waCierre={WA.delf}
   >
     <PuntosDelf slot="apertura" />
   </ServiceLanding>

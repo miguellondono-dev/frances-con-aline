@@ -1,8 +1,8 @@
 ---
-import AvisoPrivacidad from './AvisoPrivacidad.astro';
+import ChatWhatsapp from './ChatWhatsapp.astro';
 import { Picture } from 'astro:assets';
 import Cta from './Cta.astro';
-import { CORREO_CONTACTO } from '../data/site';
+import { WA, whatsapp } from '../data/site';
 import { hechos, type Medio, type Taller } from '../data/talleres';
 
 /**
@@ -29,6 +29,9 @@ const migas = [
 ];
 
 const idForma = `plaza-${t.slug}`;
+
+/** El mensaje de WhatsApp de este taller: reservar una plaza en el. */
+const mensajePlaza = t.slug === 'teatro' ? WA.teatro : t.slug === 'acuarela' ? WA.acuarela : WA.talleres;
 
 /*
  * Todo el material es vertical 9:16, asi que cada medio va en una caja con su
@@ -79,7 +82,7 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
         </dl>
 
         <div class="cabecera__acciones" data-reveal>
-          <Cta href={`#${idForma}`} variant="grenat">Guardar mi plaza</Cta>
+          <Cta href={whatsapp(mensajePlaza)} variant="grenat">Inscribirme</Cta>
           <p class="cabecera__cierre">
             Las plazas se cierran el {t.cierre}
           </p>
@@ -200,17 +203,17 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
   </div>
 </section>
 
-<!-- Reserva. No se cobra aqui: se cierra por correo. -->
+<!-- Reserva. No se cobra aqui: se cierra por WhatsApp. -->
 <section class="reserva" id={idForma} aria-labelledby={`${idForma}-titulo`}>
   <div class="shell py-section">
     <div class="reserva__caja">
       <div>
         <h2 id={`${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
-          Guarda tu plaza
+          Inscríbete
         </h2>
         <p class="measure mt-5 text-body text-nuit" data-reveal>
-          Déjame tu nombre y tu correo. Te escribo con la dirección exacta y con
-          la forma de pago, y te confirmo la plaza. Aquí no se paga nada.
+          Escríbeme por WhatsApp y te confirmo la plaza, con la dirección exacta
+          y la forma de pago.
         </p>
 
         <p class="reserva__resumen" data-reveal>
@@ -221,77 +224,11 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
         </p>
       </div>
 
-      <form
-        class="reserva__forma"
-        method="post"
-        action="/api/enviar.php"
-        data-waitlist
-        data-reveal
-        novalidate
-      >
-        <input type="hidden" name="tipo" value={`taller-${t.slug}`} />
-        <input type="hidden" name="origen" value={`taller-${t.slug}`} />
-        <input type="hidden" name="interes" value={t.slug} />
-
-        {/* Campo trampa. Invisible para personas, visible para robots. */}
-        <div
-          class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
-          aria-hidden="true"
-        >
-          <label for={`${idForma}-empresa`}>No rellenes este campo</label>
-          <input
-            id={`${idForma}-empresa`}
-            name="empresa"
-            type="text"
-            tabindex="-1"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="campo">
-          <label class="campo__etiqueta" for={`${idForma}-nombre`}>Tu nombre</label>
-          <input
-            class="campo__caja"
-            id={`${idForma}-nombre`}
-            name="nombre"
-            type="text"
-            autocomplete="given-name"
-          />
-        </div>
-
-        <div class="campo">
-          <label class="campo__etiqueta" for={`${idForma}-correo`}>
-            Tu correo <span aria-hidden="true">*</span>
-          </label>
-          <input
-            class="campo__caja"
-            id={`${idForma}-correo`}
-            name="correo"
-            type="email"
-            required
-            aria-required="true"
-            autocomplete="email"
-            placeholder="nombre@correo.com"
-          />
-        </div>
-
-        <AvisoPrivacidad id={idForma} />
-
-        <button class="reserva__boton" type="submit">Guardar mi plaza</button>
-
-        <p class="campo__aviso" data-waitlist-message role="status" aria-live="polite"></p>
-
-        {/*
-          Salida visible, no solo dentro del mensaje de error. Si el envio
-          falla, quien queria venir tiene que poder escribir sin buscar nada.
-        */}
-        <p class="reserva__salida">
-          O escríbeme a <a
-            href={`mailto:${CORREO_CONTACTO}?subject=Quiero una plaza en el taller de ${t.slug}`}
-            >{CORREO_CONTACTO}</a
-          >.
-        </p>
-      </form>
+      <ChatWhatsapp
+        mensaje={mensajePlaza}
+        boton="Inscribirme"
+        asunto={`Quiero una plaza en el taller de ${t.slug}`}
+      />
     </div>
   </div>
 </section>
@@ -590,96 +527,4 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
     color: color-mix(in srgb, var(--color-encre) 66%, transparent);
   }
 
-  .reserva__forma {
-    display: grid;
-    gap: 1.15rem;
-  }
-
-  .campo {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .campo__etiqueta {
-    font-size: var(--text-label);
-    font-weight: var(--text-label--font-weight);
-    letter-spacing: var(--text-label--letter-spacing);
-    text-transform: uppercase;
-    color: var(--color-nuit);
-  }
-
-  .campo__caja {
-    min-height: 3.25rem;
-    border: 1px solid var(--color-pierre);
-    border-radius: var(--radius-panel);
-    background-color: var(--color-blanc);
-    padding: 0.75rem 1rem;
-    font-family: var(--font-body);
-    font-size: var(--text-body-s);
-    color: var(--color-encre);
-    transition: border-color 240ms var(--ease-smooth);
-  }
-
-  .campo__caja:focus {
-    border-color: var(--color-grenat);
-    outline: 2px solid color-mix(in srgb, var(--color-grenat) 40%, transparent);
-    outline-offset: 2px;
-  }
-
-  .campo__aviso {
-    margin: 0;
-    font-size: var(--text-body-s);
-    color: var(--color-nuit);
-  }
-
-  .campo__aviso:empty {
-    display: none;
-  }
-
-  .reserva__boton {
-    min-height: 3.25rem;
-    border-radius: var(--radius-pill);
-    background-color: var(--color-grenat);
-    padding: 0.9rem 1.75rem;
-    font-family: var(--font-display);
-    font-size: var(--text-body-s);
-    font-weight: 600;
-    color: var(--color-blanc);
-    transition:
-      background-color 240ms var(--ease-smooth),
-      transform 240ms var(--ease-smooth);
-  }
-
-  .reserva__boton:hover:not(:disabled) {
-    background-color: var(--color-lie);
-    transform: translateY(-2px);
-  }
-
-  .reserva__boton:disabled {
-    opacity: 0.6;
-  }
-
-  .reserva__salida {
-    margin: 0;
-    font-size: var(--text-body-s);
-    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
-  }
-
-  .reserva__salida a {
-    color: var(--color-lie);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .campo__caja,
-    .reserva__boton {
-      transition: none;
-    }
-
-    .reserva__boton:hover:not(:disabled) {
-      transform: none;
-    }
-  }
 </style>

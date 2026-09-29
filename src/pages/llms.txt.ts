@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { SITE_NAME, PRECIOS, PENDIENTE } from '../data/site';
+import { SITE_NAME, PRECIOS, PENDIENTE, WHATSAPP } from '../data/site';
 
 /**
  * /llms.txt
@@ -56,7 +56,7 @@ Las clases se apoyan en material cultural real: prensa, canciones, menús, formu
 
 ## Cómo agendar
 
-La sesión gratuita de 30 minutos se agenda en ${base}/agenda, eligiendo horario en el calendario. Es en línea, por videollamada, y se habla en español y en francés. El sitio no cobra: el pago de las clases se acuerda directamente con Aline, fuera de la web.
+La sesión gratuita de 30 minutos se agenda escribiendo a Aline por WhatsApp, al ${WHATSAPP.visible}. Es en línea, por videollamada, y se habla en español y en francés. El sitio no cobra: el pago de las clases se acuerda directamente con Aline, fuera de la web.
 
 ## Páginas clave
 
@@ -71,7 +71,7 @@ La sesión gratuita de 30 minutos se agenda en ${base}/agenda, eligiendo horario
 - [Taller de teatro](${base}/talleres/teatro): 4 sábados de octubre, 65 €.
 - [Taller de acuarela](${base}/talleres/acuarela): un domingo de octubre, 30 €.
 - [Tours en París](${base}/tours-en-paris): recorridos en español, lista de espera.
-- [Hablemos](${base}/sobre-mi#hablemos): el formulario de contacto.
+- [Hablemos](${base}/sobre-mi#hablemos): contacto por WhatsApp o por correo.
 
 ## Lo que este sitio no afirma
 

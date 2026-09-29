@@ -1,13 +1,13 @@
 ---
-import AvisoPrivacidad from '../components/AvisoPrivacidad.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato-2026.png';
 import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
 import Icon from '../components/Icon.astro';
+import ChatWhatsapp from '../components/ChatWhatsapp.astro';
 import { breadcrumb, alineId } from '../lib/schema';
-import { CTA } from '../data/site';
+import { CTA, WA, whatsapp } from '../data/site';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -57,19 +57,6 @@ const persona = {
 
 const schema = [persona, breadcrumb(migas, Astro.site)];
 
-/**
- * Lo que se puede pedir en Hablemos. El interes no es decoracion: es lo que
- * permite saber que oferta trae a cada persona, y por tanto donde merece la
- * pena invertir. Sin ese dato, cada mensaje es anonimo en cuanto a origen.
- */
-const INTERESES = [
-  'Clases privadas',
-  'Clases en grupo',
-  'Preparación del DELF',
-  'Talleres en París',
-  'Tours por París',
-  'Otra cosa',
-];
 
 
 /** Portugues lleva Brasil, que es de donde viene casi todo el que lo habla. */
@@ -258,7 +245,7 @@ const abanico = TEMAS.map((tema, i) => {
           {/* El texto del boton sale de lo que promete esta seccion. Antes
               decia "Conozcámonos en una clase", que es el cierre de la pagina
               y sale otra vez 400px mas abajo. */}
-          <Cta href="#hablemos" variant="grenat">Cuéntame qué necesitas</Cta>
+          <Cta href={whatsapp(WA.documentos)} variant="grenat">Cuéntame qué necesitas</Cta>
         </div>
       </div>
     </div>
@@ -285,68 +272,12 @@ const abanico = TEMAS.map((tema, i) => {
           </p>
 
           <div class="mt-8" data-reveal>
-            <Cta href="/agenda" variant="lie">{CTA.cierreQuienSoy}</Cta>
+            <Cta href={whatsapp(WA.agendar)} variant="lie">{CTA.cierreQuienSoy}</Cta>
           </div>
         </div>
 
-        <form
-          class="hablemos__forma"
-          method="post"
-          action="/api/enviar.php"
-          data-contacto
-          data-reveal
-          novalidate
-        >
-          <input type="hidden" name="tipo" value="contacto" />
-
-          {/* Campo trampa. Invisible para personas, visible para robots. */}
-          <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-            <label for="hablemos-empresa">No rellenes este campo</label>
-            <input id="hablemos-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
-          </div>
-
-          <div class="campo campo--mitad">
-            <label class="campo__etiqueta" for="hablemos-nombre">Nombre</label>
-            <input class="campo__caja" id="hablemos-nombre" name="nombre" type="text"
-              autocomplete="given-name" required />
-            <p class="campo__error" data-error-nombre role="alert"></p>
-          </div>
-
-          <div class="campo campo--mitad">
-            <label class="campo__etiqueta" for="hablemos-apellido">Apellido</label>
-            <input class="campo__caja" id="hablemos-apellido" name="apellido" type="text"
-              autocomplete="family-name" />
-          </div>
-
-          <div class="campo">
-            <label class="campo__etiqueta" for="hablemos-correo">Correo</label>
-            <input class="campo__caja" id="hablemos-correo" name="correo" type="email"
-              autocomplete="email" required />
-            <p class="campo__error" data-error-correo role="alert"></p>
-          </div>
-
-          <div class="campo">
-            <label class="campo__etiqueta" for="hablemos-interes">Qué te interesa</label>
-            <select class="campo__caja" id="hablemos-interes" name="interes" required>
-              <option value="">Elige una</option>
-              {INTERESES.map((i) => <option value={i}>{i}</option>)}
-            </select>
-          </div>
-
-          <div class="campo">
-            <label class="campo__etiqueta" for="hablemos-mensaje">Tu mensaje</label>
-            <textarea class="campo__caja campo__caja--alto" id="hablemos-mensaje"
-              name="mensaje" rows="4" required></textarea>
-            <p class="campo__error" data-error-mensaje role="alert"></p>
-          </div>
-
-          <AvisoPrivacidad id="hablemos" />
-
-          <div class="campo">
-            <button class="hablemos__boton" type="submit">Enviar</button>
-            <p class="campo__aviso" data-contacto-message role="status" aria-live="polite"></p>
-          </div>
-        </form>
+        {/* Antes habia un formulario: el contacto es por WhatsApp. */}
+        <ChatWhatsapp mensaje={WA.pregunta} boton="Escribirme por WhatsApp" asunto="Una pregunta antes de empezar" />
       </div>
     </div>
   </section>
@@ -955,10 +886,8 @@ const abanico = TEMAS.map((tema, i) => {
       gap: 4rem;
     }
 
-    /* El texto se queda a la vista mientras se rellena el formulario. */
-    .hablemos__texto {
-      position: sticky;
-      top: 7rem;
+    .hablemos__reparto {
+      align-items: center;
     }
   }
 
@@ -982,120 +911,10 @@ const abanico = TEMAS.map((tema, i) => {
     color: color-mix(in srgb, var(--color-encre) 72%, transparent);
   }
 
-  /* --- El formulario --- */
-
-  .hablemos__forma {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
-    border-radius: 26px;
-    background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    padding: 2rem 1.75rem;
-  }
-
-  .campo {
-    grid-column: 1 / -1;
-  }
-
-  /* Nombre y apellido comparten fila en cuanto hay sitio. */
-  @media (width >= 30rem) {
-    .campo--mitad {
-      grid-column: span 1;
-    }
-  }
-
-  .campo__etiqueta {
-    display: block;
-    margin-bottom: 0.45rem;
-    font-family: var(--font-display);
-    font-size: var(--text-body-s);
-    font-weight: 600;
-    color: var(--color-encre);
-  }
-
-  .campo__caja {
-    width: 100%;
-    min-height: 3rem;
-    border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--color-encre) 16%, transparent);
-    background-color: color-mix(in srgb, var(--color-papier) 26%, var(--color-blanc));
-    padding: 0.7rem 0.9rem;
-    font-family: var(--font-body);
-    font-size: var(--text-body-s);
-    color: var(--color-encre);
-    transition:
-      border-color var(--duration-fast) var(--ease-smooth),
-      background-color var(--duration-fast) var(--ease-smooth);
-  }
-
-  .campo__caja--alto {
-    min-height: 7rem;
-    resize: vertical;
-  }
-
-  .campo__caja:focus {
-    outline: 2px solid var(--color-grenat);
-    outline-offset: 2px;
-    border-color: transparent;
-    background-color: var(--color-blanc);
-  }
-
-  /* El error se dice con texto, nunca solo con color. */
-  .campo__error:not(:empty) {
-    margin-top: 0.4rem;
-    font-size: 0.8125rem;
-    color: var(--color-grenat);
-  }
-
-  .campo__aviso:not(:empty) {
-    margin-top: 0.9rem;
-    font-size: var(--text-body-s);
-    line-height: 1.45;
-    color: color-mix(in srgb, var(--color-encre) 78%, transparent);
-  }
-
-  .hablemos__boton {
-    display: inline-flex;
-    min-height: 3.25rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-pill);
-    background-color: var(--color-grenat);
-    padding-inline: 2rem;
-    font-family: var(--font-display);
-    font-size: 1.0625rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-blanc);
-    transition:
-      transform var(--duration-fast) var(--ease-smooth),
-      background-color var(--duration-fast) var(--ease-smooth),
-      box-shadow var(--duration-fast) var(--ease-smooth);
-  }
-
-  .hablemos__boton:hover {
-    transform: translateY(-2px);
-    background-color: var(--color-lie);
-    box-shadow: var(--shadow-lift);
-  }
-
-  .hablemos__boton:active {
-    transform: none;
-    box-shadow: none;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .idiomas[data-reveal].is-revealed .idiomas__uno,
-    .idiomas__uno,
-    .campo__caja,
-    .hablemos__boton {
+    .idiomas__uno {
       transition: none;
-    }
-
-    .hablemos__boton:hover {
-      transform: none;
     }
   }
 </style>

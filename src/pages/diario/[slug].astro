@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Cta from '../../components/Cta.astro';
+import { CTA_AGENDA } from '../../data/site';
 import { breadcrumb, alineId } from '../../lib/schema';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -127,7 +128,7 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
           Media hora en línea para escucharte y ver por dónde empezar.
         </p>
         <div class="mt-10">
-          <Cta href="/agenda">Agenda tu clase gratis</Cta>
+          <Cta href={CTA_AGENDA.href}>Agenda tu clase gratis</Cta>
         </div>
       </div>
     </section>

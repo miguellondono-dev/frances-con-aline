@@ -1,7 +1,7 @@
 /**
  * ANIMACION CON GSAP DE LAS PAGINAS DE CLASES.
  *
- * Solo /clases-privadas y /clases-en-grupo: la plantilla ServiceLanding pone
+ * En /clases-privadas, /clases-en-grupo y /preparacion-delf: la plantilla ServiceLanding pone
  * data-gsap-pagina cuando la pagina le pasa `gsap`. En el resto del sitio este
  * guion sale en la primera linea y GSAP no se descarga: va en import()
  * dinamico, en su propio trozo.
@@ -10,13 +10,12 @@
  *  - Portada: la foto entra girando hasta su sitio, el titular sube linea a
  *    linea desde detras de una mascara, y luego la entrada, el boton y las
  *    garantias, con los checks que saltan. Al bajar, la foto se desplaza un
- *    poco dentro de su tarjeta.
+ *    poco dentro de su tarjeta. En privadas, el collage: las piezas se abren
+ *    desde el centro, flotan, siguen al raton, y un bucle cuenta una clase
+ *    (Aline escribe, se tacha un error, entra la correccion).
  *  - Titulares de seccion: linea a linea con mascara al entrar en pantalla.
- *  - Lo que vas a conseguir (privadas): las tarjetas entran desde su
- *    columna, los iconos saltan, se rellenan y flotan mientras se ven.
- *  - Para quien (grupo): la tarjeta principal entra desde la derecha y la
- *    discreta desde la izquierda; los puntos caen en cascada.
- *  - Que incluye: las piezas entran por tandas desde su lado del zigzag.
+ *  - Lo que vas a conseguir: los logros entran en cascada y el panel llega
+ *    girado y se asienta; en movil, las tarjetas suben y los iconos saltan.
  *  - Como empezamos: el carril de la linea de tiempo, con scrub suave. En estas
  *    paginas lo lleva GSAP en vez de Motion, asi no se cargan dos librerias.
  *  - Precio: la cifra cuenta hasta el precio y las filas de bonos entran una
@@ -146,6 +145,124 @@ async function iniciar() {
     }
   }
 
+  /* --- El collage de la portada (solo privadas) ---------------------------- */
+
+  /**
+   * Las piezas salen juntas del centro y se abren hasta su sitio (from() lee
+   * el giro de cada una en el CSS y termina ahi). Luego flotan, cada una a su
+   * ritmo, y en escritorio siguen al raton con distinta profundidad. Al bajar,
+   * el collage sube un poco.
+   *
+   * Y un bucle que cuenta una clase: Aline escribe, aparece "On y va ?", se
+   * tacha el error y entra la correccion. Solo corre mientras se ve.
+   */
+  function coleccion(escritorio: boolean) {
+    const collage = uno('[data-g-collage]');
+    if (!collage) return;
+
+    const piezas = todos('[data-g-pieza]', collage);
+    const fondos = todos('[data-g-fondo]', collage);
+    const escribe = uno('[data-g-escribe]', collage);
+    const frase = uno('[data-g-frase]', collage);
+    const raya = uno('[data-g-raya]', collage);
+    const bien = uno('[data-g-bien]', collage);
+    const check = bien ? uno('svg', bien) : null;
+
+    const entrada = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    if (fondos.length) {
+      entrada.from(fondos, { scale: 0.4, autoAlpha: 0, duration: 1.1, ease: 'back.out(1.4)', stagger: 0.12 }, 0);
+    }
+    entrada.from(
+      piezas,
+      {
+        autoAlpha: 0,
+        y: 120,
+        x: (i: number) => [0, -70, 70, -50][i] ?? 0,
+        rotation: 0,
+        scale: 0.8,
+        duration: 1.15,
+        ease: 'back.out(1.3)',
+        stagger: 0.13,
+      },
+      0.15,
+    );
+    entrada.add(() => {
+      piezas.forEach((pieza, i) => {
+        gsap.to(pieza, {
+          y: '-=11',
+          duration: 2.8 + i * 0.6,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true,
+        });
+      });
+    });
+
+    // El bucle de la clase. Arranca con Aline escribiendo: el estado inicial
+    // se pone ya, para que durante la entrada no asome la frase terminada.
+    if (escribe && frase && raya && bien) {
+      const inicio = () => {
+        gsap.set(escribe, { autoAlpha: 1 });
+        gsap.set(frase, { autoAlpha: 0, y: 8 });
+        gsap.set(raya, { scaleX: 0, autoAlpha: 1 });
+        gsap.set(bien, { autoAlpha: 0, x: -10 });
+      };
+      inicio();
+      const clase = gsap.timeline({
+        repeat: -1,
+        delay: 0.5,
+        onRepeat: inicio,
+        scrollTrigger: {
+          trigger: collage,
+          start: 'top bottom',
+          end: 'bottom top',
+          toggleActions: 'play pause resume pause',
+        },
+      });
+      clase
+        .to(escribe, { autoAlpha: 0, duration: 0.2 }, 1.3)
+        .to(frase, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(2)' })
+        .to(raya, { scaleX: 1, duration: 0.55, ease: 'power2.inOut' }, '+=0.5')
+        .to(bien, { autoAlpha: 1, x: 0, duration: 0.5 }, '+=0.1');
+      if (check) {
+        clase.from(check, { scale: 0, rotation: -60, transformOrigin: '50% 50%', duration: 0.5, ease: 'back.out(2.6)' }, '<0.1');
+      }
+      clase.to([frase, bien, raya], { autoAlpha: 0, duration: 0.4 }, '+=4.2');
+    }
+
+    if (escritorio && window.matchMedia('(pointer: fine)').matches) {
+      const raiz = collage.closest<HTMLElement>('[data-g-portada]') ?? collage;
+      const capas = todos('.colage__capa', collage).map((capa) => ({
+        prof: Number(capa.dataset.profundidad ?? 1),
+        x: gsap.quickTo(capa, 'x', { duration: 0.8, ease: 'power3.out' }),
+        y: gsap.quickTo(capa, 'y', { duration: 0.8, ease: 'power3.out' }),
+      }));
+      const mover = (evento: PointerEvent) => {
+        const caja = collage.getBoundingClientRect();
+        const dx = (evento.clientX - caja.left) / caja.width - 0.5;
+        const dy = (evento.clientY - caja.top) / caja.height - 0.5;
+        capas.forEach((c) => {
+          c.x(dx * 34 * c.prof);
+          c.y(dy * 26 * c.prof);
+        });
+      };
+      const soltar = () => capas.forEach((c) => (c.x(0), c.y(0)));
+      raiz.addEventListener('pointermove', mover);
+      raiz.addEventListener('pointerleave', soltar);
+    }
+
+    gsap.to(collage, {
+      y: -60,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: collage.closest('[data-g-portada]') ?? collage,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      },
+    });
+  }
+
   /* --- Titulares de seccion ---------------------------------------------- */
 
   function titulares() {
@@ -169,157 +286,56 @@ async function iniciar() {
       });
   }
 
-  /* --- Para quien --------------------------------------------------------- */
-
-  function publico(escritorio: boolean) {
-    const si = uno('[data-g="derecha"]');
-    const no = uno('[data-g="izquierda"]');
-
-    if (si) {
-      const disparo = { trigger: si, start: 'top 82%', toggleActions: CICLO };
-      gsap.from(si, {
-        autoAlpha: 0,
-        x: escritorio ? 70 : 0,
-        y: escritorio ? 0 : 40,
-        duration: 1.1,
-        ease: 'power3.out',
-        scrollTrigger: disparo,
-      });
-      gsap.from(todos('li', si), {
-        autoAlpha: 0,
-        y: 16,
-        stagger: 0.08,
-        duration: 0.6,
-        ease: 'power2.out',
-        delay: 0.25,
-        scrollTrigger: disparo,
-      });
-      gsap.from(todos('.publico__marca', si), {
-        scale: 0,
-        rotation: -60,
-        transformOrigin: '50% 50%',
-        ease: 'back.out(2.4)',
-        stagger: 0.08,
-        duration: 0.5,
-        delay: 0.4,
-        scrollTrigger: disparo,
-      });
-    }
-
-    if (no) {
-      gsap.from(no, {
-        autoAlpha: 0,
-        x: escritorio ? -50 : 0,
-        y: escritorio ? 0 : 30,
-        duration: 1,
-        ease: 'power3.out',
-        delay: 0.15,
-        scrollTrigger: { trigger: no, start: 'top 88%', toggleActions: CICLO },
-      });
-    }
-  }
-
-  /* --- Lo que vas a conseguir -------------------------------------------- */
+  /* --- Lo que vas a conseguir ------------------------------------------ */
 
   /**
-   * Las tarjetas entran por tandas, cada una desde su columna; el icono salta
-   * y despues se rellena su segundo tono. Mientras la seccion esta en
-   * pantalla, los iconos flotan muy suave; fuera se pausa.
+   * Los logros entran en cascada desde la izquierda y el panel llega desde
+   * la derecha, algo girado, y se asienta. En movil, las tarjetas suben y sus
+   * iconos saltan. Que logro esta activo no lo lleva GSAP: va en el guion
+   * de la plantilla, para que funcione aunque GSAP no cargue.
    */
-  function beneficios(escritorio: boolean) {
-    const celdas = todos('[data-g-beneficio]');
-    if (!celdas.length) return;
-    const rejilla = celdas[0].parentElement ?? celdas[0];
+  function logros(escritorio: boolean) {
+    const items = todos('[data-g-logro]');
+    if (!items.length) return;
+    const lista = items[0].parentElement ?? items[0];
+    const disparo = { trigger: lista, start: 'top 82%', toggleActions: CICLO };
 
-    const lado = (el: HTMLElement) =>
-      escritorio ? (el.dataset.gBeneficio === 'izq' ? -36 : 36) : 0;
-
-    gsap.set(celdas, { autoAlpha: 0, y: 36, x: (_i: number, el: HTMLElement) => lado(el) });
-
-    ScrollTrigger.batch(celdas, {
-      start: 'top 88%',
-      onEnter: (lote) => {
-        const tanda = lote as HTMLElement[];
-        gsap.to(tanda, {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration: 0.85,
-          ease: 'power3.out',
-          stagger: 0.1,
-          overwrite: true,
-        });
-        gsap.fromTo(
-          tanda.flatMap((c) => todos('.beneficio__icono svg', c)),
-          { scale: 0.4, rotation: -20, transformOrigin: '50% 50%' },
-          { scale: 1, rotation: 0, ease: 'back.out(2.2)', duration: 0.6, stagger: 0.1, delay: 0.2 },
-        );
-        gsap.fromTo(
-          tanda.flatMap((c) => todos('.beneficio__icono svg [opacity]', c)),
-          { opacity: 0 },
-          { opacity: 0.2, duration: 0.8, ease: 'power2.out', stagger: 0.1, delay: 0.45 },
-        );
-      },
-      onLeaveBack: (lote) =>
-        gsap.to(lote, {
-          autoAlpha: 0,
-          y: 36,
-          x: (_i: number, el: HTMLElement) => lado(el),
-          duration: 0.4,
-          overwrite: true,
-        }),
+    gsap.from(items, {
+      autoAlpha: 0,
+      x: escritorio ? -40 : 0,
+      y: escritorio ? 0 : 30,
+      duration: 0.8,
+      ease: 'power3.out',
+      stagger: 0.1,
+      scrollTrigger: disparo,
     });
 
-    const flotar = gsap.to(todos('.beneficio__icono svg', rejilla), {
-      y: -3,
-      duration: 2.6,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-      stagger: { each: 0.4, from: 'random' },
-      paused: true,
-    });
-    ScrollTrigger.create({
-      trigger: rejilla,
-      start: 'top bottom',
-      end: 'bottom top',
-      onToggle: (estado) => (estado.isActive ? flotar.play() : flotar.pause()),
-    });
-  }
+    if (!escritorio) {
+      gsap.from(todos('.logro__icono svg', lista), {
+        scale: 0.3,
+        rotation: -20,
+        transformOrigin: '50% 50%',
+        ease: 'back.out(2.2)',
+        duration: 0.6,
+        stagger: 0.1,
+        delay: 0.2,
+        scrollTrigger: disparo,
+      });
+      return;
+    }
 
-  /* --- Que incluye -------------------------------------------------------- */
-
-  function incluye(escritorio: boolean) {
-    const piezas = todos('[data-g-pieza]');
-    if (!piezas.length) return;
-
-    // Cada pieza viene de su lado del zigzag; en movil, todas desde abajo.
-    const lado = (el: HTMLElement) =>
-      escritorio ? (el.dataset.gPieza === 'izq' ? -40 : 40) : 0;
-
-    gsap.set(piezas, { autoAlpha: 0, y: 40, x: (_i: number, el: HTMLElement) => lado(el) });
-
-    ScrollTrigger.batch(piezas, {
-      start: 'top 88%',
-      onEnter: (lote) =>
-        gsap.to(lote, {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          stagger: 0.12,
-          overwrite: true,
-        }),
-      onLeaveBack: (lote) =>
-        gsap.to(lote, {
-          autoAlpha: 0,
-          y: 40,
-          x: (_i: number, el: HTMLElement) => lado(el),
-          duration: 0.4,
-          overwrite: true,
-        }),
-    });
+    const escena = uno('[data-g-escena]');
+    if (escena) {
+      gsap.from(escena, {
+        autoAlpha: 0,
+        y: 50,
+        rotation: 3,
+        scale: 0.92,
+        duration: 1.1,
+        ease: 'power4.out',
+        scrollTrigger: { trigger: escena, start: 'top 85%', toggleActions: CICLO },
+      });
+    }
   }
 
   /* --- Como empezamos: el carril ------------------------------------------ */
@@ -486,10 +502,9 @@ async function iniciar() {
       // un error aqui no puede dejar la pagina en blanco.
       try {
         portada();
+        coleccion(escritorio);
         titulares();
-        publico(escritorio);
-        beneficios(escritorio);
-        incluye(escritorio);
+        logros(escritorio);
         limpiarMetodo = metodo(escritorio);
         limpiarPrecio = precio(escritorio);
         entradas();

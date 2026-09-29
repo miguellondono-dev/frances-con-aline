@@ -11,47 +11,65 @@ export const SITE_DESCRIPTION =
   'Clases de francés en línea para hispanohablantes, con Aline, profesora francesa. Primera sesión gratuita de 30 minutos.';
 
 /**
- * Correo publico. Es la salida cuando un formulario no puede enviar, asi que
- * tiene que estar visible en el sitio y no solo en el mensaje de error.
+ * Correo publico. La segunda via de contacto, detras de WhatsApp, para quien
+ * no lo usa.
  */
 export const CORREO_CONTACTO = 'contacto@francesconaline.com';
 
 /**
- * WhatsApp directo (Miguel, septiembre de 2026). Es la via mas rapida para
- * quien ya esta decidido: un toque y escribe. El numero va sin "+" ni
- * espacios porque asi lo pide wa.me.
+ * WhatsApp directo. Desde septiembre de 2026 es LA via de contacto del sitio:
+ * Miguel quito los formularios y todos los botones llevan aqui. El numero va
+ * sin "+" ni espacios porque asi lo pide wa.me.
  */
 export const WHATSAPP = {
-  numero: '33757194967',
-  visible: '+33 7 57 19 49 67',
+  numero: '33759174967',
+  visible: '+33 7 59 17 49 67',
 };
 
 /**
- * Mensaje ya escrito segun la pagina desde la que se abre WhatsApp. Asi quien
- * contesta sabe de que viene la persona sin preguntarlo, y a quien escribe le
- * cuesta menos empezar: solo tiene que pulsar enviar.
+ * Mensaje ya escrito que lleva cada boton. El de por defecto es agendar la
+ * primera sesion; un boton que dice otra cosa ("Hablemos", "Guardar mi
+ * plaza") lleva el mensaje que corresponde a lo que dice. A quien escribe
+ * solo le queda pulsar enviar, y quien contesta sabe de que viene.
  */
-const MENSAJES_WHATSAPP: Record<string, string> = {
-  '/': 'Hola, vengo de la web de Francés con Aline y me gustaría empezar con el francés.',
-  '/clases-privadas': 'Hola, vengo de la web de Francés con Aline y me interesan las clases privadas.',
-  '/clases-en-grupo': 'Hola, vengo de la web de Francés con Aline y me interesan las clases en grupo.',
-  '/preparacion-delf': 'Hola, vengo de la web de Francés con Aline y quiero preparar el DELF.',
-  '/talleres': 'Hola, vengo de la web de Francés con Aline y me interesan los talleres en París.',
-  '/talleres/teatro': 'Hola, vengo de la web de Francés con Aline y me interesa el taller de teatro.',
-  '/talleres/acuarela': 'Hola, vengo de la web de Francés con Aline y me interesa el taller de acuarela.',
-  '/tours-en-paris': 'Hola, vengo de la web de Francés con Aline y me interesan los tours por París.',
-  '/test-de-nivel': 'Hola, vengo de la web de Francés con Aline y tengo una pregunta sobre el test de nivel.',
-  '/agenda': 'Hola, vengo de la web de Francés con Aline y quiero agendar mi primera clase gratis.',
+export const WA = {
+  agendar: 'Hola, me gustaría agendar la primera sesión.',
+  privadas: 'Hola, me gustaría agendar la primera sesión de clases privadas.',
+  grupo: 'Hola, me gustaría probar una clase en grupo.',
+  delf: 'Hola, me gustaría preparar el DELF y agendar la primera sesión.',
+  pregunta: 'Hola, tengo una pregunta antes de empezar.',
+  documentos: 'Hola, me gustaría ayuda con mis documentos (Campus France o CV en francés).',
+  talleres: 'Hola, me gustaría saber más sobre los talleres en París.',
+  reservarTaller: 'Hola, me gustaría reservar una plaza en un taller.',
+  dudasTalleres: 'Hola, tengo una pregunta sobre los talleres.',
+  teatro: 'Hola, me gustaría inscribirme en el taller de teatro.',
+  acuarela: 'Hola, me gustaría inscribirme en el taller de acuarela.',
+  tours: 'Hola, me gustaría que me avises cuando abras fechas para los tours por París.',
+} as const;
+
+/** Enlace a WhatsApp con el mensaje escrito. Sin mensaje, el de agendar. */
+export function whatsapp(mensaje: string = WA.agendar): string {
+  return `https://wa.me/${WHATSAPP.numero}?text=${encodeURIComponent(mensaje)}`;
+}
+
+/**
+ * El mensaje del boton flotante en cada pagina: el de la accion principal de
+ * esa pagina. Donde no hay una concreta, el de agendar.
+ */
+const WA_POR_PAGINA: Record<string, string> = {
+  '/clases-privadas': WA.privadas,
+  '/clases-en-grupo': WA.grupo,
+  '/preparacion-delf': WA.delf,
+  '/sobre-mi': WA.pregunta,
+  '/talleres': WA.talleres,
+  '/talleres/teatro': WA.teatro,
+  '/talleres/acuarela': WA.acuarela,
+  '/tours-en-paris': WA.tours,
 };
 
-/** Enlace a WhatsApp con el mensaje de la pagina, o uno general. */
-export function enlaceWhatsapp(ruta = '/', mensaje?: string): string {
+export function whatsappDePagina(ruta = '/'): string {
   const limpia = ruta.length > 1 ? ruta.replace(/\/$/, '') : ruta;
-  const texto =
-    mensaje ??
-    MENSAJES_WHATSAPP[limpia] ??
-    'Hola, vengo de la web de Francés con Aline y tengo una pregunta.';
-  return `https://wa.me/${WHATSAPP.numero}?text=${encodeURIComponent(texto)}`;
+  return whatsapp(WA_POR_PAGINA[limpia] ?? WA.agendar);
 }
 
 /**
@@ -124,7 +142,7 @@ export const NAV_FOOTER = {
   sobre: [
     { href: '/sobre-mi', label: 'Sobre mí' },
     { href: '/test-de-nivel', label: 'Test de nivel' },
-    { href: '/agenda', label: 'Agendar' },
+    { href: whatsapp(WA.agendar), label: 'Agendar' },
     { href: '/sobre-mi#hablemos', label: 'Hablemos' },
   ],
   legal: [
@@ -141,11 +159,11 @@ export const PRECIOS = {
 };
 
 /**
- * Bonos: propuesta por defecto del brief.
- * TODO [PENDIENTE] Miguel confirma o ajusta estos numeros antes de publicar.
+ * Bonos. Miguel los dio por definitivos el 29 de septiembre de 2026: ya no se
+ * enseña el aviso de "pendiente de confirmar".
  */
 export const BONOS = {
-  confirmado: false,
+  confirmado: true,
   privada: [
     { clases: 4, precio: 132, vence: '3 meses' },
     { clases: 8, precio: 256, vence: '6 meses' },
@@ -154,8 +172,13 @@ export const BONOS = {
   grupo: [{ clases: 8, precio: 144, vence: '6 meses', nota: 'por persona' }],
 };
 
+/**
+ * El boton de agendar de todo el sitio. Va directo a WhatsApp con el mensaje
+ * por defecto. Cuando exista el calendario de Cal.com, basta con volver a
+ * poner aqui '/agenda'.
+ */
 export const CTA_AGENDA = {
-  href: '/agenda',
+  href: whatsapp(WA.agendar),
   label: 'Agenda tu clase gratis',
   labelLargo: 'Agenda tu clase gratis de 30 minutos',
 };
