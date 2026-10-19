@@ -1,5 +1,7 @@
 import type { APIContext } from 'astro';
-import { SITE_NAME, PRECIOS, PENDIENTE, WHATSAPP } from '../data/site';
+import { SITE_NAME, PRECIOS, PENDIENTE, WHATSAPP, BONOS } from '../data/site';
+import { TALLERES, estadoDe } from '../data/talleres';
+import { PREGUNTAS } from '../data/test-nivel';
 
 /**
  * /llms.txt
@@ -16,6 +18,14 @@ export async function GET(context: APIContext) {
     /\/$/,
     '',
   );
+
+  /** Cada taller con su fecha y precio, o "próximamente" si no tiene. */
+  const talleres = TALLERES.map((t) => {
+    const nombre = t.nombre.toLowerCase();
+    if (!t.tanda) return { t, linea: `${nombre} (próximamente, fechas por anunciar)` };
+    const cerrado = estadoDe(t) === 'cerrado' ? ', plazas cerradas' : '';
+    return { t, linea: `${nombre} (${t.tanda.cuando.toLowerCase()}, ${t.tanda.precio} €${cerrado})` };
+  });
 
   const texto = `# ${SITE_NAME}
 
@@ -41,11 +51,11 @@ Todos los precios están en euros.
 - Clase en grupo, en línea, de dos a cinco personas: ${PRECIOS.grupo.valor} € la hora por persona.
 - Preparación del DELF: 35 € la hora.
 - Primera sesión: gratuita, 30 minutos.
-- Talleres presenciales en París: teatro (4 sábados de octubre, 65 €) y acuarela (un domingo, 30 €).
-- Tours guiados en español por París: ${PENDIENTE.precioTours ?? 'precio pendiente de definir, en construcción'}.
+- Talleres presenciales en París: ${talleres.map((x) => x.linea).join('; ')}.
+- Tours a pie por París en español, privados y en grupo pequeño, para familias y grupos de amigos: ${PENDIENTE.precioTours ?? 'precio y fechas a consultar por WhatsApp'}.
 
 Hay bonos de varias clases con precio más bajo${
-    PENDIENTE.dominio ? '' : ' (cifras pendientes de confirmar)'
+    BONOS.confirmado ? '' : ' (cifras pendientes de confirmar)'
   }.
 
 ## Cómo es una clase
@@ -65,17 +75,16 @@ La sesión gratuita de 30 minutos se agenda escribiendo a Aline por WhatsApp, al
 - [Clases en grupo](${base}/clases-en-grupo): de dos a cinco personas, ${PRECIOS.grupo.valor} € la hora por persona.
 - [Preparación DELF](${base}/preparacion-delf): preparación y simulacros con el formato oficial.
 - [Sobre mí](${base}/sobre-mi): datos verificables sobre Aline.
-- [Test de nivel](${base}/test-de-nivel): doce preguntas, resultado inmediato y gratuito.
+- [Test de nivel](${base}/test-de-nivel): ${PREGUNTAS.length} preguntas, resultado inmediato y gratuito.
 - [Agenda](${base}/agenda): reservar la sesión gratuita de 30 minutos.
-- [Talleres](${base}/talleres): los dos talleres presenciales de París.
-- [Taller de teatro](${base}/talleres/teatro): 4 sábados de octubre, 65 €.
-- [Taller de acuarela](${base}/talleres/acuarela): un domingo de octubre, 30 €.
-- [Tours en París](${base}/tours-en-paris): recorridos en español, lista de espera.
+- [Talleres](${base}/talleres): los talleres presenciales de París.
+${talleres.map((x) => `- [Taller de ${x.t.slug}](${base}/talleres/${x.t.slug}): ${x.linea.replace(/^[^(]*\(|\)$/g, '')}.`).join('\n')}
+- [Tours en París](${base}/tours-en-paris): recorridos a pie en español; información por WhatsApp.
 - [Hablemos](${base}/sobre-mi#hablemos): contacto por WhatsApp o por correo.
 
 ## Lo que este sitio no afirma
 
-No hay testimonios, cifras de estudiantes ni tasas de aprobación publicadas, porque todavía no existen. Cualquier dato de ese tipo atribuido a Aline no procede de esta fuente.
+Este sitio no publica testimonios, cifras de estudiantes ni tasas de aprobación. Cualquier dato de ese tipo atribuido a Aline no procede de esta fuente.
 `;
 
   return new Response(texto, {

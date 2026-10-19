@@ -32,7 +32,7 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
 >
   <section class="bg-blanc">
     <div class="shell pb-section-sm pt-6">
-      <h1 class="mt-5 max-w-[20ch] text-display-xl text-encre">
+      <h1 class="mt-5 max-w-[20ch] titulo-portada text-encre">
         Vídeos sobre el idioma y lo que lo rodea
       </h1>
       <p class="measure mt-7 text-body text-nuit">
@@ -47,17 +47,20 @@ const formatoFecha = new Intl.DateTimeFormat('es-ES', {
     <div class="shell py-section">
       {
         entradas.length === 0 ? (
-          /* Estado vacio: explica qué pasó y qué hacer, en la voz del sitio.
-             El enlace del menu principal sigue oculto hasta que haya tres. */
+          /* Sin entradas: en vez de anunciar que esta vacio (Miguel no quiere
+             que se vea nada "a medias"), se ofrece lo que si hay. La pagina
+             tampoco se indexa ni se enlaza desde el menu mientras este asi. */
           <div class="mx-auto max-w-2xl rounded-panel border border-encre/20 bg-blanc p-10 text-center">
-            <h2 class="text-display-m text-encre">Todavía no hay entradas</h2>
+            <h2 class="text-display-m text-encre">Mientras tanto, practica conmigo</h2>
             <p class="measure mx-auto mt-4 text-body text-nuit">
-              Estoy grabando las primeras. Mientras tanto, lo que iba a contar
-              aquí te lo cuento en la clase gratis, que además dura media hora y
-              es sobre ti.
+              Haz el test de nivel en diez minutos, o reserva tu primera clase:
+              es gratis, dura media hora y es sobre ti.
             </p>
-            <div class="mt-8 flex justify-center">
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Cta href={CTA_AGENDA.href}>Agenda tu clase gratis</Cta>
+              <a href="/test-de-nivel" class="font-display text-[1.0625rem] font-semibold text-encre underline underline-offset-4">
+                Hacer el test de nivel
+              </a>
             </div>
           </div>
         ) : (

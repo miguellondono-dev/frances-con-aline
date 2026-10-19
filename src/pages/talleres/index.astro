@@ -6,16 +6,24 @@ import Logo from '../../components/Logo.astro';
 import Vocabulario from '../../components/home/Thesis.astro';
 import ChatWhatsapp from '../../components/ChatWhatsapp.astro';
 import { breadcrumb } from '../../lib/schema';
-import { TALLERES } from '../../data/talleres';
+import {
+  enOrden,
+  estadoDe,
+  formato,
+  mensajeAviso,
+  mensajeInscripcion,
+  tallerAbierto,
+  type Taller,
+} from '../../data/talleres';
 import { WA, whatsapp } from '../../data/site';
 import { icono } from '../../data/iconos';
 
 import parisSena from '../../assets/paris-sena.jpg';
 import teatroGrupo from '../../assets/talleres/teatro-grupo.jpg';
-import teatroMesa from '../../assets/talleres/teatro-escena-mesa.jpg';
 import teatroEscena from '../../assets/talleres/teatro-escena-ancha.jpg';
 import acuarelaLamina from '../../assets/talleres/acuarela-lamina.jpg';
 import acuarelaMesa from '../../assets/talleres/acuarela-mesa.jpg';
+import acuarelaPaleta from '../../assets/talleres/acuarela-paleta.jpg';
 
 /**
  * TALLERES.
@@ -33,6 +41,12 @@ import acuarelaMesa from '../../assets/talleres/acuarela-mesa.jpg';
  *     y se mueve al bajar; al lado, los datos con icono, lo que se practica y
  *     los dos botones.
  *  4. Cierre con WhatsApp.
+ *
+ * Octubre de 2026: el de teatro no salio y queda "Próximamente"; el de
+ * acuarela pasa al 1 de noviembre y Miguel lo quiere muy visible. Por eso la
+ * portada lleva una entrada con el proximo taller (fecha, hora, precio y
+ * boton), los abiertos van primero y el collage es sobre todo de acuarela.
+ * Todo sale de data/talleres.ts: con otra fecha, se cambia alli y ya.
  *
  * Las animaciones las lleva GSAP (scripts/talleres-gsap.ts), que solo se
  * descarga en esta pagina. Sin JS o con movimiento reducido, todo se ve
@@ -61,40 +75,84 @@ const FOTOS: Record<string, { src: ImageMetadata; alt: string }> = {
   },
 };
 
-const MENSAJE: Record<string, string> = { teatro: WA.teatro, acuarela: WA.acuarela };
-
-/** Palabras del escenario y de la pintura, para la franja. */
+/** Palabras de la pintura y del escenario, para la franja. La pintura va
+    primero: es el taller con fecha. */
 const VOCABULARIO_TALLERES = [
-  { fr: 'la scène', es: 'el escenario' },
-  { fr: 'le trac', es: 'los nervios antes de salir' },
-  { fr: 'improviser', es: 'improvisar' },
-  { fr: 'le rideau', es: 'el telón' },
-  { fr: 'le costume', es: 'el vestuario' },
   { fr: "l'aquarelle", es: 'la acuarela' },
   { fr: 'le pinceau', es: 'el pincel' },
   { fr: 'mélanger', es: 'mezclar' },
   { fr: 'la teinte', es: 'el tono' },
   { fr: 'la lumière', es: 'la luz' },
+  { fr: 'la scène', es: 'el escenario' },
+  { fr: 'le trac', es: 'los nervios antes de salir' },
+  { fr: 'improviser', es: 'improvisar' },
+  { fr: 'le rideau', es: 'el telón' },
+  { fr: 'le costume', es: 'el vestuario' },
 ];
 
-/** Las tres partes del billete, siempre en este orden. */
-const billete = (t: (typeof TALLERES)[number]) => [
-  {
-    icono: 'calendario' as const,
-    clave: 'Cuándo',
-    valor: t.cuando,
-    extra: t.sesiones > 1 ? `Días ${t.dias}` : `Día ${t.dias}`,
-    cifra: false,
-  },
-  { icono: 'reloj' as const, clave: 'Hora', valor: t.hora, extra: t.ciudad, cifra: false },
-  {
-    icono: 'entrada' as const,
-    clave: 'Precio',
-    valor: `${t.precio} €`,
-    extra: t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión',
-    cifra: true,
-  },
-];
+const TALLERES_EN_ORDEN = enOrden();
+const abierto = tallerAbierto();
+
+/** El dia del proximo taller, partido para el talon de la entrada. */
+const fechaTalon = (iso: string) => {
+  const fecha = new Date(iso);
+  const parte = (opciones: Intl.DateTimeFormatOptions) =>
+    fecha.toLocaleDateString('es-ES', { timeZone: 'Europe/Paris', ...opciones }).replace('.', '');
+  return {
+    semana: parte({ weekday: 'short' }),
+    dia: parte({ day: 'numeric' }),
+    mes: parte({ month: 'short' }),
+    largo: parte({ day: 'numeric', month: 'long' }),
+  };
+};
+const talon = abierto?.tanda ? fechaTalon(abierto.tanda.iso.inicia) : null;
+
+/** El texto que gira en el sello: el proximo taller, o lo general. */
+const textoSello = abierto && talon
+  ? `${abierto.slug.toUpperCase()} · ${talon.largo.toUpperCase()} · PARÍS ·`
+  : 'PRESENCIAL · EN PARÍS · TALLERES ·';
+
+/** Si al compilar ya habia pasado el cierre, sale cerrado de entrada. */
+const cerradoYa = (t: Taller) => (estadoDe(t) === 'cerrado' ? '' : undefined);
+
+/**
+ * Las tres partes del billete, siempre en este orden. Sin tanda, en vez de
+ * fecha, hora y precio: que viene pronto, el formato y el sitio.
+ */
+const billete = (t: Taller) =>
+  t.tanda
+    ? [
+        {
+          icono: 'calendario' as const,
+          clave: 'Cuándo',
+          valor: t.tanda.cuando,
+          extra: `Plazas hasta el ${t.tanda.cierre}`,
+          cifra: false,
+        },
+        { icono: 'reloj' as const, clave: 'Hora', valor: t.tanda.hora, extra: t.ciudad, cifra: false },
+        {
+          icono: 'entrada' as const,
+          clave: 'Precio',
+          valor: `${t.tanda.precio} €`,
+          extra: t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión',
+          cifra: true,
+        },
+      ]
+    : [
+        {
+          icono: 'calendario' as const,
+          clave: 'Cuándo',
+          valor: 'Próximamente',
+          extra: 'Fechas por anunciar',
+          cifra: false,
+        },
+        { icono: 'reloj' as const, clave: 'Formato', valor: formato(t), extra: 'Presencial', cifra: false },
+        { icono: 'objetivo' as const, clave: 'Dónde', valor: t.ciudad, extra: 'Dirección al inscribirte', cifra: false },
+      ];
+
+const descripcion = abierto?.tanda
+  ? `Talleres presenciales en París para hablar francés haciendo algo. Próximo: ${abierto.slug}, ${abierto.tanda.cuando.toLowerCase()}, ${abierto.tanda.precio} €.`
+  : 'Talleres presenciales en París para hablar francés haciendo algo: pintar una lámina o subir a un escenario. Próximas fechas, muy pronto.';
 
 /** El titular con su palabra en italica. */
 const partes = (titular: string, acento: string) => {
@@ -107,7 +165,7 @@ const partes = (titular: string, acento: string) => {
 
 <BaseLayout
   title="Talleres"
-  description="Dos talleres presenciales en París para usar el francés fuera del cuaderno. Teatro, cuatro sábados de octubre, 65 €. Acuarela, un domingo, 30 €."
+  description={descripcion}
   path="/talleres"
   schema={schema}
 >
@@ -128,35 +186,87 @@ const partes = (titular: string, acento: string) => {
 
     <div class="shell portada-t__reparto" data-t-portada data-t-oculto>
       <div class="portada-t__texto">
-        <p class="label text-lie" data-t="entrada">Presencial, en París</p>
         <h1 id="talleres-titulo" class="portada-t__titulo" data-t-titulo data-g-titulo>
           Usar el <em class="destacado">francés</em> con las manos y con el cuerpo
         </h1>
         <p class="portada-t__entrada" data-t="entrada">
-          Dos talleres en octubre para hablar francés haciendo algo: subir a un
-          escenario o pintar una lámina.
+          Talleres presenciales en París para hablar francés haciendo algo:
+          pintar una lámina o subir a un escenario.
         </p>
 
-        <div class="portada-t__acciones" data-t="entrada">
-          <Cta href={whatsapp(WA.reservarTaller)}>Reservar</Cta>
-          <a class="enlace-flecha" href="#teatro">
-            Ver los talleres
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M8 2v12M3 9l5 5 5-5"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </a>
-        </div>
-
-        <p class="estado" data-t="entrada">
-          <span class="estado__punto" aria-hidden="true"></span>
-          Plazas abiertas para octubre
-        </p>
+        {
+          abierto?.tanda && talon ? (
+            /* El proximo taller, como una entrada: talon con la fecha y, al
+               lado, lo que hace falta para decidir y el boton. */
+            <div
+              class="entrada"
+              data-t="entrada"
+              data-t-entrada
+              data-taller-cierre={abierto.tanda.iso.cierre}
+              data-taller-cerrado={cerradoYa(abierto)}
+            >
+              <div class="entrada__talon" aria-hidden="true" data-t-talon>
+                <span class="entrada__semana">{talon.semana}</span>
+                <span class="entrada__dia numerals">{talon.dia}</span>
+                <span class="entrada__mes">{talon.mes}</span>
+              </div>
+              <span class="entrada__corte" aria-hidden="true" />
+              <div class="entrada__cuerpo">
+                <p class="entrada__rotulo">
+                  <span class="si-abierto">
+                    <span class="estado__punto" aria-hidden="true" />
+                    Próximo taller
+                  </span>
+                  <span class="si-cerrado">Plazas cerradas</span>
+                </p>
+                <p class="entrada__nombre">{abierto.nombre}</p>
+                <p class="entrada__datos">
+                  {abierto.tanda.cuando} · {abierto.tanda.hora}
+                  <span class="entrada__precio numerals">{abierto.tanda.precio} €</span>
+                </p>
+                <div class="entrada__acciones">
+                  <div class="si-abierto">
+                    <Cta href={whatsapp(mensajeInscripcion(abierto))}>Reservar</Cta>
+                  </div>
+                  <div class="si-cerrado">
+                    <Cta href={whatsapp(mensajeAviso(abierto))}>Avísame del próximo</Cta>
+                  </div>
+                  <a class="enlace-flecha" href={`/talleres/${abierto.slug}`}>
+                    Ver el taller
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2 8h12M9 3l5 5-5 5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+                <div class="si-abierto">
+                  <p class="entrada__cierre">Plazas hasta el {abierto.tanda.cierre}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div class="portada-t__acciones" data-t="entrada">
+              <Cta href={whatsapp(WA.talleres)}>Avísame del próximo</Cta>
+              <a class="enlace-flecha" href={`#${TALLERES_EN_ORDEN[0].slug}`}>
+                Ver los talleres
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M8 2v12M3 9l5 5 5-5"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </a>
+            </div>
+          )
+        }
       </div>
 
       {/* El collage repite fotos que salen abajo con su texto: aqui es
@@ -165,7 +275,7 @@ const partes = (titular: string, acento: string) => {
         <div class="collage__capa collage__capa--a" data-profundidad="0.5">
           <figure class="collage__foto collage__foto--a">
             <Picture
-              src={teatroGrupo}
+              src={acuarelaPaleta}
               alt=""
               formats={['avif', 'webp']}
               fallbackFormat="webp"
@@ -173,13 +283,12 @@ const partes = (titular: string, acento: string) => {
               sizes="(min-width: 64rem) 15rem, 40vw"
               loading="eager"
             />
-            <span class="collage__etiqueta">Teatro</span>
           </figure>
         </div>
         <div class="collage__capa collage__capa--c" data-profundidad="0.8">
-          <figure class="collage__foto collage__foto--c">
+          <figure class="collage__foto collage__foto--c collage__foto--pronto">
             <Picture
-              src={teatroMesa}
+              src={teatroGrupo}
               alt=""
               formats={['avif', 'webp']}
               fallbackFormat="webp"
@@ -187,6 +296,7 @@ const partes = (titular: string, acento: string) => {
               sizes="(min-width: 64rem) 13rem, 36vw"
               loading="eager"
             />
+            <span class="collage__etiqueta">Teatro · pronto</span>
           </figure>
         </div>
         <div class="collage__capa collage__capa--b" data-profundidad="1.1">
@@ -212,7 +322,7 @@ const partes = (titular: string, acento: string) => {
             </defs>
             <text>
               <textPath href="#sello-circulo" textLength="292">
-                PRESENCIAL · EN PARÍS · OCTUBRE ·
+                {textoSello}
               </textPath>
             </text>
           </svg>
@@ -229,15 +339,23 @@ const partes = (titular: string, acento: string) => {
   <section class="lista-t" aria-label="Los talleres">
     <div class="shell">
       {
-        TALLERES.map((t, i) => {
+        TALLERES_EN_ORDEN.map((t, i) => {
           const tit = partes(t.titular, t.acento);
           return (
-            <article class="fila" id={t.slug} data-t-fila aria-labelledby={`${t.slug}-titulo`}>
+            <article
+              class:list={['fila', { 'fila--proximo': !t.tanda }]}
+              id={t.slug}
+              data-t-fila
+              aria-labelledby={`${t.slug}-titulo`}
+              data-taller-cierre={t.tanda?.iso.cierre}
+              data-taller-cerrado={cerradoYa(t)}
+            >
               <div class="fila__media">
                 <span class="fila__numero" aria-hidden="true" data-t-numero>
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div class="fila__foto">
+                  {!t.tanda && <span class="fila__pronto">Próximamente</span>}
                   <Picture
                     src={FOTOS[t.slug].src}
                     alt={FOTOS[t.slug].alt}
@@ -293,13 +411,42 @@ const partes = (titular: string, acento: string) => {
                   </ul>
                 </div>
 
-                <p class="estado estado--fila" data-t-pieza>
-                  <span class="estado__punto" aria-hidden="true" />
-                  Plazas abiertas hasta el {t.cierre}
-                </p>
+                {
+                  t.tanda ? (
+                    <>
+                      <div class="si-abierto">
+                        <p class="estado estado--fila" data-t-pieza>
+                          <span class="estado__punto" aria-hidden="true" />
+                          Plazas abiertas hasta el {t.tanda.cierre}
+                        </p>
+                      </div>
+                      <div class="si-cerrado">
+                        <p class="estado estado--fila estado--cerrado" data-t-pieza>
+                          Plazas cerradas para esta fecha
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <p class="estado estado--fila estado--proximo" data-t-pieza>
+                      <span class="estado__punto" aria-hidden="true" />
+                      Próximamente: estoy preparando las fechas
+                    </p>
+                  )
+                }
 
                 <div class="fila__acciones" data-t-pieza>
-                  <Cta href={whatsapp(MENSAJE[t.slug] ?? WA.talleres)}>Inscribirme</Cta>
+                  {t.tanda ? (
+                    <>
+                      <div class="si-abierto">
+                        <Cta href={whatsapp(mensajeInscripcion(t))}>Inscribirme</Cta>
+                      </div>
+                      <div class="si-cerrado">
+                        <Cta href={whatsapp(mensajeAviso(t))}>Avísame del próximo</Cta>
+                      </div>
+                    </>
+                  ) : (
+                    <Cta href={whatsapp(mensajeAviso(t))}>Avísame</Cta>
+                  )}
                   <a class="enlace-flecha" href={`/talleres/${t.slug}`}>
                     Ver el taller
                     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -338,6 +485,7 @@ const partes = (titular: string, acento: string) => {
 </BaseLayout>
 
 <script>
+  import '../../scripts/talleres-estado';
   import '../../scripts/talleres-gsap';
 </script>
 
@@ -412,17 +560,18 @@ const partes = (titular: string, acento: string) => {
   /* Colchon de las mascaras de GSAP para que no corten tildes ni colas. */
   :global(.g-linea-mask),
   :global(.g-palabra-mask) {
+    padding-top: 0.12em;
+    margin-top: -0.12em;
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
   }
 
   .portada-t__titulo {
-    margin-top: 1.25rem;
     max-width: 14ch;
     font-family: var(--font-display);
     font-size: clamp(2.6rem, 1.6rem + 3.6vw, 4.5rem);
     font-weight: 650;
-    line-height: 1.02;
+    line-height: 0.96;
     letter-spacing: -0.035em;
     color: var(--color-encre);
   }
@@ -519,6 +668,143 @@ const partes = (titular: string, acento: string) => {
     }
   }
 
+  .estado--cerrado {
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  .estado--proximo .estado__punto,
+  .estado--proximo .estado__punto::after {
+    background-color: var(--color-azur);
+  }
+
+  /* --- La entrada del proximo taller ---
+     Un billete: el talon granate con el dia y, al otro lado de un corte de
+     puntos, el nombre, la hora, el precio y el boton. Es lo primero que se ve
+     de la pagina despues del titular. GSAP mueve la entrada entera: no lleva
+     transicion de CSS en transform. */
+  .entrada {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    max-width: 34rem;
+    margin-top: 2rem;
+    border-radius: 22px;
+    background-color: var(--color-blanc);
+    box-shadow:
+      var(--shadow-alta),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 6%, transparent);
+  }
+
+  .entrada__talon {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    min-width: 6.25rem;
+    padding: 1.25rem 0.9rem;
+    border-radius: 22px 0 0 22px;
+    background-image: linear-gradient(160deg, var(--color-grenat), var(--color-lie));
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+  }
+
+  .entrada__semana,
+  .entrada__mes {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  .entrada__semana {
+    opacity: 0.8;
+  }
+
+  .entrada__dia {
+    font-size: 3.4rem;
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .entrada__corte {
+    width: 0;
+    margin-block: 0.9rem;
+    border-left: 2px dashed color-mix(in srgb, var(--color-encre) 14%, transparent);
+  }
+
+  .entrada__cuerpo {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1.1rem 1.35rem 1.15rem;
+  }
+
+  .entrada__rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  .entrada__nombre {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+  }
+
+  .entrada__datos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 75%, transparent);
+  }
+
+  .entrada__precio {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-encre);
+  }
+
+  .entrada__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .entrada__cierre {
+    margin-top: 0.45rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+  }
+
+  @media (width < 36rem) {
+    .entrada__talon {
+      min-width: 4.75rem;
+      padding-inline: 0.6rem;
+    }
+
+    .entrada__dia {
+      font-size: 2.6rem;
+    }
+
+    .entrada__cuerpo {
+      padding: 1rem 1rem 1.05rem;
+    }
+  }
+
   /* --- El collage --- */
 
   .collage {
@@ -598,6 +884,19 @@ const partes = (titular: string, acento: string) => {
 
   .collage__etiqueta--roja {
     background-color: var(--color-grenat);
+  }
+
+  /* El de teatro esta en pausa: su foto va apagada, y la etiqueta arriba,
+     donde no la tapa la foto de delante. */
+  .collage__foto--pronto :global(img) {
+    filter: grayscale(0.6);
+  }
+
+  .collage__foto--pronto .collage__etiqueta {
+    top: 0.7rem;
+    right: 0.7rem;
+    bottom: auto;
+    left: auto;
   }
 
   /* El sello: el ojo de la marca con un texto que gira alrededor. */
@@ -732,6 +1031,30 @@ const partes = (titular: string, acento: string) => {
     object-fit: cover;
   }
 
+  /* Un taller sin fechas: la foto apagada y un sello encima. */
+  .fila--proximo .fila__foto :global(.fila__img) {
+    filter: grayscale(0.65) contrast(0.95);
+  }
+
+  /* Encima de la foto, que al moverse con GSAP pasa a pintarse por delante;
+     debajo de la cortina, que tiene que taparlo todo hasta abrirse. */
+  .fila__pronto {
+    position: absolute;
+    z-index: 2;
+    top: 1.1rem;
+    left: 1.1rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-alta);
+    transform: rotate(-4deg);
+  }
+
   /* La cortina que descubre la foto: la mueve GSAP. Sin JS no existe. */
   .fila__cortina {
     display: none;
@@ -740,6 +1063,7 @@ const partes = (titular: string, acento: string) => {
   :global(.js) .fila__cortina {
     display: block;
     position: absolute;
+    z-index: 3;
     inset: 0;
     background-color: var(--color-encre);
     transform-origin: right center;
@@ -755,7 +1079,7 @@ const partes = (titular: string, acento: string) => {
     font-family: var(--font-display);
     font-size: clamp(2rem, 1.4rem + 2.2vw, 3.1rem);
     font-weight: 650;
-    line-height: 1.05;
+    line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-encre);
   }
@@ -986,7 +1310,7 @@ const partes = (titular: string, acento: string) => {
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: 700;
-    line-height: 1.04;
+    line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-encre);
   }

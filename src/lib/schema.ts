@@ -150,24 +150,40 @@ export function taller({
   description: string;
   path: string;
   site?: URL;
+  /**
+   * Las fechas de la tanda. Sin ellas (taller "Próximamente") solo se
+   * declara el curso: una instancia sin fechas ni precio no le dice nada a
+   * un buscador.
+   */
   /** ISO 8601, con hora local de inicio de la primera sesion. */
-  inicia: string;
+  inicia?: string;
   /** ISO 8601, fin de la ultima sesion. */
-  termina: string;
+  termina?: string;
   /** Repeticion legible: "Sábados de 11:00 a 12:30". */
   horario: string;
   /** Dia de la semana en schema.org. Solo cuenta si hay varias sesiones. */
   dia: string;
   sesiones: number;
   minutosPorSesion: number;
-  precio: number;
+  precio?: number;
   moneda: string;
   ciudad: string;
   pais: string;
   /** ISO 8601. Hasta cuando se puede reservar plaza. */
-  cierreInscripcion: string;
+  cierreInscripcion?: string;
 }) {
   const url = `${base(site)}${path}`;
+  const curso = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name,
+    description,
+    url,
+    inLanguage: 'es',
+    teaches: 'Expresión oral en francés',
+    provider: { '@id': alineId(site) },
+  };
+  if (!inicia || !termina || precio === undefined || !cierreInscripcion) return curso;
   const totalMinutos = sesiones * minutosPorSesion;
 
   /**
@@ -190,14 +206,7 @@ export function taller({
       : {};
 
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Course',
-    name,
-    description,
-    url,
-    inLanguage: 'es',
-    teaches: 'Expresión oral en francés',
-    provider: { '@id': alineId(site) },
+    ...curso,
     hasCourseInstance: {
       '@type': 'CourseInstance',
       name,

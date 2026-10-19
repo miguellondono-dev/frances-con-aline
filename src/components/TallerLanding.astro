@@ -2,13 +2,26 @@
 import ChatWhatsapp from './ChatWhatsapp.astro';
 import { Picture } from 'astro:assets';
 import Cta from './Cta.astro';
-import { WA, whatsapp } from '../data/site';
-import { hechos, type Medio, type Taller } from '../data/talleres';
+import { whatsapp } from '../data/site';
+import {
+  estadoDe,
+  hechos,
+  mensajeAviso,
+  mensajeInscripcion,
+  type Medio,
+  type Taller,
+} from '../data/talleres';
 
 /**
  * La pagina de un taller. Teatro y acuarela son el mismo producto con otra
  * materia, asi que comparten plantilla: si el orden de la informacion cambia,
  * cambia en los dos a la vez y no se pueden desalinear.
+ *
+ * Tres estados:
+ *  - Con tanda y plazas abiertas: "Inscribirme" y hasta cuando se puede.
+ *  - Con tanda y plazas cerradas: "Avísame del próximo". Pasa solo al llegar
+ *    la fecha de cierre (scripts/talleres-estado.ts).
+ *  - Sin tanda: "Próximamente" y "Avísame".
  */
 
 interface Props {
@@ -30,8 +43,9 @@ const migas = [
 
 const idForma = `plaza-${t.slug}`;
 
-/** El mensaje de WhatsApp de este taller: reservar una plaza en el. */
-const mensajePlaza = t.slug === 'teatro' ? WA.teatro : t.slug === 'acuarela' ? WA.acuarela : WA.talleres;
+const tanda = t.tanda;
+/** Si al compilar ya habia pasado el cierre, sale cerrado de entrada. */
+const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
 
 /*
  * Todo el material es vertical 9:16, asi que cada medio va en una caja con su
@@ -47,7 +61,6 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
 
     <div class="cabecera__reparto">
       <div class="cabecera__texto">
-        <p class="label mt-8 text-lie" data-reveal>{t.donde}</p>
         <h1 class="cabecera__titulo" data-palabras data-repite>
           {
             t.acento && t.titular.includes(t.acento) ? (
@@ -81,11 +94,41 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
           }
         </dl>
 
-        <div class="cabecera__acciones" data-reveal>
-          <Cta href={whatsapp(mensajePlaza)} variant="grenat">Inscribirme</Cta>
-          <p class="cabecera__cierre">
-            Las plazas se cierran el {t.cierre}
-          </p>
+        <div
+          class="cabecera__acciones"
+          data-reveal
+          data-taller-cierre={tanda?.iso.cierre}
+          data-taller-cerrado={cerradoYa}
+        >
+          {
+            tanda ? (
+              <>
+                <div class="si-abierto">
+                  <Cta href={whatsapp(mensajeInscripcion(t))} variant="grenat">
+                    Inscribirme
+                  </Cta>
+                  <p class="aviso-estado">
+                    <span class="aviso-estado__punto" aria-hidden="true" />
+                    Plazas abiertas hasta el {tanda.cierre}
+                  </p>
+                </div>
+                <div class="si-cerrado">
+                  <Cta href={whatsapp(mensajeAviso(t))}>Avísame del próximo</Cta>
+                  <p class="aviso-estado aviso-estado--cerrado">Plazas cerradas para esta fecha</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <Cta href={whatsapp(mensajeAviso(t))} variant="grenat">
+                  Avísame
+                </Cta>
+                <p class="aviso-estado aviso-estado--proximo">
+                  <span class="aviso-estado__punto" aria-hidden="true" />
+                  Próximamente
+                </p>
+              </>
+            )
+          }
         </div>
       </div>
 
@@ -204,31 +247,69 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
 </section>
 
 <!-- Reserva. No se cobra aqui: se cierra por WhatsApp. -->
-<section class="reserva" id={idForma} aria-labelledby={`${idForma}-titulo`}>
+<section
+  class="reserva"
+  id={idForma}
+  aria-labelledby={`${idForma}-titulo`}
+  data-taller-cierre={tanda?.iso.cierre}
+  data-taller-cerrado={cerradoYa}
+>
   <div class="shell py-section">
-    <div class="reserva__caja">
-      <div>
-        <h2 id={`${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
-          Inscríbete
-        </h2>
-        <p class="measure mt-5 text-body text-nuit" data-reveal>
-          Escríbeme por WhatsApp y te confirmo la plaza, con la dirección exacta
-          y la forma de pago.
-        </p>
+    {
+      tanda && (
+        <div class="si-abierto">
+          <div class="reserva__caja">
+            <div>
+              <h2 id={`${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
+                Inscríbete
+              </h2>
+              <p class="measure mt-5 text-body text-nuit" data-reveal>
+                Escríbeme por WhatsApp y te confirmo la plaza, con la dirección
+                exacta y la forma de pago.
+              </p>
 
-        <p class="reserva__resumen" data-reveal>
-          <span class="reserva__precio numerals">{t.precio} €</span>
-          <span class="reserva__detalle">
-            {t.sesiones > 1 ? `las ${t.sesiones} sesiones, no cada una` : 'la sesión'}
-          </span>
-        </p>
+              <p class="reserva__resumen" data-reveal>
+                <span class="reserva__precio numerals">{tanda.precio} €</span>
+                <span class="reserva__detalle">
+                  {t.sesiones > 1 ? `las ${t.sesiones} sesiones, no cada una` : 'la sesión'}
+                </span>
+              </p>
+              <p class="reserva__fecha" data-reveal>
+                {tanda.cuando} · {tanda.hora}
+              </p>
+            </div>
+
+            <ChatWhatsapp
+              mensaje={mensajeInscripcion(t)}
+              boton="Inscribirme"
+              asunto={`Quiero una plaza en el taller de ${t.slug}`}
+            />
+          </div>
+        </div>
+      )
+    }
+
+    <div class={tanda ? 'si-cerrado' : undefined}>
+      <div class="reserva__caja">
+        <div>
+          <h2 id={tanda ? undefined : `${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
+            {tanda ? '¿Te aviso del próximo?' : '¿Te aviso de las fechas?'}
+          </h2>
+          <p class="measure mt-5 text-body text-nuit" data-reveal>
+            {
+              tanda
+                ? 'Las plazas de esta fecha ya están cerradas. Escríbeme y te cuento cuándo es el próximo.'
+                : 'Estoy preparando las próximas fechas. Escríbeme y te las cuento en cuanto estén.'
+            }
+          </p>
+        </div>
+
+        <ChatWhatsapp
+          mensaje={mensajeAviso(t)}
+          boton="Avísame"
+          asunto={`Avísame del próximo taller de ${t.slug}`}
+        />
       </div>
-
-      <ChatWhatsapp
-        mensaje={mensajePlaza}
-        boton="Inscribirme"
-        asunto={`Quiero una plaza en el taller de ${t.slug}`}
-      />
     </div>
   </div>
 </section>
@@ -278,14 +359,16 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
     }
   }
 
+  /* El mismo titular que el resto de paginas interiores (titulo-portada en
+     global.css). */
   .cabecera__titulo {
-    margin-top: 1.25rem;
+    margin-top: 2rem;
     max-width: 18ch;
     font-family: var(--font-display);
-    font-size: var(--text-display-xl);
-    font-weight: var(--text-display-xl--font-weight);
-    line-height: var(--text-display-xl--line-height);
-    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.5rem);
+    font-weight: 650;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
     text-wrap: balance;
     color: var(--color-encre);
   }
@@ -312,19 +395,79 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
     margin-top: 2.5rem;
   }
 
-  .cabecera__cierre {
+  /* El estado de las plazas: un punto que late cuando estan abiertas. */
+  .aviso-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     margin: 0;
+    padding: 0.45rem 0.9rem 0.45rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-blanc) 75%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 10%, transparent);
     font-size: var(--text-body-s);
-    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
+    font-weight: 500;
+    color: var(--color-encre);
+  }
+
+  .aviso-estado--cerrado {
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  .aviso-estado__punto {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+  }
+
+  .aviso-estado--proximo .aviso-estado__punto {
+    background-color: var(--color-azur);
+  }
+
+  .aviso-estado__punto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: inherit;
+    animation: aviso-late 1.8s ease-out infinite;
+  }
+
+  @keyframes aviso-late {
+    from {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  .reserva__fecha {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aviso-estado__punto::after {
+      animation: none;
+    }
   }
 
   /* --- Los tres hechos --- */
 
+  /* Tres o cuatro datos segun el taller: se reparten solos y, si no caben,
+     bajan de linea en vez de apretarse. */
   .hechos {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, auto));
-    justify-content: start;
-    gap: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
     margin: 2.5rem 0 0;
     border-top: 1px solid var(--color-pierre);
     padding-top: 1.5rem;
@@ -526,5 +669,8 @@ const fotos = medios.filter((m) => m.tipo === 'foto');
     font-size: var(--text-body-s);
     color: color-mix(in srgb, var(--color-encre) 66%, transparent);
   }
-
 </style>
+
+<script>
+  import '../scripts/talleres-estado';
+</script>

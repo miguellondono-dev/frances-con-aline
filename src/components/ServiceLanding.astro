@@ -6,6 +6,8 @@ import Faq from './Faq.astro';
 import ChatWhatsapp from './ChatWhatsapp.astro';
 import Metodo from './home/Method.astro';
 import Vocabulario from './home/Thesis.astro';
+import EscenaLogro from './graficos/EscenaLogro.astro';
+import type { TipoEscena } from './graficos/escenas';
 import { icono, type NombreIcono } from '../data/iconos';
 import { WA, whatsapp } from '../data/site';
 import type { Pregunta } from '../data/faq';
@@ -22,10 +24,11 @@ import type { Pregunta } from '../data/faq';
  *
  *  1. Portada partida: el texto a un lado y, al otro, la foto en tarjeta o la
  *     ilustracion propia de la pagina en una tarjeta redondeada.
- *  2. Lo que vas a conseguir: la lista numerada a la izquierda y, a la
- *     derecha, un panel fijo con el logro activo (icono grande, anillos que
- *     giran). El activo cambia al bajar o al pasar por encima. En movil,
- *     tarjetas.
+ *  2. Lo que vas a conseguir: un mosaico de tarjetas, una ancha y una
+ *     estrecha que se alternan por filas. Cada tarjeta lleva una escena
+ *     pequeña que enseña el logro (graficos/EscenaLogro.astro) y que solo se
+ *     mueve mientras se ve. Antes era una lista con un panel azul fijo que
+ *     repetia el texto; a Miguel le parecia fea y sin sentido.
  *  3. Como empezamos: la linea de tiempo del inicio.
  *  4. Precio y bonos, en la banda oscura con el parpadeo.
  *  5. Preguntas frecuentes.
@@ -52,11 +55,16 @@ interface Bono {
   nota?: string;
 }
 
-/** Un logro: icono, lo que se consigue y una frase que lo explica. */
+/**
+ * Un logro: lo que se consigue y una frase que lo explica. El icono decide
+ * la escena de la tarjeta; `escena` la cambia cuando el icono no basta (en el
+ * DELF, "objetivo" es la hoja del examen y no los objetivos de viaje).
+ */
 interface Beneficio {
   icono: NombreIcono;
   titulo: string;
   texto: string;
+  escena?: TipoEscena;
 }
 
 interface Props {
@@ -121,8 +129,26 @@ const siempre = (valor = '') => (gsap ? undefined : valor);
 const conGsap = (valor = '') => (gsap ? valor : undefined);
 
 const conCollage = Astro.slots.has('collage');
-const total = String(beneficios.lista.length).padStart(2, '0');
 const numero = (i: number) => String(i + 1).padStart(2, '0');
+
+const ESCENA_POR_ICONO: Partial<Record<NombreIcono, TipoEscena>> = {
+  conversacion: 'charla',
+  nivel: 'niveles',
+  objetivo: 'metas',
+  real: 'real',
+  entender: 'explica',
+  dinamico: 'dinamico',
+  reloj: 'reloj',
+};
+const escenaDe = (b: Beneficio): TipoEscena => b.escena ?? ESCENA_POR_ICONO[b.icono] ?? 'charla';
+
+/**
+ * El mosaico va por filas de dos: ancha y estrecha, luego estrecha y ancha.
+ * Si queda una sola al final, ocupa la fila entera.
+ */
+const totalLogros = beneficios.lista.length;
+const forma = (i: number) =>
+  totalLogros % 2 === 1 && i === totalLogros - 1 ? 'entera' : i % 4 === 0 || i % 4 === 3 ? 'ancha' : 'estrecha';
 ---
 
 <!-- 1. PORTADA -->
@@ -239,54 +265,31 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
       }
     </div>
 
-    <div class="logros" data-logros>
-      <ol class="logros__lista">
-        {
-          beneficios.lista.map((b, i) => (
-            <li
-              class="logro"
-              data-logro={i}
-              data-activo={i === 0 ? 'true' : undefined}
-              data-reveal={siempre()}
-              data-g-logro={conGsap()}
-            >
-              <span class="logro__num" aria-hidden="true">
-                {numero(i)}
-              </span>
-              <span class="logro__icono" set:html={icono(b.icono)} />
-              <span class="logro__cuerpo">
-                <span class="logro__titulo">{b.titulo}</span>
-                <span class="logro__texto">{b.texto}</span>
-              </span>
-            </li>
-          ))
-        }
-      </ol>
-
-      {/* El panel repite lo que dice la lista: es decorativo. */}
-      <div class="logros__escena" aria-hidden="true">
-        <div class="escena" data-g-escena={conGsap()}>
-          <span class="escena__anillo" />
-          <span class="escena__anillo escena__anillo--fuera" />
-          <div class="escena__caras">
-            {
-              beneficios.lista.map((b, i) => (
-                <div class="escena__cara" data-cara={i} data-activo={i === 0 ? 'true' : undefined}>
-                  <span class="escena__icono" set:html={icono(b.icono)} />
-                  <p class="escena__num">
-                    {numero(i)} <span>/ {total}</span>
-                  </p>
-                  <p class="escena__titulo">{b.titulo}</p>
-                </div>
-              ))
-            }
-          </div>
-          <div class="escena__puntos">
-            {beneficios.lista.map((_, i) => <span class="escena__punto" data-punto={i} data-activo={i === 0 ? 'true' : undefined} />)}
-          </div>
-        </div>
-      </div>
-    </div>
+    <ol class="mosaico">
+      {
+        beneficios.lista.map((b, i) => (
+          <li
+            class:list={['logro', `logro--${forma(i)}`]}
+            data-logro
+            data-reveal={siempre()}
+            data-g-logro={conGsap()}
+          >
+            <article class="logro__tarjeta">
+              <div class:list={['logro__escena', i % 2 === 0 ? 'logro__escena--fria' : 'logro__escena--calida']}>
+                <EscenaLogro tipo={escenaDe(b)} />
+              </div>
+              <div class="logro__cuerpo">
+                <span class="logro__num" aria-hidden="true">
+                  {numero(i)}
+                </span>
+                <h3 class="logro__titulo">{b.titulo}</h3>
+                <p class="logro__texto">{b.texto}</p>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
   </div>
 </section>
 
@@ -389,46 +392,23 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
   import '../scripts/clases-gsap';
 
   /**
-   * El logro activo. En escritorio cambia al bajar (el que cruza la franja
-   * central de la pantalla) y al pasar por encima o enfocar con el teclado.
-   * Sin JS se queda el primero, que ya viene marcado.
+   * Las escenas de los logros solo se mueven mientras su tarjeta se ve: el
+   * bucle se pone con [data-vivo] al entrar y se quita al salir, y entonces
+   * la escena vuelve a su reposo, completa y quieta. Con movimiento reducido
+   * no se pone nunca.
    */
-  const raiz = document.querySelector<HTMLElement>('[data-logros]');
-  if (raiz) {
-    const logros = Array.from(raiz.querySelectorAll<HTMLElement>('[data-logro]'));
-    const caras = Array.from(raiz.querySelectorAll<HTMLElement>('[data-cara]'));
-    const puntos = Array.from(raiz.querySelectorAll<HTMLElement>('[data-punto]'));
-    let activo = 0;
-
-    const activar = (i: number) => {
-      if (i === activo) return;
-      activo = i;
-      [logros, caras, puntos].forEach((grupo) =>
-        grupo.forEach((el, j) => {
-          if (j === i) el.dataset.activo = 'true';
-          else delete el.dataset.activo;
-        }),
-      );
-    };
-
-    const escritorio = window.matchMedia('(min-width: 64rem)');
+  const tarjetas = document.querySelectorAll<HTMLElement>('[data-logro]');
+  if (tarjetas.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const io = new IntersectionObserver(
-      (entradas) => {
-        if (!escritorio.matches) return;
+      (entradas) =>
         entradas.forEach((e) => {
-          if (e.isIntersecting) activar(Number((e.target as HTMLElement).dataset.logro));
-        });
-      },
-      // Una franja fina en el centro de la pantalla: el logro que la cruza
-      // es el activo.
-      { rootMargin: '-45% 0px -45% 0px' },
+          const tarjeta = e.target as HTMLElement;
+          if (e.isIntersecting) tarjeta.dataset.vivo = 'true';
+          else delete tarjeta.dataset.vivo;
+        }),
+      { threshold: 0.3 },
     );
-    logros.forEach((logro, i) => {
-      io.observe(logro);
-      logro.addEventListener('pointerenter', () => activar(i));
-      logro.tabIndex = 0;
-      logro.addEventListener('focus', () => activar(i));
-    });
+    tarjetas.forEach((t) => io.observe(t));
   }
 </script>
 
@@ -445,6 +425,8 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
   }
 
   :global(.g-linea-mask) {
+    padding-top: 0.12em;
+    margin-top: -0.12em;
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
   }
@@ -461,7 +443,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.5rem);
     font-weight: 650;
-    line-height: 1.02;
+    line-height: 0.96;
     letter-spacing: -0.035em;
     color: var(--color-encre);
     max-width: 16ch;
@@ -620,325 +602,173 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
     }
   }
 
-  .logros {
+  /* --- El mosaico ---
+     Una columna en movil, dos en tableta y, en escritorio, tres columnas
+     donde cada fila junta una tarjeta ancha (dos columnas) y una estrecha,
+     alternando el lado. Nunca tres iguales en fila. */
+  .mosaico {
     display: grid;
-    gap: 2rem;
+    gap: 1rem;
   }
 
-  @media (width >= 64rem) {
-    .logros {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      gap: 4rem;
-      align-items: start;
+  @media (width >= 48rem) {
+    .mosaico {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
     }
   }
 
-  .logros__lista {
-    display: grid;
-    gap: 0.75rem;
+  @media (width >= 64rem) {
+    .mosaico {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .logro--ancha {
+      grid-column: span 2;
+    }
+
+    .logro--entera {
+      grid-column: 1 / -1;
+    }
   }
 
-  /* En movil, cada logro es una tarjeta con su icono. */
-  .logro {
-    position: relative;
+  @media (width >= 48rem) and (width < 64rem) {
+    .logro--entera {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* La tarjeta: blanca, con un filo de piedra y la sombra de reposo. Al pasar
+     por encima sube un poco. GSAP mueve el li, no la tarjeta: asi la
+     transicion de CSS no choca con la entrada. */
+  .logro__tarjeta {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1rem;
-    align-items: start;
-    padding: 1.2rem 1.25rem;
-    border-radius: 18px;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    padding: 0.55rem;
+    border-radius: 28px;
     background-color: var(--color-blanc);
-    box-shadow: var(--shadow-flota);
-    outline: none;
+    box-shadow:
+      var(--shadow-flota),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-pierre) 85%, transparent);
+    transition:
+      transform 520ms var(--ease-fluid),
+      box-shadow 520ms var(--ease-fluid);
   }
 
-  .logro__num {
-    display: none;
+  @media (hover: hover) and (pointer: fine) {
+    .logro__tarjeta:hover {
+      transform: translateY(-6px);
+      box-shadow:
+        var(--shadow-alta),
+        inset 0 0 0 1px color-mix(in srgb, var(--color-pierre) 85%, transparent);
+    }
   }
 
-  .logro__icono {
-    display: grid;
-    place-items: center;
-    width: 2.8rem;
-    height: 2.8rem;
-    border-radius: 13px;
-    background-color: color-mix(in srgb, var(--color-ciel) 40%, var(--color-blanc));
-    color: var(--color-bleu);
+  /* El hueco de la escena: un tono de la marca con una trama de puntos muy
+     suave, como un papel cuadriculado. Frio y calido se alternan. */
+  .logro__escena {
+    position: relative;
+    height: 13rem;
+    overflow: hidden;
+    border-radius: 22px;
+    background-size:
+      16px 16px,
+      auto;
   }
 
-  .logro__icono :global(svg) {
-    width: 1.5rem;
-    height: 1.5rem;
+  .logro__escena--fria {
+    background-image:
+      radial-gradient(color-mix(in srgb, var(--color-encre) 9%, transparent) 1px, transparent 1.5px),
+      radial-gradient(
+        circle at 25% 15%,
+        color-mix(in srgb, var(--color-ciel) 48%, var(--color-blanc)),
+        color-mix(in srgb, var(--color-ciel) 20%, var(--color-blanc)) 75%
+      );
+  }
+
+  .logro__escena--calida {
+    background-image:
+      radial-gradient(color-mix(in srgb, var(--color-encre) 8%, transparent) 1px, transparent 1.5px),
+      radial-gradient(
+        circle at 75% 15%,
+        color-mix(in srgb, var(--color-papier) 95%, var(--color-blanc)),
+        color-mix(in srgb, var(--color-papier) 45%, var(--color-blanc)) 75%
+      );
   }
 
   .logro__cuerpo {
     display: grid;
-    gap: 0.3rem;
+    align-content: start;
+    gap: 0.45rem;
+    padding: 1.2rem 1rem 1rem;
+  }
+
+  /* El numero, en rojo y con una raya corta detras. */
+  .logro__num {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-grenat);
+  }
+
+  .logro__num::after {
+    content: '';
+    width: 1.5rem;
+    height: 2px;
+    border-radius: 2px;
+    background-color: color-mix(in srgb, var(--color-grenat) 40%, transparent);
   }
 
   .logro__titulo {
     font-family: var(--font-display);
-    font-size: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
     font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.015em;
-    color: var(--color-encre);
-  }
-
-  .logro__texto {
-    font-size: var(--text-body);
-    line-height: 1.45;
-    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
-  }
-
-  .logros__escena {
-    display: none;
-  }
-
-  /* En escritorio: lista limpia con numeros a la izquierda y panel fijo a
-     la derecha. El activo se enciende; los demas se quedan en segundo plano. */
-  @media (width >= 64rem) {
-    .logros__lista {
-      gap: 0;
-    }
-
-    .logro {
-      grid-template-columns: 3.5rem minmax(0, 1fr);
-      padding: 1.35rem 1.25rem 1.35rem 0;
-      border-radius: 0;
-      background-color: transparent;
-      box-shadow: none;
-      border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
-      cursor: default;
-    }
-
-    .logro:last-child {
-      border-bottom: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
-    }
-
-    /* La barra roja del activo crece desde arriba. */
-    .logro::before {
-      content: '';
-      position: absolute;
-      left: -1.25rem;
-      top: 1.35rem;
-      bottom: 1.35rem;
-      width: 3px;
-      border-radius: 3px;
-      background-color: var(--color-grenat);
-      transform: scaleY(0);
-      transform-origin: top center;
-      transition: transform 420ms var(--ease-fluid);
-    }
-
-    .logro__num {
-      display: block;
-      font-family: var(--font-display);
-      font-variant-numeric: tabular-nums;
-      font-size: 1.125rem;
-      font-weight: 700;
-      line-height: 1.5;
-      color: color-mix(in srgb, var(--color-encre) 30%, transparent);
-      transition: color 320ms var(--ease-smooth);
-    }
-
-    .logro__icono {
-      display: none;
-    }
-
-    .logro__titulo,
-    .logro__texto {
-      transition: color 320ms var(--ease-smooth), opacity 320ms var(--ease-smooth);
-    }
-
-    .logro:not([data-activo]) .logro__titulo {
-      color: color-mix(in srgb, var(--color-encre) 55%, transparent);
-    }
-
-    .logro:not([data-activo]) .logro__texto {
-      opacity: 0.55;
-    }
-
-    .logro[data-activo]::before {
-      transform: scaleY(1);
-    }
-
-    .logro[data-activo] .logro__num {
-      color: var(--color-grenat);
-    }
-
-    .logros__escena {
-      display: block;
-      position: sticky;
-      top: 7rem;
-    }
-  }
-
-  /* El panel: tinta, dos anillos que giran y el logro activo en grande. */
-  .escena {
-    position: relative;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    aspect-ratio: 1 / 1.05;
-    border-radius: 28px;
-    background-image: radial-gradient(
-        circle at 50% 38%,
-        color-mix(in srgb, var(--color-bleu) 55%, transparent),
-        transparent 60%
-      ),
-      linear-gradient(160deg, var(--color-nuit), var(--color-encre));
-    box-shadow: var(--shadow-alta);
-    color: var(--color-blanc);
-  }
-
-  .escena__anillo {
-    position: absolute;
-    top: 38%;
-    left: 50%;
-    width: 13rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: 1.5px dashed color-mix(in srgb, var(--color-ciel) 45%, transparent);
-    translate: -50% -50%;
-    animation: gira-anillo 26s linear infinite;
-  }
-
-  .escena__anillo--fuera {
-    width: 19rem;
-    border-style: solid;
-    border-color: color-mix(in srgb, var(--color-ciel) 16%, transparent);
-    animation-direction: reverse;
-    animation-duration: 40s;
-  }
-
-  /* Un punto que da la vuelta sobre el anillo de fuera. */
-  .escena__anillo--fuera::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: 50%;
-    width: 10px;
-    height: 10px;
-    margin-left: -5px;
-    border-radius: 50%;
-    background-color: var(--color-chair);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-chair) 25%, transparent);
-  }
-
-  @keyframes gira-anillo {
-    to {
-      rotate: 360deg;
-    }
-  }
-
-  .escena__caras {
-    position: relative;
-    display: grid;
-    width: 100%;
-    height: 100%;
-  }
-
-  .escena__cara {
-    grid-area: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 2rem 4.5rem;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(14px);
-    transition:
-      opacity 420ms var(--ease-smooth),
-      transform 520ms var(--ease-fluid);
-  }
-
-  .escena__cara[data-activo] {
-    opacity: 1;
-    transform: none;
-  }
-
-  .escena__icono {
-    position: absolute;
-    top: 38%;
-    left: 50%;
-    display: grid;
-    place-items: center;
-    width: 7.5rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background-color: var(--color-blanc);
-    color: var(--color-grenat);
-    box-shadow: 0 20px 40px -18px color-mix(in srgb, var(--color-encre) 80%, transparent);
-    translate: -50% -50%;
-  }
-
-  .escena__icono :global(svg) {
-    width: 3.6rem;
-    height: 3.6rem;
-  }
-
-  .escena__cara[data-activo] .escena__icono {
-    animation: icono-entra 620ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes icono-entra {
-    from {
-      transform: scale(0.6) rotate(-14deg);
-    }
-    to {
-      transform: none;
-    }
-  }
-
-  .escena__num {
-    font-family: var(--font-display);
-    font-variant-numeric: tabular-nums;
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: var(--color-chair);
-  }
-
-  .escena__num span {
-    color: color-mix(in srgb, var(--color-blanc) 45%, transparent);
-  }
-
-  .escena__titulo {
-    margin-top: 0.5rem;
-    max-width: 16ch;
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-    font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.15;
     letter-spacing: -0.02em;
-    color: var(--color-blanc);
+    color: var(--color-encre);
     text-wrap: balance;
   }
 
-  .escena__puntos {
-    position: absolute;
-    bottom: 1.6rem;
-    left: 50%;
-    display: flex;
-    gap: 0.4rem;
-    translate: -50% 0;
+  .logro__texto {
+    max-width: 42ch;
+    font-size: var(--text-body);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-encre) 72%, transparent);
   }
 
-  .escena__punto {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background-color: color-mix(in srgb, var(--color-blanc) 30%, transparent);
-    transition:
-      transform 320ms var(--ease-smooth),
-      background-color 320ms var(--ease-smooth);
-  }
+  /* En escritorio, las anchas ponen el texto a un lado y la escena al otro,
+     con la escena alta: la tarjeta se lee de izquierda a derecha. */
+  @media (width >= 64rem) {
+    .logro--ancha .logro__tarjeta,
+    .logro--entera .logro__tarjeta {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      grid-template-rows: none;
+      align-items: stretch;
+    }
 
-  .escena__punto[data-activo] {
-    background-color: var(--color-chair);
-    transform: scale(1.6);
+    .logro--ancha .logro__escena,
+    .logro--entera .logro__escena {
+      order: 2;
+      height: auto;
+      min-height: 15.5rem;
+    }
+
+    .logro--ancha .logro__cuerpo,
+    .logro--entera .logro__cuerpo {
+      align-content: center;
+      padding: 1.5rem 1.75rem;
+    }
+
+    .logro--ancha .logro__titulo,
+    .logro--entera .logro__titulo {
+      font-size: clamp(1.5rem, 1.2rem + 0.8vw, 1.875rem);
+    }
   }
 
   /* --- 4. Precio --- */
@@ -1051,18 +881,12 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
   @media (prefers-reduced-motion: reduce) {
     .foto-tarjeta,
     .visual-tarjeta,
-    .logro::before,
-    .logro__num,
-    .logro__titulo,
-    .logro__texto,
-    .escena__cara,
-    .escena__punto {
+    .logro__tarjeta {
       transition: none;
     }
 
-    .escena__anillo,
-    .escena__cara[data-activo] .escena__icono {
-      animation: none;
+    .logro__tarjeta:hover {
+      transform: none;
     }
 
     .blink-lid {

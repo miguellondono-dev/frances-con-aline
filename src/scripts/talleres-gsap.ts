@@ -7,7 +7,8 @@
  * Que anima:
  *  - Portada: las tres fotos del collage entran apiladas y se abren en
  *    abanico hasta su sitio, las etiquetas y el sello saltan, el titular sube
- *    linea a linea y luego el texto y los botones. Despues las fotos flotan,
+ *    linea a linea y luego el texto y la entrada del proximo taller, con su
+ *    talon que cae y el dia y el precio que saltan. Despues las fotos flotan,
  *    cada una a su ritmo, y en escritorio siguen al raton con distinta
  *    profundidad. Al bajar, el collage se desplaza un poco.
  *  - Cada taller: una cortina de tinta descubre la foto mientras la foto se
@@ -122,6 +123,22 @@ async function iniciar() {
     }
     if (textos.length) tl.from(textos, { autoAlpha: 0, y: 24, duration: 0.8, stagger: 0.12 }, 0.5);
     if (titulo) porLineas(titulo, { duration: 1.1, stagger: 0.12, delay: 0.2 });
+
+    // La entrada del proximo taller: el talon cae como una pestaña y el dia,
+    // el numero y el mes saltan uno detras de otro. Despues, el precio late.
+    const talon = raiz.querySelector<HTMLElement>('[data-t-talon]');
+    if (talon) {
+      tl.from(talon, { scaleY: 0, transformOrigin: '50% 0%', duration: 0.7, ease: 'power3.out' }, 0.95);
+      tl.from(
+        Array.from(talon.children),
+        { y: 16, autoAlpha: 0, duration: 0.5, ease: 'back.out(2.4)', stagger: 0.08 },
+        1.2,
+      );
+      const precio = raiz.querySelector<HTMLElement>('[data-t-entrada] .entrada__precio');
+      if (precio) {
+        tl.from(precio, { scale: 0.4, autoAlpha: 0, duration: 0.6, ease: 'back.out(2.6)' }, 1.35);
+      }
+    }
 
     // Despues, cada foto flota a su ritmo. Arranca cuando la entrada termina,
     // para no pisar su "y".

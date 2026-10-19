@@ -1,15 +1,32 @@
 /**
  * Catalogo de talleres.
  *
- * Un taller es un producto: tiene fecha, sitio, duracion y precio. Los cuatro
- * datos viven aqui y no repartidos por las paginas, porque los consumen la
- * rejilla del indice, la ficha de cada taller y el schema, y un dato escrito
- * tres veces se desincroniza a la primera correccion.
+ * Un taller es un producto: tiene fecha, sitio, duracion y precio. Los datos
+ * viven aqui y no repartidos por las paginas, porque los consumen la portada
+ * de talleres, la ficha de cada taller, el inicio y el schema, y un dato
+ * escrito tres veces se desincroniza a la primera correccion.
  *
- * Los tres hechos que deciden una compra (cuando, cuanto dura, cuanto cuesta)
- * se llaman igual y salen en el mismo orden en todos los talleres. Sin eso no
- * se pueden comparar de un vistazo, que es justo para lo que existe el indice.
+ * Lo que cambia de una tanda a otra (fecha, hora, precio, cierre) va en
+ * `tanda`. Un taller sin tanda esta "Próximamente": se enseña, pero sin
+ * fechas ni precio, y el boton pide que le avisen.
+ *
+ * Los talleres se cierran solos: al pasar `tanda.iso.cierre`, las piezas de
+ * "plazas abiertas" se cambian por las de "plazas cerradas". Lo hace
+ * scripts/talleres-estado.ts en el navegador, y al compilar ya sale cerrado
+ * si la fecha habia pasado. No hace falta tocar nada el dia del cierre.
  */
+
+export type Tanda = {
+  /** "Domingo 1 de noviembre" o "4 sábados de octubre". */
+  cuando: string;
+  /** "11:00 a 13:30". Sin "hrs" ni "h", que no aporta nada. */
+  hora: string;
+  precio: number;
+  /** Fecha limite de inscripcion, legible: "30 de octubre". */
+  cierre: string;
+  /** Para el schema y para el cierre automatico, en ISO con hora de Paris. */
+  iso: { inicia: string; termina: string; cierre: string };
+};
 
 export type Taller = {
   slug: string;
@@ -24,29 +41,51 @@ export type Taller = {
   parrafos: string[];
   /** Lo que se practica, en cosas concretas y nombrables. */
   practica: string[];
-
-  /* --- Los tres hechos, en este orden, siempre --- */
-  /** "4 sábados de octubre" o "Un domingo de octubre". */
-  cuando: string;
-  /** Los dias sueltos, para el detalle: "10, 17, 24 y 31". */
-  dias: string;
-  /** "11:00 a 12:30". Sin "hrs" ni "h", que no aporta nada. */
-  hora: string;
-  precio: number;
-
-  /* --- Resto --- */
   sesiones: number;
   minutosPorSesion: number;
+  /** Dia de la semana en schema.org, para los de varias sesiones. */
+  diaSemana: 'Saturday' | 'Sunday';
   donde: string;
   ciudad: string;
-  /** Fecha limite de inscripcion, legible. */
-  cierre: string;
-
-  /* --- Para el schema, en ISO --- */
-  iso: { inicia: string; termina: string; cierre: string };
+  /** Sin tanda, el taller esta "Próximamente". */
+  tanda?: Tanda;
 };
 
 export const TALLERES: Taller[] = [
+  {
+    slug: 'acuarela',
+    nombre: 'Acuarela en francés',
+    titular: 'Un domingo pintando, con las manos ocupadas y el francés suelto',
+    acento: 'francés',
+    resumen:
+      'Una sesión, una lámina terminada y el vocabulario del color y de la luz.',
+    parrafos: [
+      'Se pinta con acuarela y se habla en francés mientras se pinta. Las manos ocupadas quitan la presión: cuando estás mezclando un color, dejas de vigilar cada palabra que dices y el idioma empieza a salir solo.',
+      'Trabajamos el vocabulario del color, de la luz y del gesto, que es el que no aparece en ninguna clase normal. Te vas con una lámina terminada y con un puñado de palabras que ya no se te olvidan, porque las usaste para hacer algo.',
+    ],
+    practica: [
+      'Mezcla de color y aguadas',
+      'El vocabulario del color y de la luz',
+      'Bocetos rápidos del natural',
+      'Una lámina terminada para llevarte',
+    ],
+    sesiones: 1,
+    minutosPorSesion: 150,
+    diaSemana: 'Sunday',
+    donde: 'Presencial, en París',
+    ciudad: 'París',
+    tanda: {
+      cuando: 'Domingo 1 de noviembre',
+      hora: '11:00 a 13:30',
+      precio: 45,
+      cierre: '30 de octubre',
+      iso: {
+        inicia: '2026-11-01T11:00:00+01:00',
+        termina: '2026-11-01T13:30:00+01:00',
+        cierre: '2026-10-30T23:59:00+01:00',
+      },
+    },
+  },
   {
     slug: 'teatro',
     nombre: 'Teatro en francés',
@@ -65,67 +104,70 @@ export const TALLERES: Taller[] = [
       'Escenas cortas en grupo',
       'Interpretación e improvisación',
     ],
-    cuando: '4 sábados de octubre',
-    dias: '10, 17, 24 y 31',
-    hora: '11:00 a 12:30',
-    precio: 65,
     sesiones: 4,
     minutosPorSesion: 90,
+    diaSemana: 'Saturday',
     donde: 'Presencial, en París',
     ciudad: 'París',
-    cierre: '8 de octubre',
-    iso: {
-      inicia: '2026-10-10T11:00:00+02:00',
-      termina: '2026-10-31T12:30:00+01:00',
-      cierre: '2026-10-08',
-    },
-  },
-  {
-    slug: 'acuarela',
-    nombre: 'Acuarela en francés',
-    titular: 'Un domingo pintando, con las manos ocupadas y el francés suelto',
-    acento: 'francés',
-    resumen:
-      'Una sesión, una lámina terminada y el vocabulario del color y de la luz.',
-    parrafos: [
-      'Se pinta con acuarela y se habla en francés mientras se pinta. Las manos ocupadas quitan la presión: cuando estás mezclando un color, dejas de vigilar cada palabra que dices y el idioma empieza a salir solo.',
-      'Trabajamos el vocabulario del color, de la luz y del gesto, que es el que no aparece en ninguna clase normal. Te vas con una lámina terminada y con un puñado de palabras que ya no se te olvidan, porque las usaste para hacer algo.',
-    ],
-    practica: [
-      'Mezcla de color y aguadas',
-      'El vocabulario del color y de la luz',
-      'Bocetos rápidos del natural',
-      'Una lámina terminada para llevarte',
-    ],
-    cuando: 'Un domingo de octubre',
-    dias: '18',
-    hora: '11:00 a 13:30',
-    precio: 30,
-    sesiones: 1,
-    minutosPorSesion: 150,
-    donde: 'Presencial, en París',
-    ciudad: 'París',
-    cierre: '16 de octubre',
-    iso: {
-      inicia: '2026-10-18T11:00:00+02:00',
-      termina: '2026-10-18T13:30:00+02:00',
-      cierre: '2026-10-16',
-    },
+    // Sin tanda: la de octubre de 2026 no salio. Vuelve cuando haya fechas.
   },
 ];
 
 export const porSlug = (slug: string) => TALLERES.find((t) => t.slug === slug)!;
 
+export type Estado = 'abierto' | 'cerrado' | 'proximo';
+
+/** El estado al compilar. En el navegador lo vuelve a mirar talleres-estado.ts. */
+export const estadoDe = (t: Taller, ahora = Date.now()): Estado =>
+  !t.tanda ? 'proximo' : ahora > Date.parse(t.tanda.iso.cierre) ? 'cerrado' : 'abierto';
+
+/** Los abiertos primero: son los que se pueden reservar. */
+export const enOrden = () => {
+  const peso: Record<Estado, number> = { abierto: 0, cerrado: 1, proximo: 2 };
+  return [...TALLERES].sort((a, b) => peso[estadoDe(a)] - peso[estadoDe(b)]);
+};
+
+/** El primer taller con plazas abiertas, si lo hay. */
+export const tallerAbierto = () => TALLERES.find((t) => estadoDe(t) === 'abierto');
+
+/** Lo que dice el WhatsApp de "Inscribirme", con la fecha de la tanda. */
+export const mensajeInscripcion = (t: Taller) =>
+  t.tanda
+    ? `Hola, me gustaría inscribirme en el taller de ${t.slug} del ${t.tanda.cuando.toLowerCase()}.`
+    : mensajeAviso(t);
+
+/** Lo que dice el WhatsApp de "Avísame": sin fechas, o con las plazas cerradas. */
+export const mensajeAviso = (t: Taller) =>
+  t.tanda
+    ? `Hola, me gustaría que me avises del próximo taller de ${t.slug}.`
+    : `Hola, me gustaría que me avises cuando haya fechas para el taller de ${t.slug}.`;
+
+/** "4 sesiones de 1 h 30" o "Una sesión de 2 h 30". */
+export const formato = (t: Taller) => {
+  const h = Math.floor(t.minutosPorSesion / 60);
+  const m = t.minutosPorSesion % 60;
+  const duracion = m ? `${h} h ${m}` : `${h} h`;
+  return t.sesiones > 1 ? `${t.sesiones} sesiones de ${duracion}` : `Una sesión de ${duracion}`;
+};
+
 /**
- * Los tres hechos comparables de un taller, en orden fijo.
- * La tarjeta y la ficha usan esto, nunca su propia lista: en cuanto cada sitio
- * elige que enseñar y en que orden, se acaba la comparacion.
+ * Los tres hechos comparables de un taller, en orden fijo. La tarjeta y la
+ * ficha usan esto, nunca su propia lista. Sin tanda, en vez de fecha y
+ * precio, el formato y el sitio.
  */
-export const hechos = (t: Taller) => [
-  { clave: 'Cuándo', valor: t.cuando },
-  { clave: 'Hora', valor: t.hora },
-  { clave: 'Precio', valor: `${t.precio} €` },
-];
+export const hechos = (t: Taller) =>
+  t.tanda
+    ? [
+        { clave: 'Cuándo', valor: t.tanda.cuando },
+        { clave: 'Hora', valor: t.tanda.hora },
+        { clave: 'Precio', valor: `${t.tanda.precio} €` },
+        { clave: 'Dónde', valor: t.ciudad },
+      ]
+    : [
+        { clave: 'Cuándo', valor: 'Próximamente' },
+        { clave: 'Formato', valor: formato(t) },
+        { clave: 'Dónde', valor: t.ciudad },
+      ];
 
 /**
  * Un elemento de la galeria de un taller. Los videos llevan siempre poster:

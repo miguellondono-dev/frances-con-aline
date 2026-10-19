@@ -154,6 +154,12 @@ const abanico = TEMAS.map((tema, i) => {
             ))
           }
         </ul>
+
+        {/* La portada no tenia ningun boton: quien llegaba aqui no tenia a
+            donde ir. Ahora, como en el resto de paginas, el paso siguiente. */}
+        <div class="mt-9" data-reveal>
+          <Cta href={whatsapp(WA.agendar)}>Agenda tu clase gratis</Cta>
+        </div>
       </div>
 
       {/* El retrato viene recortado, sin fondo. Por eso no va dentro de un
@@ -896,7 +902,7 @@ const abanico = TEMAS.map((tema, i) => {
     font-family: var(--font-display);
     font-size: var(--text-display-l);
     font-weight: 700;
-    line-height: 1.06;
+    line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-encre);
     max-width: 18ch;

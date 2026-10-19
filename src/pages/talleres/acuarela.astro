@@ -47,27 +47,31 @@ const schema = [
   taller({
     name: 'Taller de acuarela en francés',
     description:
-      'Un domingo de octubre pintando en acuarela mientras se habla en francés: mezcla de color, bocetos del natural y el vocabulario del color y de la luz. Te vas con una lámina terminada. Presencial en París.',
+      'Un domingo pintando en acuarela mientras se habla en francés: mezcla de color, bocetos del natural y el vocabulario del color y de la luz. Te vas con una lámina terminada. Presencial en París.',
     path: '/talleres/acuarela',
     site: Astro.site,
-    inicia: t.iso.inicia,
-    termina: t.iso.termina,
-    horario: `Domingo de ${t.hora}`,
-    dia: 'Sunday',
+    inicia: t.tanda?.iso.inicia,
+    termina: t.tanda?.iso.termina,
+    horario: t.tanda ? `Domingo de ${t.tanda.hora}` : 'Domingo',
+    dia: t.diaSemana,
     sesiones: t.sesiones,
     minutosPorSesion: t.minutosPorSesion,
-    precio: t.precio,
+    precio: t.tanda?.precio,
     moneda: 'EUR',
     ciudad: t.ciudad,
     pais: 'FR',
-    cierreInscripcion: t.iso.cierre,
+    cierreInscripcion: t.tanda?.iso.cierre,
   }),
 ];
+
+const descripcion = t.tanda
+  ? `Un domingo pintando en acuarela y hablando en francés, en París. ${t.tanda.cuando}, de ${t.tanda.hora}. ${t.tanda.precio} €, con tu lámina terminada.`
+  : 'Un domingo pintando en acuarela y hablando en francés, en París, con tu lámina terminada. Las próximas fechas, muy pronto.';
 ---
 
 <BaseLayout
   title="Taller de acuarela"
-  description="Un domingo pintando en acuarela y hablando en francés, en París. Domingo 18 de octubre, de 11:00 a 13:30. 30 €, con tu lámina terminada."
+  description={descripcion}
   path="/talleres/acuarela"
   schema={schema}
 >

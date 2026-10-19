@@ -44,7 +44,10 @@ export const WA = {
   dudasTalleres: 'Hola, tengo una pregunta sobre los talleres.',
   teatro: 'Hola, me gustaría inscribirme en el taller de teatro.',
   acuarela: 'Hola, me gustaría inscribirme en el taller de acuarela.',
-  tours: 'Hola, me gustaría que me avises cuando abras fechas para los tours por París.',
+  /** El boton flotante de un taller sin fechas. Los botones de cada taller
+      escriben el suyo con la fecha: talleres.ts, mensajeInscripcion(). */
+  avisoTeatro: 'Hola, me gustaría que me avises cuando haya fechas para el taller de teatro.',
+  tours: 'Hola, me gustaría saber más sobre los tours por París.',
 } as const;
 
 /** Enlace a WhatsApp con el mensaje escrito. Sin mensaje, el de agendar. */
@@ -62,7 +65,7 @@ const WA_POR_PAGINA: Record<string, string> = {
   '/preparacion-delf': WA.delf,
   '/sobre-mi': WA.pregunta,
   '/talleres': WA.talleres,
-  '/talleres/teatro': WA.teatro,
+  '/talleres/teatro': WA.avisoTeatro,
   '/talleres/acuarela': WA.acuarela,
   '/tours-en-paris': WA.tours,
 };

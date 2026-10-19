@@ -1,0 +1,1200 @@
+---
+import Logo from '../Logo.astro';
+import { icono } from '../../data/iconos';
+import type { TipoEscena } from './escenas';
+
+/**
+ * MINI ESCENAS DE "LO QUE VAS A CONSEGUIR".
+ *
+ * Cada logro de las paginas de clases lleva una escena pequeña que lo
+ * enseña en vez de repetirlo: una charla en frances, la escalera de niveles,
+ * los objetivos, cartas de frances real, una explicacion, la hora de clase;
+ * y para el DELF, la hoja del examen, las cuatro partes y el reloj.
+ *
+ * Reglas, porque esta seccion ya fallo por esconder cosas:
+ *  - El estado de reposo es la escena completa y quieta. Es lo que se ve sin
+ *    JavaScript, con movimiento reducido o mientras la tarjeta no se ve.
+ *  - Los bucles solo se ponen cuando un antecesor tiene [data-vivo], que
+ *    pone y quita el guion de ServiceLanding al entrar y salir de pantalla.
+ *    Al quitarlo, la escena vuelve a su reposo: nunca se queda a medias.
+ *  - Solo transform y opacity (y un color de fondo en las pastillas).
+ */
+interface Props {
+  tipo: TipoEscena;
+}
+
+const { tipo } = Astro.props;
+
+const NIVELES = ['A1', 'A2', 'B1', 'B2', 'C1'];
+/** Hasta donde esta lleno cada peldaño: dos hechos, el tuyo, uno en curso. */
+const LLENO = [1, 1, 1, 0.45, 0];
+const METAS = ['Viajar', 'Trabajar', 'Estudiar', 'Un trámite', 'Por gusto'];
+const HORA = [
+  { nombre: 'Charla', w: 30, color: '--color-bleu' },
+  { nombre: 'Juego', w: 20, color: '--color-corail' },
+  { nombre: 'Audio', w: 25, color: '--color-azur' },
+  { nombre: 'Repaso', w: 25, color: '--color-nuit' },
+];
+const PARTES_DELF = [
+  'Compréhension de l’oral',
+  'Compréhension des écrits',
+  'Production écrite',
+  'Production orale',
+];
+/** Las cuatro partes; la tercera es el punto debil que el plan hace crecer. */
+const PARTES = [
+  { nombre: 'Comprensión oral', v: 0.8 },
+  { nombre: 'Comprensión escrita', v: 0.72 },
+  { nombre: 'Producción escrita', v: 0.38 },
+  { nombre: 'Producción oral', v: 0.76 },
+];
+const MARCAS_RELOJ = Array.from({ length: 12 }, (_, i) => i * 30);
+---
+
+<div class={`e e--${tipo}`} aria-hidden="true">
+  {
+    tipo === 'charla' && (
+      <div class="e-charla">
+        <p class="e-msg e-msg--tu e-msg--0">
+          <span class="e-av">Tú</span>
+          <span class="e-msg__t" lang="fr">Hier, j’ai fait le marché.</span>
+        </p>
+        <p class="e-msg e-msg--ella e-msg--1">
+          <span class="e-msg__t" lang="fr">Super&#8239;! Qu’est-ce que tu as acheté&#8239;?</span>
+          <span class="e-av e-av--ella">
+            <Logo viewBox="195 258 860 691" />
+          </span>
+        </p>
+        <p class="e-msg e-msg--tu e-msg--2">
+          <span class="e-av">Tú</span>
+          <span class="e-msg__t" lang="fr">Des fraises et du fromage.</span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'niveles' && (
+      <div class="e-niveles">
+        <div class="e-niveles__barras">
+          {NIVELES.map((n, i) => (
+            <span
+              class:list={['e-nv', { 'e-nv--tu': i === 2, 'e-nv--curso': i === 3 }]}
+              style={`--i: ${i}; --alto: ${30 + i * 17.5}%; --lleno: ${LLENO[i]}`}
+            >
+              <span class="e-nv__relleno" />
+            </span>
+          ))}
+          <span class="e-niveles__tu">Tú</span>
+        </div>
+        <div class="e-niveles__nombres">
+          {NIVELES.map((n) => (
+            <span>{n}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'metas' && (
+      <div class="e-metas">
+        <p class="e-rotulo">Tu objetivo</p>
+        <ul class="e-metas__lista">
+          {METAS.map((m, i) => (
+            <li class="e-meta" style={`--i: ${i}`}>
+              {m}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'real' && (
+      <div class="e-real">
+        <div class="e-carta" style="--k: 0">
+          <p class="e-carta__tipo">Una canción</p>
+          <span class="e-ondas">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+        </div>
+        <div class="e-carta" style="--k: 1">
+          <p class="e-carta__tipo">Un artículo</p>
+          <p class="e-carta__fr" lang="fr">
+            Paris se met au vélo
+          </p>
+          <span class="e-lineas">
+            <i />
+            <i />
+          </span>
+        </div>
+        <div class="e-carta" style="--k: 2">
+          <p class="e-carta__tipo">Una serie</p>
+          <p class="e-carta__fr" lang="fr">
+            <span class="e-play" />
+            Épisode 3
+          </p>
+        </div>
+        <div class="e-carta" style="--k: 3">
+          <p class="e-carta__tipo">El día a día</p>
+          <p class="e-carta__fr" lang="fr">
+            Une baguette, s’il vous plaît.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'explica' && (
+      <div class="e-explica">
+        <p class="e-frase" lang="fr">
+          Ce matin, je{' '}
+          <span class="e-marca">
+            me suis levée
+            <span class="e-subraya" />
+          </span>{' '}
+          tôt.
+        </p>
+        <p class="e-nota">
+          Los verbos con «se» van con <em lang="fr">être</em>.
+        </p>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'dinamico' && (
+      <div class="e-hora">
+        <p class="e-hora__cabeza">
+          <span class="e-rotulo">Una clase</span>
+          <span class="e-hora__min">60 min</span>
+        </p>
+        <div class="e-hora__barra">
+          <div class="e-hora__tramos e-hora__tramos--base">
+            {HORA.map((h) => (
+              <span style={`--w: ${h.w}; --c: var(${h.color})`} />
+            ))}
+          </div>
+          <div class="e-hora__avance">
+            <div class="e-hora__tramos e-hora__tramos--lleno">
+              {HORA.map((h) => (
+                <span style={`--w: ${h.w}; --c: var(${h.color})`} />
+              ))}
+            </div>
+          </div>
+          <span class="e-hora__cursor" />
+        </div>
+        <div class="e-hora__nombres">
+          {HORA.map((h) => (
+            <span style={`--w: ${h.w}`}>{h.nombre}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'examen' && (
+      <div class="e-examen">
+        <p class="e-rotulo">Simulacro DELF</p>
+        <ul class="e-examen__lista">
+          {PARTES_DELF.map((p, i) => (
+            <li style={`--i: ${i}`}>
+              <span class="e-examen__check" set:html={icono('check')} />
+              <span class="e-examen__nombre" lang="fr">
+                {p}
+              </span>
+              <span class="e-examen__pts">/25</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'partes' && (
+      <div class="e-partes">
+        {PARTES.map((p, i) => (
+          <div class:list={['e-parte', { 'e-parte--debil': i === 2 }]} style={`--v: ${p.v}`}>
+            <p class="e-parte__nombre">
+              {p.nombre}
+              {i === 2 && <span class="e-parte__marca">Tu punto débil</span>}
+            </p>
+            <span class="e-parte__barra">
+              <span class="e-parte__relleno" />
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    tipo === 'reloj' && (
+      <div class="e-reloj">
+        <svg class="e-reloj__svg" viewBox="0 0 120 120">
+          <circle class="e-reloj__pista" cx="60" cy="60" r="50" />
+          <circle class="e-reloj__arco" cx="60" cy="60" r="50" pathLength="100" />
+          {MARCAS_RELOJ.map((g) => (
+            <line class="e-reloj__marca" x1="60" y1="16" x2="60" y2="21" transform={`rotate(${g} 60 60)`} />
+          ))}
+          <line class="e-reloj__aguja" x1="60" y1="60" x2="60" y2="26" />
+          <circle class="e-reloj__eje" cx="60" cy="60" r="4.5" />
+        </svg>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .e {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1.1rem;
+  }
+
+  .e-rotulo {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  /* --- Charla --------------------------------------------------------------- */
+
+  .e-charla {
+    display: grid;
+    gap: 0.5rem;
+    width: min(100%, 19rem);
+  }
+
+  .e-msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.45rem;
+    transform-origin: 0% 100%;
+  }
+
+  .e-msg--ella {
+    justify-content: flex-end;
+    transform-origin: 100% 100%;
+  }
+
+  .e-msg__t {
+    padding: 0.5rem 0.8rem;
+    border-radius: 16px 16px 16px 4px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-size: 0.84rem;
+    line-height: 1.3;
+    color: var(--color-encre);
+  }
+
+  .e-msg--ella .e-msg__t {
+    border-radius: 16px 16px 4px 16px;
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+  }
+
+  .e-av {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background-color: var(--color-chair);
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--color-encre);
+  }
+
+  .e-av--ella {
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+  }
+
+  .e-av--ella :global(svg) {
+    width: 62%;
+    height: auto;
+  }
+
+  :global([data-vivo]) .e-msg--0 {
+    animation: e-msg-0 9s var(--ease-smooth) infinite both;
+  }
+
+  :global([data-vivo]) .e-msg--1 {
+    animation: e-msg-1 9s var(--ease-smooth) infinite both;
+  }
+
+  :global([data-vivo]) .e-msg--2 {
+    animation: e-msg-2 9s var(--ease-smooth) infinite both;
+  }
+
+  @keyframes e-msg-0 {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.92);
+    }
+    6%,
+    86% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes e-msg-1 {
+    0%,
+    20% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.92);
+    }
+    27%,
+    86% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes e-msg-2 {
+    0%,
+    42% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.92);
+    }
+    49%,
+    86% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  /* --- Niveles -------------------------------------------------------------- */
+
+  .e-niveles {
+    width: min(100%, 17rem);
+  }
+
+  .e-niveles__barras {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.55rem;
+    height: 7.5rem;
+  }
+
+  .e-nv {
+    position: relative;
+    height: var(--alto);
+    overflow: hidden;
+    border-radius: 10px 10px 4px 4px;
+    background-color: color-mix(in srgb, var(--color-encre) 9%, transparent);
+  }
+
+  .e-nv__relleno {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-bleu);
+    transform-origin: 50% 100%;
+    transform: scaleY(var(--lleno));
+  }
+
+  .e-nv--tu .e-nv__relleno {
+    background-color: var(--color-grenat);
+  }
+
+  .e-nv--curso .e-nv__relleno {
+    background-color: var(--color-azur);
+  }
+
+  /* El "Tu", encima del peldaño del medio (B1). */
+  .e-niveles__tu {
+    position: absolute;
+    left: 50%;
+    bottom: calc(65% + 0.5rem);
+    translate: -50% 0;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .e-niveles__tu::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    border: 5px solid transparent;
+    border-top-color: var(--color-encre);
+    translate: -50% 0;
+  }
+
+  .e-niveles__nombres {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-top: 0.45rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-encre) 65%, transparent);
+  }
+
+  :global([data-vivo]) .e-nv__relleno {
+    animation: e-nv 8s var(--ease-fluid) infinite both;
+    animation-delay: calc(var(--i) * 0.35s);
+  }
+
+  :global([data-vivo]) .e-niveles__tu {
+    animation: e-salto 1.6s ease-in-out infinite;
+  }
+
+  @keyframes e-nv {
+    0% {
+      transform: scaleY(0);
+    }
+    14%,
+    86% {
+      transform: scaleY(var(--lleno));
+    }
+    96%,
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  @keyframes e-salto {
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  /* --- Objetivos ------------------------------------------------------------ */
+
+  .e-metas {
+    display: grid;
+    justify-items: center;
+    gap: 0.8rem;
+    width: min(100%, 19rem);
+  }
+
+  .e-metas__lista {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .e-meta {
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-family: var(--font-display);
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  /* En reposo, el primero va marcado. */
+  .e-meta:first-child {
+    background-color: var(--color-encre);
+    color: var(--color-blanc);
+  }
+
+  :global([data-vivo]) .e-meta {
+    animation: e-meta 8s var(--ease-smooth) infinite both;
+    animation-delay: calc(var(--i) * 1.6s);
+  }
+
+  @keyframes e-meta {
+    0%,
+    100% {
+      background-color: var(--color-blanc);
+      color: var(--color-encre);
+      transform: none;
+    }
+    3%,
+    17% {
+      background-color: var(--color-encre);
+      color: var(--color-blanc);
+      transform: translateY(-3px) scale(1.07);
+    }
+    21% {
+      background-color: var(--color-blanc);
+      color: var(--color-encre);
+      transform: none;
+    }
+  }
+
+  /* --- Frances real: un mazo de cartas que se baraja -------------------------- */
+
+  .e-real {
+    position: relative;
+    width: min(100%, 14rem);
+    height: 6.6rem;
+    margin-top: 1.4rem;
+  }
+
+  .e-carta {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    padding: 0.75rem 0.95rem;
+    border-radius: 16px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    transform-origin: 50% 100%;
+    transform: translateY(calc(var(--k) * -11px)) scale(calc(1 - var(--k) * 0.06));
+    z-index: calc(4 - var(--k));
+  }
+
+  .e-carta__tipo {
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  .e-carta__fr {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-encre);
+  }
+
+  .e-ondas {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 2.2rem;
+  }
+
+  .e-ondas i {
+    width: 5px;
+    height: 100%;
+    border-radius: 3px;
+    background-color: var(--color-bleu);
+    transform-origin: 50% 50%;
+    transform: scaleY(0.5);
+  }
+
+  .e-ondas i:nth-child(2n) {
+    transform: scaleY(0.85);
+    background-color: var(--color-azur);
+  }
+
+  .e-ondas i:nth-child(3n) {
+    transform: scaleY(0.3);
+  }
+
+  .e-lineas {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .e-lineas i {
+    height: 5px;
+    border-radius: 3px;
+    background-color: color-mix(in srgb, var(--color-encre) 12%, transparent);
+  }
+
+  .e-lineas i:last-child {
+    width: 70%;
+  }
+
+  .e-play {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+  }
+
+  .e-play::after {
+    content: '';
+    margin-left: 2px;
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent var(--color-blanc);
+  }
+
+  :global([data-vivo]) .e-carta {
+    animation: e-mazo 10s var(--ease-smooth) infinite both;
+  }
+
+  /* Cada carta empieza en su punto del ciclo: la de delante en el 0 %, las
+     de detras donde les toca estar. */
+  :global([data-vivo]) .e-carta[style*='--k: 1'] {
+    animation-delay: -7.5s;
+  }
+
+  :global([data-vivo]) .e-carta[style*='--k: 2'] {
+    animation-delay: -5s;
+  }
+
+  :global([data-vivo]) .e-carta[style*='--k: 3'] {
+    animation-delay: -2.5s;
+  }
+
+  :global([data-vivo]) .e-ondas i {
+    animation: e-onda 0.9s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .e-ondas i:nth-child(2n) {
+    animation-delay: -0.3s;
+  }
+
+  :global([data-vivo]) .e-ondas i:nth-child(3n) {
+    animation-delay: -0.6s;
+  }
+
+  @keyframes e-mazo {
+    0%,
+    18% {
+      opacity: 1;
+      transform: none;
+      z-index: 4;
+    }
+    25% {
+      opacity: 0;
+      transform: translateX(95%) rotate(9deg);
+      z-index: 4;
+    }
+    25.1% {
+      opacity: 0;
+      transform: translateY(-33px) scale(0.82);
+      z-index: 1;
+    }
+    32%,
+    43% {
+      opacity: 1;
+      transform: translateY(-33px) scale(0.82);
+      z-index: 1;
+    }
+    50%,
+    68% {
+      opacity: 1;
+      transform: translateY(-22px) scale(0.88);
+      z-index: 2;
+    }
+    75%,
+    93% {
+      opacity: 1;
+      transform: translateY(-11px) scale(0.94);
+      z-index: 3;
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+      z-index: 4;
+    }
+  }
+
+  @keyframes e-onda {
+    from {
+      transform: scaleY(0.25);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  /* --- La explicacion ------------------------------------------------------- */
+
+  .e-explica {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    width: min(100%, 17.5rem);
+  }
+
+  .e-frase {
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-encre);
+  }
+
+  .e-marca {
+    position: relative;
+    color: var(--color-grenat);
+    white-space: nowrap;
+  }
+
+  .e-subraya {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 3px;
+    border-radius: 3px;
+    background-color: var(--color-grenat);
+    transform-origin: 0% 50%;
+  }
+
+  .e-nota {
+    position: relative;
+    margin-left: 2.2rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 14px;
+    background-color: var(--color-encre);
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--color-blanc);
+    transform-origin: 20% 0%;
+  }
+
+  .e-nota::before {
+    content: '';
+    position: absolute;
+    left: 1.2rem;
+    bottom: 100%;
+    border: 6px solid transparent;
+    border-bottom-color: var(--color-encre);
+  }
+
+  .e-nota em {
+    font-style: italic;
+    color: var(--color-chair);
+  }
+
+  :global([data-vivo]) .e-subraya {
+    animation: e-subraya 8s var(--ease-fluid) infinite both;
+  }
+
+  :global([data-vivo]) .e-nota {
+    animation: e-nota 8s var(--ease-smooth) infinite both;
+  }
+
+  @keyframes e-subraya {
+    0%,
+    8% {
+      transform: scaleX(0);
+    }
+    20%,
+    88% {
+      transform: scaleX(1);
+    }
+    96%,
+    100% {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes e-nota {
+    0%,
+    22% {
+      opacity: 0;
+      transform: translateY(8px) scale(0.9);
+    }
+    30%,
+    88% {
+      opacity: 1;
+      transform: none;
+    }
+    96%,
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  /* --- La hora de clase ----------------------------------------------------- */
+
+  .e-hora {
+    width: min(100%, 19rem);
+  }
+
+  .e-hora__cabeza {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .e-hora__min {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-encre) 65%, transparent);
+  }
+
+  .e-hora__barra {
+    position: relative;
+    height: 2.4rem;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+  }
+
+  .e-hora__tramos {
+    position: absolute;
+    inset: 0.3rem;
+    display: grid;
+    grid-template-columns: 30fr 20fr 25fr 25fr;
+    gap: 3px;
+  }
+
+  .e-hora__tramos span {
+    border-radius: 8px;
+    background-color: var(--c);
+  }
+
+  .e-hora__tramos--base span {
+    background-color: color-mix(in srgb, var(--c) 22%, transparent);
+  }
+
+  /* El avance se descubre de izquierda a derecha: la ventana se mueve y lo
+     de dentro se mueve al reves, asi los colores no se desplazan. */
+  .e-hora__avance {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transform: translateX(-38%);
+  }
+
+  .e-hora__tramos--lleno {
+    transform: translateX(38%);
+  }
+
+  .e-hora__cursor {
+    position: absolute;
+    inset: 0;
+    transform: translateX(-38%);
+  }
+
+  .e-hora__cursor::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0.15rem;
+    bottom: 0.15rem;
+    width: 3px;
+    border-radius: 3px;
+    background-color: var(--color-encre);
+    box-shadow: 0 0 0 2px var(--color-blanc);
+  }
+
+  .e-hora__nombres {
+    display: grid;
+    grid-template-columns: 30fr 20fr 25fr 25fr;
+    gap: 3px;
+    margin-top: 0.45rem;
+    padding-inline: 0.3rem;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  :global([data-vivo]) .e-hora__avance,
+  :global([data-vivo]) .e-hora__cursor {
+    animation: e-avance 8s linear infinite both;
+  }
+
+  :global([data-vivo]) .e-hora__tramos--lleno {
+    animation: e-avance-dentro 8s linear infinite both;
+  }
+
+  @keyframes e-avance {
+    0% {
+      transform: translateX(-100%);
+    }
+    88%,
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes e-avance-dentro {
+    0% {
+      transform: translateX(100%);
+    }
+    88%,
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* --- La hoja del examen --------------------------------------------------- */
+
+  .e-examen {
+    width: min(100%, 18.5rem);
+    padding: 0.75rem 1rem 0.55rem;
+    border-radius: 16px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+  }
+
+  .e-examen__lista {
+    display: grid;
+    margin-top: 0.4rem;
+  }
+
+  .e-examen__lista li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.3rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-encre) 8%, transparent);
+  }
+
+  .e-examen__check {
+    display: grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--color-bleu);
+  }
+
+  .e-examen__check :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .e-examen__nombre {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-encre);
+  }
+
+  .e-examen__pts {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color-encre) 55%, transparent);
+  }
+
+  :global([data-vivo]) .e-examen__check {
+    animation: e-check 8s var(--ease-smooth) infinite both;
+    animation-delay: calc(var(--i) * 0.55s);
+  }
+
+  @keyframes e-check {
+    0%,
+    4% {
+      opacity: 0;
+      transform: scale(0) rotate(-60deg);
+    }
+    11%,
+    86% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  /* --- Las cuatro partes ---------------------------------------------------- */
+
+  .e-partes {
+    display: grid;
+    gap: 0.6rem;
+    width: min(100%, 18rem);
+  }
+
+  .e-parte__nombre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-encre);
+  }
+
+  .e-parte__marca {
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .e-parte__barra {
+    position: relative;
+    display: block;
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-encre) 9%, transparent);
+  }
+
+  .e-parte__relleno {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: var(--color-bleu);
+    transform-origin: 0% 50%;
+    transform: scaleX(var(--v));
+  }
+
+  .e-parte--debil .e-parte__relleno {
+    background-color: var(--color-grenat);
+  }
+
+  :global([data-vivo]) .e-parte--debil .e-parte__relleno {
+    animation: e-debil 7s var(--ease-fluid) infinite both;
+  }
+
+  :global([data-vivo]) .e-parte__marca {
+    animation: e-late-marca 1.4s ease-in-out infinite;
+  }
+
+  @keyframes e-debil {
+    0%,
+    12% {
+      transform: scaleX(0.38);
+    }
+    55%,
+    86% {
+      transform: scaleX(0.78);
+    }
+    100% {
+      transform: scaleX(0.38);
+    }
+  }
+
+  @keyframes e-late-marca {
+    50% {
+      transform: scale(1.08);
+    }
+  }
+
+  /* --- El reloj ------------------------------------------------------------- */
+
+  .e-reloj__svg {
+    width: 8.5rem;
+    height: 8.5rem;
+    overflow: visible;
+  }
+
+  .e-reloj__pista {
+    fill: var(--color-blanc);
+    stroke: color-mix(in srgb, var(--color-encre) 10%, transparent);
+    stroke-width: 8;
+  }
+
+  .e-reloj__arco {
+    fill: none;
+    stroke: var(--color-grenat);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 30;
+    transform: rotate(-90deg);
+    transform-origin: 60px 60px;
+  }
+
+  .e-reloj__marca {
+    stroke: color-mix(in srgb, var(--color-encre) 35%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .e-reloj__aguja {
+    stroke: var(--color-encre);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transform: rotate(252deg);
+    transform-origin: 60px 60px;
+  }
+
+  .e-reloj__eje {
+    fill: var(--color-encre);
+  }
+
+  :global([data-vivo]) .e-reloj__arco {
+    animation: e-arco 8s linear infinite both;
+  }
+
+  :global([data-vivo]) .e-reloj__aguja {
+    animation: e-aguja 8s linear infinite both;
+  }
+
+  @keyframes e-arco {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes e-aguja {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global([data-vivo]) .e * {
+      animation: none !important;
+    }
+  }
+</style>

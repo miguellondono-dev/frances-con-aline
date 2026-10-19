@@ -55,7 +55,6 @@ const PELDANOS = BLOQUES.map((b, i) => ({ nivel: b, etiqueta: NIVELES[b].etiquet
       <!-- 1. PORTADA -->
       <div class="intro" data-test-intro>
         <div class="intro__texto">
-          <p class="label text-lie">Test de nivel gratuito</p>
           <h1 class="intro__titulo" data-palabras>
             Descubre tu nivel de francés en <em class="destacado">diez minutos</em>
           </h1>
@@ -292,12 +291,11 @@ const PELDANOS = BLOQUES.map((b, i) => ({ nivel: b, etiqueta: NIVELES[b].etiquet
   }
 
   .intro__titulo {
-    margin-top: 1.1rem;
     max-width: 14ch;
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.4rem);
     font-weight: 650;
-    line-height: 1.02;
+    line-height: 0.96;
     letter-spacing: -0.035em;
     color: var(--color-encre);
   }
@@ -1080,7 +1078,7 @@ const PELDANOS = BLOQUES.map((b, i) => ({ nivel: b, etiqueta: NIVELES[b].etiquet
     font-family: var(--font-display);
     font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.6rem);
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-encre);
     outline: none;
@@ -1440,7 +1438,7 @@ const PELDANOS = BLOQUES.map((b, i) => ({ nivel: b, etiqueta: NIVELES[b].etiquet
     font-family: var(--font-display);
     font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem);
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-encre);
   }

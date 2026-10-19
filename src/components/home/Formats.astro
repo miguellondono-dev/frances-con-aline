@@ -10,6 +10,12 @@
  * pseudoelemento y lo que se anima es su opacidad: un degradado no se puede
  * interpolar, y hacerlo a lo bruto produce justo el salto tosco que había.
  */
+import { estadoDe, tallerAbierto } from '../../data/talleres';
+
+/** El proximo taller con plazas, para el aviso de debajo de las tarjetas. */
+const abierto = tallerAbierto();
+const cerradoYa = abierto && estadoDe(abierto) === 'cerrado' ? '' : undefined;
+
 const FORMAS = [
   {
     titulo: 'Clases 1:1',
@@ -110,14 +116,40 @@ const FORMAS = [
       }
     </ul>
 
-    <div class="formas-paris" data-reveal data-repite>
-      {/* Antes decia "pronto abriré calendario para mis talleres", y los
-          talleres ya tienen fechas y plazas abiertas: la frase los escondia. */}
-      <p>
-        En París también hay talleres de teatro y de acuarela en francés, con
-        plazas abiertas. Y pronto, tours en español.
-      </p>
-      <a href="/talleres" class="boton-expandido">Ver los talleres</a>
+    {/* Con un taller abierto, el aviso dice cual y cuando, con su fecha. Al
+        pasar el cierre se cambia solo por el texto general
+        (scripts/talleres-estado.ts). */}
+    <div
+      class="formas-paris"
+      data-reveal
+      data-repite
+      data-taller-cierre={abierto?.tanda?.iso.cierre}
+      data-taller-cerrado={cerradoYa}
+    >
+      {
+        abierto?.tanda && (
+          <div class="si-abierto">
+            <p class="formas-paris__rotulo">
+              <span class="formas-paris__punto" aria-hidden="true" />
+              Próximo taller en París
+            </p>
+            <p>
+              {abierto.nombre}, el {abierto.tanda.cuando.toLowerCase()}. Y tours
+              a pie por París, en español.
+            </p>
+            <a href={`/talleres/${abierto.slug}`} class="boton-expandido">
+              Ver el taller
+            </a>
+          </div>
+        )
+      }
+      <div class={abierto?.tanda ? 'si-cerrado' : undefined}>
+        <p>
+          En París también hay talleres de teatro y de acuarela en francés, y
+          tours a pie en español.
+        </p>
+        <a href="/talleres" class="boton-expandido">Ver los talleres</a>
+      </div>
     </div>
   </div>
 </section>
@@ -393,6 +425,61 @@ const FORMAS = [
     text-align: center;
   }
 
+  /* Sin taller abierto, el envoltorio del texto general no pinta nada. */
+  .formas-paris > div:not([class]) {
+    display: contents;
+  }
+
+  /* Dos clases para ganarle a ".formas-paris p", que pone la letra grande. */
+  .formas-paris .formas-paris__rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  .formas-paris__punto {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+  }
+
+  .formas-paris__punto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    animation: formas-late 1.8s ease-out infinite;
+  }
+
+  @keyframes formas-late {
+    from {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .formas-paris__punto::after {
+      animation: none;
+    }
+  }
+
   .formas-paris p {
     font-family: var(--font-display);
     font-size: clamp(1.125rem, 1rem + 0.5vw, 1.4rem);
@@ -487,3 +574,7 @@ const FORMAS = [
     }
   }
 </style>
+
+<script>
+  import '../../scripts/talleres-estado';
+</script>

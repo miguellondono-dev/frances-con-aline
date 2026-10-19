@@ -62,27 +62,32 @@ const schema = [
   taller({
     name: 'Taller de teatro en francés',
     description:
-      'Cuatro sábados de octubre para perder la vergüenza de hablar francés: ejercicios de voz, trabalenguas, escenas en grupo, interpretación e improvisación, con una representación final sobre el escenario. Presencial en París.',
+      'Cuatro sábados para perder la vergüenza de hablar francés: ejercicios de voz, trabalenguas, escenas en grupo, interpretación e improvisación, con una representación final sobre el escenario. Presencial en París.',
     path: '/talleres/teatro',
     site: Astro.site,
-    inicia: t.iso.inicia,
-    termina: t.iso.termina,
-    horario: `Sábados de ${t.hora}`,
-    dia: 'Saturday',
+    inicia: t.tanda?.iso.inicia,
+    termina: t.tanda?.iso.termina,
+    horario: t.tanda ? `Sábados de ${t.tanda.hora}` : 'Sábados',
+    dia: t.diaSemana,
     sesiones: t.sesiones,
     minutosPorSesion: t.minutosPorSesion,
-    precio: t.precio,
+    precio: t.tanda?.precio,
     moneda: 'EUR',
     ciudad: t.ciudad,
     pais: 'FR',
-    cierreInscripcion: t.iso.cierre,
+    cierreInscripcion: t.tanda?.iso.cierre,
   }),
 ];
+
+/** Con fechas, las fechas; sin ellas, que vuelve pronto. */
+const descripcion = t.tanda
+  ? `Cuatro sábados para perder la vergüenza de hablar francés: ${t.tanda.cuando.toLowerCase()}, de ${t.tanda.hora}, en París. ${t.tanda.precio} € las cuatro sesiones.`
+  : 'Cuatro sábados para perder la vergüenza de hablar francés, sobre un escenario de verdad en París. Las próximas fechas, muy pronto.';
 ---
 
 <BaseLayout
   title="Taller de teatro"
-  description="Cuatro sábados de octubre para perder la vergüenza de hablar francés. Sábados 10, 17, 24 y 31, de 11:00 a 12:30, en París. 65 € las cuatro sesiones."
+  description={descripcion}
   path="/talleres/teatro"
   schema={schema}
 >

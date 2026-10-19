@@ -14,8 +14,8 @@
  *    desde el centro, flotan, siguen al raton, y un bucle cuenta una clase
  *    (Aline escribe, se tacha un error, entra la correccion).
  *  - Titulares de seccion: linea a linea con mascara al entrar en pantalla.
- *  - Lo que vas a conseguir: los logros entran en cascada y el panel llega
- *    girado y se asienta; en movil, las tarjetas suben y los iconos saltan.
+ *  - Lo que vas a conseguir: cada tarjeta del mosaico sube con un leve giro
+ *    y su escena se abre desde el centro.
  *  - Como empezamos: el carril de la linea de tiempo, con scrub suave. En estas
  *    paginas lo lleva GSAP en vez de Motion, asi no se cargan dos librerias.
  *  - Precio: la cifra cuenta hasta el precio y las filas de bonos entran una
@@ -289,53 +289,41 @@ async function iniciar() {
   /* --- Lo que vas a conseguir ------------------------------------------ */
 
   /**
-   * Los logros entran en cascada desde la izquierda y el panel llega desde
-   * la derecha, algo girado, y se asienta. En movil, las tarjetas suben y sus
-   * iconos saltan. Que logro esta activo no lo lleva GSAP: va en el guion
-   * de la plantilla, para que funcione aunque GSAP no cargue.
+   * Cada tarjeta sube con un leve giro cuando asoma, y su escena se abre
+   * desde el centro un instante despues. En escritorio, la de la derecha de
+   * cada fila sale un poco mas tarde que la de la izquierda. Los bucles de
+   * las escenas no los lleva GSAP: los enciende el guion de la plantilla con
+   * [data-vivo], para que funcionen aunque GSAP no cargue.
    */
   function logros(escritorio: boolean) {
     const items = todos('[data-g-logro]');
-    if (!items.length) return;
-    const lista = items[0].parentElement ?? items[0];
-    const disparo = { trigger: lista, start: 'top 82%', toggleActions: CICLO };
-
-    gsap.from(items, {
-      autoAlpha: 0,
-      x: escritorio ? -40 : 0,
-      y: escritorio ? 0 : 30,
-      duration: 0.8,
-      ease: 'power3.out',
-      stagger: 0.1,
-      scrollTrigger: disparo,
-    });
-
-    if (!escritorio) {
-      gsap.from(todos('.logro__icono svg', lista), {
-        scale: 0.3,
-        rotation: -20,
-        transformOrigin: '50% 50%',
-        ease: 'back.out(2.2)',
-        duration: 0.6,
-        stagger: 0.1,
-        delay: 0.2,
+    items.forEach((item, i) => {
+      const fila = item.parentElement?.getBoundingClientRect().left ?? 0;
+      const derecha = escritorio && item.getBoundingClientRect().left - fila > 40;
+      const retraso = derecha ? 0.14 : 0;
+      const disparo = { trigger: item, start: 'top 88%', toggleActions: CICLO };
+      gsap.from(item, {
+        autoAlpha: 0,
+        y: 70,
+        rotation: i % 2 === 0 ? -1.5 : 1.5,
+        scale: 0.96,
+        duration: 1,
+        ease: 'power4.out',
+        delay: retraso,
         scrollTrigger: disparo,
       });
-      return;
-    }
-
-    const escena = uno('[data-g-escena]');
-    if (escena) {
-      gsap.from(escena, {
-        autoAlpha: 0,
-        y: 50,
-        rotation: 3,
-        scale: 0.92,
-        duration: 1.1,
-        ease: 'power4.out',
-        scrollTrigger: { trigger: escena, start: 'top 85%', toggleActions: CICLO },
-      });
-    }
+      const escena = item.querySelector<HTMLElement>('.logro__escena > *');
+      if (escena) {
+        gsap.from(escena, {
+          autoAlpha: 0,
+          scale: 0.82,
+          duration: 0.9,
+          ease: 'back.out(1.6)',
+          delay: retraso + 0.25,
+          scrollTrigger: disparo,
+        });
+      }
+    });
   }
 
   /* --- Como empezamos: el carril ------------------------------------------ */

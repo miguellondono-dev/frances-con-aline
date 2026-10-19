@@ -31,6 +31,12 @@ DirectorySlash Off
   RewriteCond %{HTTP_HOST} ^www\.francesconaline\.com$ [NC]
   RewriteRule ^(.*)$ https://francesconaline.com/$1 [R=301,L]
 
+  # Una sola direccion por pagina: /clases-privadas/ redirige a
+  # /clases-privadas, que es la que dice el canonical. Sin esto, las dos
+  # respondian 200 y Google veia dos copias.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.+)/$ https://francesconaline.com/$1 [R=301,L]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
   RewriteRule ^(.+?)/?$ /$1/index.html [L]

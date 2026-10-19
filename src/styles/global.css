@@ -38,6 +38,24 @@
   unicode-range: U+0000-00FF, U+0100-017F, U+2000-206F, U+20AC, U+2122;
 }
 
+/* La misma italica, para la palabra roja de los titulares (.destacado).
+   Satoshi deja mucho mas aire encima de la letra que Cabinet Grotesk (1,01
+   frente a 0,87 del cuerpo, medido): metida en un titular de Cabinet, su
+   linea quedaba unos 6px mas baja que las demas y el titular se veia
+   separado. Aqui se le dan las proporciones de Cabinet para que las dos
+   compartan linea. Es el mismo archivo: no se descarga nada mas. */
+@font-face {
+  font-family: 'Satoshi Titular';
+  src: url('/fonts/Satoshi-VariableItalic.woff2') format('woff2-variations');
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+  ascent-override: 87%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0100-017F, U+2000-206F, U+20AC, U+2122;
+}
+
 /* ============================================================================
    TOKENS
    Los 11 colores del brief + 2 neutros derivados. Ni uno mas.
@@ -69,14 +87,14 @@
      dentro de su columna: la jerarquia se controla con peso y color, no con
      escala bruta. */
   --text-display-xl: clamp(2.5rem, 1.5rem + 4.2vw, 5rem);
-  --text-display-xl--line-height: 1.02;
+  --text-display-xl--line-height: 0.96;
   --text-display-xl--letter-spacing: -0.03em;
   --text-display-xl--font-weight: 500;
 
   /* Techo a 56px, no a 64. Un titular de seccion a 64 se come una linea entera
      de altura util y era parte de por que las secciones no cabian en pantalla. */
   --text-display-l: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
-  --text-display-l--line-height: 1.05;
+  --text-display-l--line-height: 1;
   --text-display-l--letter-spacing: -0.03em;
   --text-display-l--font-weight: 500;
 
@@ -329,7 +347,7 @@
  * Estaba escrita tres veces en tres archivos; ahora vive aqui.
  */
 @utility destacado {
-  font-family: var(--font-body);
+  font-family: 'Satoshi Titular', var(--font-body);
   font-style: italic;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -351,6 +369,20 @@
 }
 
 /**
+ * El titular de portada de las paginas interiores: el mismo de privadas,
+ * grupo, DELF y talleres (650 de peso, techo de 72px). Antes teatro,
+ * acuarela, tours y los legales iban a 500 y 80px, y parecian de otra web.
+ */
+@utility titulo-portada {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4.5rem);
+  font-weight: 650;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+/**
  * Los fondos de seccion del sitio. Entran y salen en blanco, asi que dos
  * secciones seguidas no chocan por un canto duro: el color sube, se mantiene
  * y baja. Un bloque plano de color corta la pagina en franjas.
@@ -364,6 +396,27 @@
     color-mix(in srgb, var(--color-papier) 20%, var(--color-blanc)) 90%,
     var(--color-blanc) 100%
   );
+}
+
+/**
+ * Talleres: lo que solo vale con plazas abiertas (.si-abierto) o ya cerradas
+ * (.si-cerrado). Un antecesor con [data-taller-cerrado] decide cual se ve;
+ * lo pone scripts/talleres-estado.ts al pasar la fecha de cierre. Las cajas
+ * no pintan nada (display: contents): sus hijos se colocan como si el
+ * envoltorio no existiera.
+ */
+.si-abierto,
+.si-cerrado {
+  display: contents;
+}
+
+.si-cerrado,
+[data-taller-cerrado] .si-abierto {
+  display: none !important;
+}
+
+[data-taller-cerrado] .si-cerrado {
+  display: contents !important;
 }
 
 @utility fondo-suave {
@@ -503,7 +556,11 @@
     display: inline-block;
     overflow: hidden;
     vertical-align: bottom;
-    /* Colchon para que la mascara no corte tildes ni colas de g y p. */
+    /* Colchon para que la mascara no corte tildes ni colas de g y p. Con el
+       interlineado apretado de los titulares (0,96) hace falta tambien
+       arriba, para las tildes de las mayusculas. */
+    padding-top: 0.12em;
+    margin-top: -0.12em;
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
   }
