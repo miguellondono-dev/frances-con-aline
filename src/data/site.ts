@@ -8,7 +8,7 @@ export const SITE_NAME = 'Francés con Aline';
 
 /** Descripcion corta, reutilizada en metadatos y en llms.txt. */
 export const SITE_DESCRIPTION =
-  'Clases de francés en línea para hispanohablantes, con Aline, profesora francesa. Primera sesión gratuita de 30 minutos.';
+  'Clases de francés online para hispanohablantes, con Aline, profesora de francés nativa. Primera clase gratis de 30 minutos.';
 
 /**
  * Correo publico. La segunda via de contacto, detras de WhatsApp, para quien

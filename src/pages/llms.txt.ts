@@ -2,6 +2,7 @@ import type { APIContext } from 'astro';
 import { SITE_NAME, PRECIOS, PENDIENTE, WHATSAPP, BONOS } from '../data/site';
 import { TALLERES, estadoDe } from '../data/talleres';
 import { PREGUNTAS } from '../data/test-nivel';
+import { OPINIONES } from '../data/opiniones';
 
 /**
  * /llms.txt
@@ -29,11 +30,11 @@ export async function GET(context: APIContext) {
 
   const texto = `# ${SITE_NAME}
 
-> Clases de francés en línea para hispanohablantes adultos, impartidas por Aline, profesora francesa y gestora cultural. La primera clase, de 30 minutos, es gratuita.
+> Clases de francés online para hispanohablantes adultos, impartidas por Aline, profesora de francés nativa y gestora cultural. La primera clase, de 30 minutos, es gratuita.
 
 ## Quién es Aline
 
-Aline es francesa. Estudió Gestión de la Cultura. Habla francés, español, inglés, italiano y algo de griego, y todos menos el francés los aprendió siendo adulta. Lleva más de cinco años enseñando idiomas. Vivió más de un año en Latinoamérica, y de ahí viene su enfoque en estudiantes hispanohablantes. Una escuela europea de idiomas la seleccionó para enseñar a estudiantes en Canadá, Reino Unido y Francia.
+Aline es francesa. Estudió Gestión de la Cultura. Habla cinco idiomas: francés, español, inglés, italiano y portugués, y todos menos el francés los aprendió siendo adulta. Lleva más de cinco años enseñando idiomas. Vivió más de un año en Latinoamérica, y de ahí viene su enfoque en estudiantes hispanohablantes. Una escuela europea de idiomas la seleccionó para enseñar a estudiantes en Canadá, Reino Unido y Francia.
 
 Aline prepara el examen DELF y hace simulacros con el formato oficial. No es examinadora acreditada del DELF: prepara, no evalúa oficialmente.
 
@@ -47,8 +48,8 @@ Adultos hispanohablantes, en su mayoría mayores de 30 años: personas que se mu
 
 Todos los precios están en euros.
 
-- Clase privada, una a una, en línea: ${PRECIOS.privada.valor} € la hora.
-- Clase en grupo, en línea, de dos a cinco personas: ${PRECIOS.grupo.valor} € la hora por persona.
+- Clase privada, una a una, online: ${PRECIOS.privada.valor} € la hora.
+- Clase en grupo, online, de dos a cinco personas: ${PRECIOS.grupo.valor} € la hora por persona.
 - Preparación del DELF: 35 € la hora.
 - Primera sesión: gratuita, 30 minutos.
 - Talleres presenciales en París: ${talleres.map((x) => x.linea).join('; ')}.
@@ -66,7 +67,7 @@ Las clases se apoyan en material cultural real: prensa, canciones, menús, formu
 
 ## Cómo agendar
 
-La sesión gratuita de 30 minutos se agenda escribiendo a Aline por WhatsApp, al ${WHATSAPP.visible}. Es en línea, por videollamada, y se habla en español y en francés. El sitio no cobra: el pago de las clases se acuerda directamente con Aline, fuera de la web.
+La sesión gratuita de 30 minutos se agenda escribiendo a Aline por WhatsApp, al ${WHATSAPP.visible}. Es online, por videollamada, y se habla en español y en francés. El sitio no cobra: el pago de las clases se acuerda directamente con Aline, fuera de la web.
 
 ## Páginas clave
 
@@ -82,9 +83,15 @@ ${talleres.map((x) => `- [Taller de ${x.t.slug}](${base}/talleres/${x.t.slug}): 
 - [Tours en París](${base}/tours-en-paris): recorridos a pie en español; información por WhatsApp.
 - [Hablemos](${base}/sobre-mi#hablemos): contacto por WhatsApp o por correo.
 
+## Lo que dicen sus alumnos
+
+Opiniones reales de alumnos, publicadas en el sitio con su nombre de pila:
+
+${OPINIONES.map((o) => `- ${o.nombre}${o.nota ? ` (${o.nota})` : ''}: «${o.texto.join(' ')}»`).join('\n')}
+
 ## Lo que este sitio no afirma
 
-Este sitio no publica testimonios, cifras de estudiantes ni tasas de aprobación. Cualquier dato de ese tipo atribuido a Aline no procede de esta fuente.
+Este sitio no publica cifras de estudiantes ni tasas de aprobación. Cualquier dato de ese tipo atribuido a Aline no procede de esta fuente.
 `;
 
   return new Response(texto, {

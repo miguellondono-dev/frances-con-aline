@@ -7,6 +7,7 @@ import ChatWhatsapp from './ChatWhatsapp.astro';
 import Metodo from './home/Method.astro';
 import Vocabulario from './home/Thesis.astro';
 import EscenaLogro from './graficos/EscenaLogro.astro';
+import Opiniones from './Opiniones.astro';
 import type { TipoEscena } from './graficos/escenas';
 import { icono, type NombreIcono } from '../data/iconos';
 import { WA, whatsapp } from '../data/site';
@@ -90,6 +91,8 @@ interface Props {
   cierre: { titulo: string; texto: string; chat?: { boton: string; asunto: string } };
   /** Banda de palabras en frances bajo la portada. */
   vocabulario?: { palabras: { fr: string; es: string }[]; etiqueta: string };
+  /** Ids de las opiniones que van primero en esta pagina (data/opiniones.ts). */
+  opiniones?: string[];
   ctaHero?: string;
   ctaCierre?: string;
   /** Mensaje de WhatsApp de cada boton, a juego con lo que dice. */
@@ -114,6 +117,7 @@ const {
   faq,
   cierre,
   vocabulario,
+  opiniones = [],
   ctaHero = 'Agenda tu clase gratis',
   ctaCierre = 'Agenda tu clase gratis',
   waHero = WA.agendar,
@@ -337,6 +341,10 @@ const forma = (i: number) =>
   <span class="blink-lid blink-lid--top" aria-hidden="true"></span>
   <span class="blink-lid blink-lid--bottom" aria-hidden="true"></span>
 </section>
+
+<!-- OPINIONES: justo antes de las preguntas, como pide Miguel. En calido:
+     viene detras de la banda oscura del precio. -->
+<Opiniones primero={opiniones} fondo="calido" boton={{ texto: ctaHero, href: whatsapp(waHero) }} />
 
 <!-- 5. PREGUNTAS FRECUENTES -->
 <Faq preguntas={faq} id="preguntas" />

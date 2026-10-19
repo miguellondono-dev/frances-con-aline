@@ -5,7 +5,7 @@ import ConversacionGrupo from '../components/graficos/ConversacionGrupo.astro';
 import { FAQ_GRUPO } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
 import { BONOS, CTA, WA } from '../data/site';
-import { breadcrumb, service } from '../lib/schema';
+import { breadcrumb, service, course } from '../lib/schema';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -13,10 +13,18 @@ const migas = [
 ];
 
 const schema = [
-  service({
-    name: 'Clases de francés en grupo en línea',
+  course({
+    name: 'Clases de francés online en grupo',
     description:
-      'Clases de francés en línea en grupos abiertos de dos a cinco personas. Te apuntas por tu cuenta y Aline forma el grupo por nivel.',
+      'Clases de francés online en grupos de dos a cinco personas del mismo nivel, para hispanohablantes.',
+    path: '/clases-en-grupo',
+    site: Astro.site,
+    precio: 20,
+  }),
+  service({
+    name: 'Clases de francés en grupo online',
+    description:
+      'Clases de francés online en grupos abiertos de dos a cinco personas. Te apuntas por tu cuenta y Aline forma el grupo por nivel.',
     path: '/clases-en-grupo',
     precio: 20,
     unidad: '20 € la hora por persona',
@@ -28,8 +36,8 @@ const schema = [
 ---
 
 <BaseLayout
-  title="Clases en grupo"
-  description="Clases de francés en grupo de dos a cinco personas, a 20 € la hora. Te apuntas por tu cuenta y yo formo el grupo por nivel. Primera clase gratis."
+  title="Clases de francés online en grupo"
+  description="Clases de francés online en grupos de 2 a 5 personas de tu nivel, a 20 € la hora por persona. Hablas más y pagas menos. Primera clase gratis."
   path="/clases-en-grupo"
   schema={schema}
 >
@@ -37,7 +45,7 @@ const schema = [
     gsap
     titulo="Practica con más voces"
     acento="voces"
-    intro="Clases de francés en línea, en grupos de 2 a 5 personas de tu nivel. Hablas más, pierdes la vergüenza y pagas menos por hora."
+    intro="Clases de francés online, en grupos de 2 a 5 personas de tu nivel. Hablas más, pierdes la vergüenza y pagas menos por hora."
     garantias={['De 2 a 5 personas', 'Grupos por nivel', 'Primera clase gratis']}
     apertura={{
       alt: 'Conversación en francés entre alumnos de un grupo, con una corrección en el momento',
@@ -96,6 +104,7 @@ const schema = [
       lista: BONOS.grupo,
     }}
     faq={FAQ_GRUPO}
+    opiniones={['giorgio', 'miguel', 'alvaro']}
     cierre={{
       titulo: 'Apúntate y yo me encargo del grupo',
       texto:

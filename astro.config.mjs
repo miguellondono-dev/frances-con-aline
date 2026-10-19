@@ -36,6 +36,9 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => !page.includes('/gracias') && (hayDiario || !page.includes('/diario')),
+      // Fecha de la ultima publicacion: le dice a Google que hay algo nuevo
+      // que volver a mirar.
+      lastmod: new Date(),
     }),
   ],
   vite: {

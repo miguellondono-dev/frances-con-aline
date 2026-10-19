@@ -14,14 +14,15 @@ const migas = [
 
 const schema = [
   course({
-    name: 'Preparación del DELF en línea',
+    name: 'Preparación del DELF online',
     description:
-      'Preparación del examen DELF con simulacros en el formato oficial. Preparo el examen y hago simulacros; no soy examinadora acreditada.',
+      'Preparación online del examen DELF para hispanohablantes: simulacros en el formato oficial, las cuatro partes del examen y un plan centrado en la que más cuesta.',
     path: '/preparacion-delf',
     site: Astro.site,
+    precio: 35,
   }),
   service({
-    name: 'Preparación DELF en línea',
+    name: 'Preparación DELF online',
     description:
       'Preparación del DELF una a una o en grupo, con simulacros completos en el formato y los tiempos oficiales.',
     path: '/preparacion-delf',
@@ -35,8 +36,8 @@ const schema = [
 ---
 
 <BaseLayout
-  title="Preparación del DELF"
-  description="Preparo el DELF con simulacros en el formato oficial. Trabajamos las cuatro partes del examen y los tiempos reales. Primera clase gratis de 30 minutos."
+  title="Preparación del DELF online"
+  description="Preparación del DELF online: simulacros en el formato oficial, las cuatro partes del examen y los tiempos reales. Primera clase gratis de 30 minutos."
   path="/preparacion-delf"
   schema={schema}
 >
@@ -44,7 +45,7 @@ const schema = [
     gsap
     titulo="Prepara el DELF sin sorpresas"
     acento="sin sorpresas"
-    intro="Clases en línea para preparar el examen: simulacros con el formato y los tiempos oficiales, y un plan centrado en la parte que más te cuesta."
+    intro="Clases online para preparar el examen DELF: simulacros con el formato y los tiempos oficiales, y un plan centrado en la parte que más te cuesta."
     garantias={['Simulacros reales', 'Las 4 partes del examen', 'Primera clase gratis']}
     apertura={{
       alt: 'Cómo se puntúa el DELF: cuatro partes de 25 puntos; se aprueba con 50 y al menos 5 en cada parte',
@@ -102,10 +103,11 @@ const schema = [
       lista: BONOS.privada,
     }}
     faq={FAQ_DELF}
+    opiniones={['mario', 'blanca']}
     cierre={{
       titulo: 'Primero medimos, después decidimos el nivel',
       texto:
-        'Media hora en línea para medir las cuatro partes y ver a qué nivel te conviene presentarte.',
+        'Media hora online para medir las cuatro partes y ver a qué nivel te conviene presentarte.',
     }}
     breadcrumb={migas}
     ctaHero={CTA.heroDelf}

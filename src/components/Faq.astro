@@ -1,5 +1,7 @@
 ---
+import logoWhatsapp from '@phosphor-icons/core/fill/whatsapp-logo-fill.svg?raw';
 import type { Pregunta } from '../data/faq';
+import { whatsapp, WA } from '../data/site';
 
 /**
  * PREGUNTAS FRECUENTES.
@@ -8,6 +10,10 @@ import type { Pregunta } from '../data/faq';
  * fabrica y el texto de la respuesta esta siempre en el DOM, asi que los
  * buscadores lo leen aunque este plegado.
  * Las tres primeras van abiertas para que la primera respuesta se vea entera.
+ *
+ * Al final de la lista, la salida para quien no encontro su pregunta: va
+ * despues de las preguntas y no debajo del titular, que es donde la pidio
+ * Miguel, y abre WhatsApp con el mensaje ya escrito.
  */
 interface Props {
   preguntas: Pregunta[];
@@ -26,6 +32,7 @@ const {
 } = Astro.props;
 
 const Encabezado = nivel;
+const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
 ---
 
 <section class="bg-blanc" aria-labelledby={`${id}-titulo`}>
@@ -35,12 +42,6 @@ const Encabezado = nivel;
         <h2 id={`${id}-titulo`} class="text-display-l text-encre" data-reveal>
           {titulo}
         </h2>
-        <p class="mt-5 max-w-[34ch] text-body text-encre/70" data-reveal>
-          ¿Falta la tuya? <a
-            href="/sobre-mi#hablemos"
-            class="text-lie underline underline-offset-4 hover:no-underline">Escríbeme</a
-          >.
-        </p>
       </div>
     </div>
 
@@ -75,6 +76,17 @@ const Encabezado = nivel;
           </details>
         ))
       }
+
+      <div class="faq-cierre" data-reveal>
+        <a class="faq-cierre__enlace" href={whatsapp(WA.pregunta)} target="_blank" rel="noopener">
+          <span class="faq-cierre__icono"><Fragment set:html={icono} /></span>
+          <span class="faq-cierre__texto">Escríbeme y te resuelvo cualquier duda</span>
+          <svg class="faq-cierre__flecha" viewBox="0 0 24 16" fill="none" aria-hidden="true">
+            <path d="M0 8h22M15 1l7 7-7 7" stroke="currentColor" stroke-width="1.8" />
+          </svg>
+          <span class="sr-only"> (por WhatsApp)</span>
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -92,9 +104,115 @@ const Encabezado = nivel;
     transform: rotate(45deg);
   }
 
+  /* La salida del final: una linea, no un bloque. El circulo de WhatsApp
+     late despacio; al pasar por encima, el subrayado rojo se dibuja de
+     izquierda a derecha y la flecha avanza. */
+  .faq-cierre {
+    margin-top: 0.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
+  }
+
+  .faq-cierre__enlace {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-encre);
+    text-decoration: none;
+  }
+
+  .faq-cierre__icono {
+    position: relative;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+    transition: background-color 320ms var(--ease-smooth);
+  }
+
+  .faq-cierre__icono :global(svg) {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .faq-cierre__icono::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-grenat) 55%, transparent);
+    animation: faq-late 2.6s var(--ease-smooth) infinite;
+  }
+
+  @keyframes faq-late {
+    from {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    to {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  .faq-cierre__texto {
+    position: relative;
+    padding-bottom: 0.15em;
+  }
+
+  .faq-cierre__texto::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--color-lie);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 520ms var(--ease-fluid);
+  }
+
+  .faq-cierre__flecha {
+    width: 1.35rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+    color: var(--color-grenat);
+    transition: transform 420ms var(--ease-fluid);
+  }
+
+  .faq-cierre__enlace:hover .faq-cierre__texto::after,
+  .faq-cierre__enlace:focus-visible .faq-cierre__texto::after {
+    transform: scaleX(1);
+  }
+
+  .faq-cierre__enlace:hover .faq-cierre__flecha,
+  .faq-cierre__enlace:focus-visible .faq-cierre__flecha {
+    transform: translateX(6px);
+  }
+
+  .faq-cierre__enlace:hover .faq-cierre__icono {
+    background-color: var(--color-lie);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .faq-mark svg {
+    .faq-mark svg,
+    .faq-cierre__texto::after,
+    .faq-cierre__flecha {
       transition: none;
+    }
+
+    .faq-cierre__icono::after {
+      animation: none;
+      opacity: 0;
     }
   }
 </style>

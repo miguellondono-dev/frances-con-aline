@@ -5,7 +5,7 @@ import ColagePrivadas from '../components/graficos/ColagePrivadas.astro';
 import { FAQ_PRIVADAS } from '../data/faq-servicios';
 import { faqSchema } from '../data/faq';
 import { BONOS, CTA, WA } from '../data/site';
-import { breadcrumb, service } from '../lib/schema';
+import { breadcrumb, service, course } from '../lib/schema';
 import alineClases from '../assets/aline-clases.jpeg';
 
 const migas = [
@@ -14,10 +14,18 @@ const migas = [
 ];
 
 const schema = [
-  service({
-    name: 'Clases particulares de francés en línea',
+  course({
+    name: 'Clases particulares de francés online',
     description:
-      'Clases de francés individuales en línea, a la medida del nivel, el objetivo y el ritmo de cada estudiante hispanohablante.',
+      'Clases de francés individuales online para hispanohablantes, de cualquier nivel, a la medida de su objetivo y su ritmo.',
+    path: '/clases-privadas',
+    site: Astro.site,
+    precio: 35,
+  }),
+  service({
+    name: 'Clases particulares de francés online',
+    description:
+      'Clases de francés individuales online, a la medida del nivel, el objetivo y el ritmo de cada estudiante hispanohablante.',
     path: '/clases-privadas',
     precio: 35,
     unidad: '35 € la hora',
@@ -56,8 +64,8 @@ const FRASES_DE_CLASE = [
 ---
 
 <BaseLayout
-  title="Clases privadas"
-  description="Clases de francés individuales en línea, a tu medida y para cualquier nivel. Clases dinámicas para que hables desde el primer día. Primera clase gratis."
+  title="Clases particulares de francés online"
+  description="Clases particulares de francés online, a tu medida y para cualquier nivel, con una profesora nativa. Hablas desde el primer día. Primera clase gratis."
   path="/clases-privadas"
   schema={schema}
 >
@@ -65,7 +73,7 @@ const FRASES_DE_CLASE = [
     gsap
     titulo="Habla francés con confianza desde la primera clase"
     acento="confianza"
-    intro="Clases individuales en línea que se adaptan a tu nivel, a tu objetivo y a tu ritmo. Da igual si empiezas desde cero o si ya te defiendes: cada clase es dinámica y está pensada para que hables más y con más soltura."
+    intro="Clases particulares de francés online que se adaptan a tu nivel, a tu objetivo y a tu ritmo. Da igual si empiezas desde cero o si ya te defiendes: cada clase es dinámica y está pensada para que hables más y con más soltura."
     garantias={['Para cualquier nivel', 'Clases dinámicas', 'Primera clase gratis']}
     apertura={{
       alt: 'Aline en Montmartre, frente al Sacré-Cœur',
@@ -116,7 +124,7 @@ const FRASES_DE_CLASE = [
     pasos={[
       {
         titulo: 'Clase gratis',
-        texto: 'Media hora en línea para conocerte y ver tu nivel. Sin compromiso.',
+        texto: 'Media hora online para conocerte y ver tu nivel. Sin compromiso.',
       },
       {
         titulo: 'Tu plan',
@@ -138,6 +146,7 @@ const FRASES_DE_CLASE = [
       lista: BONOS.privada,
     }}
     faq={FAQ_PRIVADAS}
+    opiniones={['alvaro', 'juan-felipe', 'giorgio']}
     vocabulario={{ palabras: FRASES_DE_CLASE, etiqueta: 'Frases de clase en francés con su traducción' }}
     cierre={{
       titulo: 'Empieza a hablar francés',

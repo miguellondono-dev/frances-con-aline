@@ -36,9 +36,9 @@ export function marca(site?: URL) {
     logo: `${raiz}/img/logo.svg`,
     founder: { '@id': alineId(site) },
     knowsLanguage: ['fr', 'es'],
-    areaServed: 'Online',
+    areaServed: ['Online', 'París'],
     description:
-      'Clases de francés en línea para hispanohablantes, con Aline, profesora francesa.',
+      'Clases de francés online para hispanohablantes con Aline, profesora de francés nativa, y talleres y tours en París.',
   };
 }
 
@@ -101,9 +101,17 @@ export function service({
   };
 }
 
-export function course(
-  { name, description, path, site }: Omit<ServiceInput, 'precio' | 'unidad'>,
-) {
+/**
+ * Un curso online. Con precio lleva `offers`, que es lo que Google pide para
+ * enseñarlo en sus listas de cursos con el precio al lado.
+ */
+export function course({
+  name,
+  description,
+  path,
+  site,
+  precio,
+}: Omit<ServiceInput, 'precio' | 'unidad'> & { precio?: number }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -113,6 +121,17 @@ export function course(
     inLanguage: 'es',
     teaches: 'Francés como lengua extranjera',
     provider: { '@id': alineId(site) },
+    ...(precio !== undefined
+      ? {
+          offers: {
+            '@type': 'Offer',
+            category: 'Paid',
+            price: precio,
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+          },
+        }
+      : {}),
     hasCourseInstance: {
       '@type': 'CourseInstance',
       courseMode: 'online',

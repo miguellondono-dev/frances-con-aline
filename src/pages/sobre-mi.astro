@@ -6,6 +6,7 @@ import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
 import Icon from '../components/Icon.astro';
 import ChatWhatsapp from '../components/ChatWhatsapp.astro';
+import Opiniones from '../components/Opiniones.astro';
 import { breadcrumb, alineId } from '../lib/schema';
 import { CTA, WA, whatsapp } from '../data/site';
 
@@ -117,8 +118,8 @@ const abanico = TEMAS.map((tema, i) => {
 ---
 
 <BaseLayout
-  title="Sobre mí"
-  description="Soy francesa, hablo cinco idiomas y enseño francés a hispanohablantes con clases a tu medida. También te ayudo con Campus France y tu CV en francés."
+  title="Aline, profesora de francés nativa"
+  description="Soy Aline, profesora de francés nativa. Hablo cinco idiomas y enseño francés online a hispanohablantes. También te ayudo con Campus France y el CV en francés."
   path="/sobre-mi"
   schema={schema}
 >
@@ -140,7 +141,7 @@ const abanico = TEMAS.map((tema, i) => {
         <p class="cabecera__entrada" data-reveal>
           El francés es mi idioma natal, y estudié la pedagogía y los métodos de
           aprendizaje para poder compartir mi pasión, que es aprender idiomas.
-          Aprendí a hablar más de cinco idiomas, lo que me permitió viajar y
+          Aprendí a hablar cinco idiomas, lo que me permitió viajar y
           enseñar francés a estudiantes de varias partes del mundo.
         </p>
 
@@ -234,6 +235,14 @@ const abanico = TEMAS.map((tema, i) => {
     usa el inicio con su marquesina: sin un corte, cuatro secciones claras
     seguidas se leen como una sola pagina plana.
   */}
+  {/* Opiniones en claro: van entre el calido de las clases y la banda
+      oscura de los tramites. */}
+  <Opiniones
+    primero={['giorgio', 'blanca', 'alvaro']}
+    fondo="claro"
+    boton={{ texto: 'Agenda tu clase gratis', href: whatsapp(WA.agendar) }}
+  />
+
   <section class="tramites surface-dark relative overflow-hidden" data-blink="closed" aria-labelledby="tramites">
     <div class="shell py-section">
       <div class="tramites__caja">

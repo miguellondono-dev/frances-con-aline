@@ -7,8 +7,9 @@ import Method from '../components/home/Method.astro';
 import LevelTest from '../components/home/LevelTest.astro';
 import FinalCta from '../components/home/FinalCta.astro';
 import Faq from '../components/Faq.astro';
+import Opiniones from '../components/Opiniones.astro';
 import { FAQ_HOME, faqSchema } from '../data/faq';
-import { SITE_NAME } from '../data/site';
+import { SITE_NAME, CTA_AGENDA } from '../data/site';
 import { marca } from '../lib/schema';
 
 const site = Astro.site?.href ?? 'https://PENDIENTE-DOMINIO.example/';
@@ -38,8 +39,8 @@ const schema = [
 ---
 
 <BaseLayout
-  title="Clases de francés a tu medida"
-  description="Clases de francés en línea para hispanohablantes. Soy francesa y aprendí español de adulta, así que sé dónde te vas a trabar. Primera clase gratis."
+  title="Clases de francés online a tu medida"
+  description="Clases de francés online para hispanohablantes, con una profesora nativa. Desde cualquier nivel, a tu ritmo y con mucha práctica. Primera clase gratis."
   path="/"
   schema={schema}
 >
@@ -48,6 +49,13 @@ const schema = [
   <Formats />
   <Method />
   <LevelTest />
+  {/* Justo antes de las preguntas, como pide Miguel. En azul, para que
+      contraste entre el calido del test y el blanco de las preguntas. */}
+  <Opiniones
+    primero={['alvaro', 'mario', 'giorgio', 'blanca']}
+    fondo="oscuro"
+    boton={{ texto: 'Agenda tu clase gratis', href: CTA_AGENDA.href }}
+  />
   <Faq preguntas={FAQ_HOME} id="preguntas" />
   <FinalCta />
 </BaseLayout>
