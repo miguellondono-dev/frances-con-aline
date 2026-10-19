@@ -340,7 +340,11 @@ const partes = (titular: string, acento: string) => {
     <div class="shell">
       {
         TALLERES_EN_ORDEN.map((t, i) => {
-          const tit = partes(t.titular, t.acento);
+          /* El nombre del taller es el titular, con "francés" en rojo. Antes iba
+             en una etiqueta pequeña encima del gancho, y Miguel no quiere
+             textos encima de los titulares. El gancho ya es el H1 de la
+             pagina de cada taller. */
+          const tit = partes(t.nombre, 'francés');
           return (
             <article
               class:list={['fila', { 'fila--proximo': !t.tanda }]}
@@ -354,24 +358,39 @@ const partes = (titular: string, acento: string) => {
                 <span class="fila__numero" aria-hidden="true" data-t-numero>
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <div class="fila__foto">
-                  {!t.tanda && <span class="fila__pronto">Próximamente</span>}
+                {/* La foto tambien lleva al taller. Fuera del tabulador: el boton
+                    de la derecha ya es el enlace. */}
+                <a class="fila__foto" href={`/talleres/${t.slug}`} tabindex="-1" aria-hidden="true">
+                  {t.tanda ? (
+                    <>
+                      <span class="si-abierto">
+                        <span class="fila__estado">
+                          <span class="estado__punto" />
+                          Plazas abiertas
+                        </span>
+                      </span>
+                      <span class="si-cerrado">
+                        <span class="fila__estado fila__estado--cerrado">Plazas cerradas</span>
+                      </span>
+                    </>
+                  ) : (
+                    <span class="fila__pronto">Próximamente</span>
+                  )}
                   <Picture
                     src={FOTOS[t.slug].src}
                     alt={FOTOS[t.slug].alt}
                     formats={['avif', 'webp']}
                     fallbackFormat="webp"
                     widths={[420, 640, 900]}
-                    sizes="(min-width: 64rem) 30rem, 92vw"
+                    sizes="(min-width: 48rem) 17rem, 92vw"
                     class="fila__img"
                     data-t-img
                   />
                   <span class="fila__cortina" aria-hidden="true" data-t-cortina />
-                </div>
+                </a>
               </div>
 
               <div class="fila__texto">
-                <p class="label text-lie" data-t-pieza>{t.nombre}</p>
                 <h2 id={`${t.slug}-titulo`} class="fila__titulo" data-t-titulo data-g-titulo>
                   {tit.antes}
                   {tit.acento && <em class="destacado">{tit.acento}</em>}
@@ -400,65 +419,10 @@ const partes = (titular: string, acento: string) => {
                   ))}
                 </div>
 
-                <div class="fila__practica-bloque">
-                  <p class="fila__practica-titulo" data-t-pieza>Lo que se practica</p>
-                  <ul class="fila__practica">
-                    {t.practica.map((p) => (
-                      <li class="pastilla" data-t-pastilla>
-                        {p}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {
-                  t.tanda ? (
-                    <>
-                      <div class="si-abierto">
-                        <p class="estado estado--fila" data-t-pieza>
-                          <span class="estado__punto" aria-hidden="true" />
-                          Plazas abiertas hasta el {t.tanda.cierre}
-                        </p>
-                      </div>
-                      <div class="si-cerrado">
-                        <p class="estado estado--fila estado--cerrado" data-t-pieza>
-                          Plazas cerradas para esta fecha
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <p class="estado estado--fila estado--proximo" data-t-pieza>
-                      <span class="estado__punto" aria-hidden="true" />
-                      Próximamente: estoy preparando las fechas
-                    </p>
-                  )
-                }
-
+                {/* Un solo boton: entrar al taller. Lo que se practica, el
+                    horario completo y la inscripcion estan dentro. */}
                 <div class="fila__acciones" data-t-pieza>
-                  {t.tanda ? (
-                    <>
-                      <div class="si-abierto">
-                        <Cta href={whatsapp(mensajeInscripcion(t))}>Inscribirme</Cta>
-                      </div>
-                      <div class="si-cerrado">
-                        <Cta href={whatsapp(mensajeAviso(t))}>Avísame del próximo</Cta>
-                      </div>
-                    </>
-                  ) : (
-                    <Cta href={whatsapp(mensajeAviso(t))}>Avísame</Cta>
-                  )}
-                  <a class="enlace-flecha" href={`/talleres/${t.slug}`}>
-                    Ver el taller
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M2 8h12M9 3l5 5-5 5"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </a>
+                  <Cta href={`/talleres/${t.slug}`}>Ver el taller</Cta>
                 </div>
               </div>
             </article>
@@ -470,9 +434,8 @@ const partes = (titular: string, acento: string) => {
 
   <!-- 4. CIERRE -->
   <section class="fondo-calido" aria-labelledby="talleres-dudas">
-    <div class="shell grid items-center gap-10 py-section lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
+    <div class="shell grid items-center gap-10 pt-section-sm pb-section lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
       <div>
-        <p class="label text-lie" data-reveal>Hablemos</p>
         <h2 id="talleres-dudas" class="cierre-t__titulo" data-reveal>¿Dudas antes de apuntarte?</h2>
         <p class="cierre-t__texto" data-reveal>
           Escríbeme y te cuento cómo es cada taller, dónde es exactamente y cómo
@@ -947,26 +910,51 @@ const partes = (titular: string, acento: string) => {
 
   /* --- 3. Los talleres --- */
 
+  /* Abajo, poco aire: lo siguiente es la seccion de dudas, que ya trae el
+     suyo. Antes quedaba un hueco de casi 200px. */
   .lista-t {
     background-color: var(--color-blanc);
-    padding-block: clamp(4rem, 3rem + 4vw, 7rem);
+    padding-block: clamp(3rem, 2.5rem + 3vw, 5rem) clamp(1.5rem, 1rem + 2vw, 2.5rem);
   }
 
+  /* Cada taller en su panel: un tono suave de la marca con la trama de puntos
+     de las escenas, calido el primero y frio el segundo. Antes los dos iban
+     sobre blanco liso. --fondo-fila es tambien el color de las muescas del
+     billete, que imitan agujeros. */
   .fila {
+    --fondo-fila: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
     display: grid;
     gap: 2.5rem;
+    padding: 1.75rem 1.25rem 2rem;
+    border-radius: 32px;
+    background-color: var(--fondo-fila);
+    background-image: radial-gradient(color-mix(in srgb, var(--color-encre) 7%, transparent) 1px, transparent 1.5px);
+    background-size: 16px 16px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-pierre) 70%, transparent);
     scroll-margin-top: 6rem;
   }
 
+  .fila:nth-child(even) {
+    --fondo-fila: color-mix(in srgb, var(--color-ciel) 26%, var(--color-blanc));
+  }
+
   .fila + .fila {
-    margin-top: clamp(5rem, 4rem + 4vw, 8rem);
+    margin-top: clamp(1.25rem, 1rem + 1.5vw, 2rem);
   }
 
   @media (width >= 64rem) {
     .fila {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      padding: 2.75rem 3.25rem 3rem;
+    }
+  }
+
+  /* La foto acompaña, no manda: desde tableta va al lado del texto, en una
+     columna estrecha. Encima del texto lo empujaba casi 400px hacia abajo. */
+  @media (width >= 48rem) {
+    .fila {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
       align-items: center;
-      gap: 5rem;
+      gap: 2.5rem;
     }
 
     /* Zigzag: la segunda fila pone la foto a la derecha. */
@@ -975,7 +963,18 @@ const partes = (titular: string, acento: string) => {
     }
 
     .fila:nth-child(even) {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .fila {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      gap: 4rem;
+    }
+
+    .fila:nth-child(even) {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
     }
   }
 
@@ -990,7 +989,7 @@ const partes = (titular: string, acento: string) => {
     left: -0.08em;
     z-index: 0;
     font-family: var(--font-display);
-    font-size: clamp(6rem, 4rem + 8vw, 11rem);
+    font-size: clamp(5rem, 3.5rem + 6vw, 9rem);
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.05em;
@@ -1005,18 +1004,30 @@ const partes = (titular: string, acento: string) => {
   }
 
   .fila__foto {
+    display: block;
     position: relative;
     z-index: 1;
     overflow: hidden;
-    aspect-ratio: 4 / 5;
-    margin: 3.5rem 0 0 2.5rem;
-    border-radius: 26px;
+    aspect-ratio: 4 / 3;
+    margin: 2.5rem 0 0;
+    border-radius: 22px;
     background-color: var(--color-papier);
     box-shadow: var(--shadow-alta);
   }
 
-  .fila:nth-child(even) .fila__foto {
-    margin: 3.5rem 2.5rem 0 0;
+  /* En el movil, apaisada y baja, para que el texto suba. Desde tableta,
+     vertical y estrecha al lado del texto. */
+  @media (width >= 48rem) {
+    .fila__foto {
+      aspect-ratio: 5 / 6;
+      max-width: 17rem;
+      margin: 2.75rem 0 0 1.75rem;
+      border-radius: 24px;
+    }
+
+    .fila:nth-child(even) .fila__foto {
+      margin: 2.75rem 1.75rem 0 auto;
+    }
   }
 
   .fila__foto :global(picture) {
@@ -1074,7 +1085,6 @@ const partes = (titular: string, acento: string) => {
   }
 
   .fila__titulo {
-    margin-top: 1rem;
     max-width: 18ch;
     font-family: var(--font-display);
     font-size: clamp(2rem, 1.4rem + 2.2vw, 3.1rem);
@@ -1103,8 +1113,10 @@ const partes = (titular: string, acento: string) => {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
     margin-top: 1.75rem;
     border-radius: 18px;
-    background-color: color-mix(in srgb, var(--color-papier) 42%, var(--color-blanc));
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 7%, transparent);
+    background-color: var(--color-blanc);
+    box-shadow:
+      var(--shadow-flota),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 7%, transparent);
   }
 
   .billete__celda {
@@ -1171,7 +1183,7 @@ const partes = (titular: string, acento: string) => {
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
-    background-color: var(--color-blanc);
+    background-color: var(--fondo-fila, var(--color-blanc));
     translate: -50% 0;
   }
 
@@ -1235,63 +1247,28 @@ const partes = (titular: string, acento: string) => {
     }
   }
 
-  .fila__practica-bloque {
-    margin-top: 1.75rem;
-  }
-
-  .fila__practica-titulo {
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-lie);
-  }
-
-  .fila__practica {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
-
-  .pastilla {
+  /* El estado, encima de la foto: blanco con el punto que late. */
+  .fila__estado {
+    position: absolute;
+    z-index: 2;
+    top: 1.1rem;
+    left: 1.1rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.9rem 0.45rem 0.75rem;
+    gap: 0.55rem;
+    padding: 0.45rem 0.95rem 0.45rem 0.8rem;
     border-radius: var(--radius-pill);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 14%, transparent);
-    font-size: var(--text-body-s);
+    background-color: var(--color-blanc);
     color: var(--color-encre);
-    transition:
-      background-color 260ms var(--ease-smooth),
-      color 260ms var(--ease-smooth),
-      box-shadow 260ms var(--ease-smooth);
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-alta);
   }
 
-  .pastilla::before {
-    content: '';
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background-color: var(--color-grenat);
-    transition: background-color 260ms var(--ease-smooth);
-  }
-
-  .pastilla:hover::before {
-    background-color: var(--color-chair);
-  }
-
-  .pastilla:hover {
+  .fila__estado--cerrado {
     background-color: var(--color-encre);
     color: var(--color-blanc);
-    box-shadow: none;
-  }
-
-  .estado--fila {
-    margin-top: 1.5rem;
-    background-color: color-mix(in srgb, var(--color-papier) 40%, var(--color-blanc));
   }
 
   .fila__acciones {
@@ -1305,7 +1282,6 @@ const partes = (titular: string, acento: string) => {
   /* --- 4. Cierre --- */
 
   .cierre-t__titulo {
-    margin-top: 1rem;
     max-width: 16ch;
     font-family: var(--font-display);
     font-size: var(--text-display-l);
@@ -1334,9 +1310,7 @@ const partes = (titular: string, acento: string) => {
     }
 
     .enlace-flecha svg,
-    .billete__icono,
-    .pastilla,
-    .pastilla::before {
+    .billete__icono {
       transition: none;
     }
   }

@@ -69,8 +69,6 @@ interface Beneficio {
 }
 
 interface Props {
-  /** Linea pequeña sobre el titular. */
-  label?: string;
   titulo: string;
   /** La palabra del titular que va en italica roja, la marca del sitio. */
   acento?: string;
@@ -104,7 +102,6 @@ interface Props {
 }
 
 const {
-  label,
   titulo,
   acento,
   intro,
@@ -199,13 +196,6 @@ const forma = (i: number) =>
     </div>
 
     <div class="pad-shell-left order-1 lg:order-2 lg:pl-0">
-      {
-        label && (
-          <p class="label mb-5 text-lie" data-reveal={siempre()} data-g={conGsap('entrada')}>
-            {label}
-          </p>
-        )
-      }
       <h1
         class="portada__titulo"
         data-palabras={siempre()}
@@ -306,8 +296,7 @@ const forma = (i: number) =>
     <h2 id="precio" class="sr-only">Precio y bonos</h2>
 
     <div class="precio__principal" data-reveal={siempre()} data-g={conGsap('entrada')}>
-      <p class="label text-ciel">Precio</p>
-      <p class="mt-5">
+      <p>
         <span class="numerals block text-display-xl text-blanc" data-g-cifra={conGsap()}>
           {precio.valor}
         </span>
@@ -357,12 +346,9 @@ const forma = (i: number) =>
          tarjeta de WhatsApp al otro, con su boton. */
       <div class="shell grid items-center gap-10 py-section-sm lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
         <div>
-          <p class="label text-lie" data-reveal={siempre()} data-g={conGsap('entrada')}>
-            Hablemos
-          </p>
           <h2
             id="cierre"
-            class="titulo-seccion mt-4 max-w-[16ch] text-encre"
+            class="titulo-seccion max-w-[16ch] text-encre"
             data-reveal={siempre()}
             data-g-titulo={conGsap('seccion')}
           >

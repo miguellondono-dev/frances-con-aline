@@ -13,7 +13,7 @@
  *    profundidad. Al bajar, el collage se desplaza un poco.
  *  - Cada taller: una cortina de tinta descubre la foto mientras la foto se
  *    asienta desde grande; el numero sube, el titular entra por lineas y los
- *    datos, las pastillas y los botones caen en cascada. La foto se mueve
+ *    datos del billete y el boton caen en cascada. La foto se mueve
  *    despacio dentro de su marco al hacer scroll.
  *
  * Solo transform y opacity. Con movimiento reducido no se anima nada y todo
@@ -200,7 +200,6 @@ async function iniciar() {
       const iconos = todos('[data-t-dato] .billete__icono svg', fila);
       const rellenos = todos('[data-t-dato] .billete__icono svg [opacity]', fila);
       const cifra = fila.querySelector<HTMLElement>('[data-t-cifra]');
-      const pastillas = todos('[data-t-pastilla]', fila);
 
       const tl = gsap.timeline({
         defaults: { ease: 'power3.out' },
@@ -279,13 +278,6 @@ async function iniciar() {
         );
       }
       if (rellenos.length) tl.from(rellenos, { opacity: 0, duration: 0.8, stagger: 0.1 }, 1.25);
-      if (pastillas.length) {
-        tl.from(
-          pastillas,
-          { autoAlpha: 0, y: 14, scale: 0.85, duration: 0.45, ease: 'back.out(2)', stagger: 0.06 },
-          1.1,
-        );
-      }
       if (piezas.length > 2) {
         tl.from(piezas.slice(2), { autoAlpha: 0, y: 20, duration: 0.7, stagger: 0.12 }, 1.35);
       }

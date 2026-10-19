@@ -9,3 +9,15 @@ export type TipoEscena =
   | 'examen'
   | 'partes'
   | 'reloj';
+
+/** Las mini escenas de "Qué hacemos en el taller" (EscenaTaller.astro). */
+export type TipoEscenaTaller =
+  | 'mezcla'
+  | 'vocabulario'
+  | 'boceto'
+  | 'lamina'
+  | 'voz'
+  | 'trabalenguas'
+  | 'expresiones'
+  | 'escena'
+  | 'mascara';

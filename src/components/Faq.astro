@@ -38,8 +38,11 @@ const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="
 <section class="bg-blanc" aria-labelledby={`${id}-titulo`}>
   <div class="shell grid gap-8 py-section lg:grid-cols-12 lg:gap-8">
     <div class="lg:col-span-4">
-      <div class="lg:sticky lg:top-28">
-        <h2 id={`${id}-titulo`} class="text-display-l text-encre" data-reveal>
+      <div class="faq-cabecera lg:sticky lg:top-28">
+        {/* Un signo de pregunta enorme detras del titular, que respira, como
+            las comillas de las opiniones. Antes el titular iba fino y solo. */}
+        <span class="faq-signo" aria-hidden="true">?</span>
+        <h2 id={`${id}-titulo`} class="titulo-seccion faq-titulo text-encre" data-palabras data-repite>
           {titulo}
         </h2>
       </div>
@@ -48,20 +51,17 @@ const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="
     <div class="lg:col-span-7 lg:col-start-6" id={id}>
       {
         preguntas.map((pregunta, i) => (
-          <details
-            class="faq-item border-t border-encre/10 first:border-t-0"
-            data-reveal
-          >
-            <summary class="faq-summary flex cursor-pointer list-none items-start justify-between gap-6 py-4">
+          <details class="faq-item" data-reveal>
+            <summary class="faq-summary flex cursor-pointer list-none items-start justify-between gap-6">
               <Encabezado class="text-title text-encre">{pregunta.q}</Encabezado>
-              <span class="faq-mark mt-1 shrink-0 text-corail" aria-hidden="true">
+              <span class="faq-mark shrink-0 text-corail" aria-hidden="true">
                 <svg viewBox="0 0 16 16" class="h-4 w-4" fill="none">
                   <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" />
                 </svg>
               </span>
             </summary>
 
-            <div class="pb-5">
+            <div class="faq-respuesta">
               {pregunta.pendiente ? (
                 /* TODO [PENDIENTE] Falta la decision. No se inventa la respuesta:
                    se publica el hueco marcado, que es preferible a una mentira. */
@@ -96,6 +96,102 @@ const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="
     display: none;
   }
 
+  .faq-cabecera {
+    position: relative;
+  }
+
+  .faq-signo {
+    position: absolute;
+    top: -4.2rem;
+    left: -0.6rem;
+    font-family: var(--font-display);
+    font-size: 11rem;
+    font-weight: 800;
+    line-height: 1;
+    color: color-mix(in srgb, var(--color-grenat) 14%, transparent);
+    pointer-events: none;
+    animation: faq-respira 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes faq-respira {
+    from {
+      transform: translateY(0) rotate(0deg);
+    }
+    to {
+      transform: translateY(-10px) rotate(8deg);
+    }
+  }
+
+  .faq-titulo {
+    position: relative;
+    max-width: 10ch;
+  }
+
+  /* Cada pregunta, una pieza: al pasar se tiñe y la abierta se queda con
+     fondo calido y una barra roja a la izquierda. */
+  .faq-item {
+    position: relative;
+    border-radius: 16px;
+    transition: background-color 320ms var(--ease-smooth);
+  }
+
+  .faq-item + .faq-item {
+    margin-top: 0.35rem;
+  }
+
+  .faq-summary {
+    padding: 1.05rem 1.25rem;
+  }
+
+  .faq-respuesta {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .faq-item::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    bottom: 1rem;
+    left: 0;
+    width: 3px;
+    border-radius: 3px;
+    background-color: var(--color-grenat);
+    transform: scaleY(0);
+    transition: transform 420ms var(--ease-fluid);
+  }
+
+  .faq-item[open] {
+    background-color: color-mix(in srgb, var(--color-papier) 38%, var(--color-blanc));
+  }
+
+  .faq-item[open]::before {
+    transform: scaleY(1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .faq-item:not([open]):hover {
+      background-color: color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc));
+    }
+  }
+
+  /* El signo + dentro de un circulo, que gira a x al abrir. */
+  .faq-mark {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    margin-top: -0.15rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-corail) 45%, transparent);
+    transition: background-color 320ms var(--ease-smooth), color 320ms var(--ease-smooth);
+  }
+
+  .faq-item[open] .faq-mark {
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+    box-shadow: none;
+  }
+
   .faq-mark svg {
     transition: transform var(--duration-normal) var(--ease-smooth);
   }
@@ -108,8 +204,8 @@ const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="
      late despacio; al pasar por encima, el subrayado rojo se dibuja de
      izquierda a derecha y la flecha avanza. */
   .faq-cierre {
-    margin-top: 0.5rem;
-    padding-top: 1.75rem;
+    margin-top: 1rem;
+    padding: 1.75rem 1.25rem 0;
     border-top: 1px solid color-mix(in srgb, var(--color-encre) 10%, transparent);
   }
 
@@ -204,6 +300,14 @@ const icono = logoWhatsapp.replace('<svg ', '<svg aria-hidden="true" focusable="
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .faq-signo {
+      animation: none;
+    }
+
+    .faq-item::before {
+      transition: none;
+    }
+
     .faq-mark svg,
     .faq-cierre__texto::after,
     .faq-cierre__flecha {

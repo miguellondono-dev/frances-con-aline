@@ -2,15 +2,10 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TallerLanding from '../../components/TallerLanding.astro';
 import { breadcrumb, taller } from '../../lib/schema';
-import { porSlug, type Medio } from '../../data/talleres';
+import { porSlug } from '../../data/talleres';
 
 import escenaAncha from '../../assets/talleres/teatro-escena-ancha.jpg';
-import escenaMesa from '../../assets/talleres/teatro-escena-mesa.jpg';
-import escenaPie from '../../assets/talleres/teatro-escena-pie.jpg';
-import escenaDos from '../../assets/talleres/teatro-escena-dos.jpg';
-import grupo from '../../assets/talleres/teatro-grupo.jpg';
-import posterEscena from '../../assets/talleres/teatro-video-escena.jpg';
-import posterEnsayo from '../../assets/talleres/teatro-video-ensayo.jpg';
+import posterReel from '../../assets/talleres/teatro-reel.jpg';
 
 const t = porSlug('teatro');
 
@@ -20,42 +15,6 @@ const migas = [
   { name: t.nombre, path: '/talleres/teatro' },
 ];
 
-const medios: Medio[] = [
-  {
-    tipo: 'video',
-    src: '/video/teatro-escena.mp4',
-    poster: posterEscena,
-    alt: 'Dos alumnos representan una escena completa sobre el escenario, sentados frente al público',
-    ancho: 2,
-  },
-  {
-    tipo: 'foto',
-    src: escenaMesa,
-    alt: 'Dos alumnas actúan alrededor de una mesa con mantel verde, con pelucas y vestuario',
-  },
-  {
-    tipo: 'foto',
-    src: escenaPie,
-    alt: 'Una alumna con un chal de colores da la réplica a otra, de pie sobre el escenario',
-  },
-  {
-    tipo: 'video',
-    src: '/video/teatro-ensayo.mp4',
-    poster: posterEnsayo,
-    alt: 'Dos alumnas repasan su texto de pie antes de subir a escena',
-  },
-  {
-    tipo: 'foto',
-    src: escenaDos,
-    alt: 'Escena en la que dos personajes conversan junto a una mesa, con la luz azul del fondo',
-  },
-  {
-    tipo: 'foto',
-    src: grupo,
-    alt: 'El grupo del taller posa entero al terminar, delante de las cortinas rojas del escenario',
-    ancho: 2,
-  },
-];
 
 const schema = [
   breadcrumb(migas, Astro.site),
@@ -94,7 +53,11 @@ const descripcion = t.tanda
   <TallerLanding
     taller={t}
     portada={escenaAncha}
+    reel={{
+      src: '/video/teatro-reel.mp4',
+      poster: posterReel,
+      alt: 'Momentos del taller de teatro: ensayos, ejercicios y escenas sobre el escenario',
+    }}
     portadaAlt="Dos alumnas representan una escena sobre el escenario, con vestuario y luces de colores"
-    medios={medios}
   />
 </BaseLayout>

@@ -169,10 +169,3 @@ export const hechos = (t: Taller) =>
         { clave: 'Dónde', valor: t.ciudad },
       ];
 
-/**
- * Un elemento de la galeria de un taller. Los videos llevan siempre poster:
- * sin el, una celda vacia hasta que alguien le da al play.
- */
-export type Medio =
-  | { tipo: 'foto'; src: ImageMetadata; alt: string; ancho?: 1 | 2 }
-  | { tipo: 'video'; src: string; poster: ImageMetadata; alt: string; ancho?: 1 | 2 };

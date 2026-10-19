@@ -1,0 +1,953 @@
+---
+import type { TipoEscenaTaller } from './escenas';
+
+/**
+ * MINI ESCENAS DE "QUÉ HACEMOS EN EL TALLER".
+ *
+ * El mismo lenguaje que las escenas de "Lo que vas a conseguir"
+ * (EscenaLogro.astro): cada cosa que se practica se enseña con una escena
+ * pequeña en vez de repetirse en una lista. Acuarela: el color que se mezcla,
+ * las palabras de la luz, un boceto que se dibuja solo y la lamina terminada.
+ * Teatro: la voz, un trabalenguas, expresiones de la calle, un escenario y
+ * las mascaras.
+ *
+ * Mismas reglas que alli:
+ *  - El reposo es la escena completa y quieta (sin JS, con movimiento
+ *    reducido o mientras la tarjeta no se ve).
+ *  - Los bucles solo corren con un antecesor [data-vivo], que pone y quita
+ *    el guion de TallerLanding al entrar y salir de pantalla.
+ *  - Solo transform y opacity; el boceto, ademas, el trazo del SVG.
+ */
+interface Props {
+  tipo: TipoEscenaTaller;
+}
+
+const { tipo } = Astro.props;
+
+const PALABRAS_LUZ = [
+  { fr: 'la lumière', color: '--color-corail' },
+  { fr: 'l’ombre', color: '--color-nuit' },
+  { fr: 'bleu ciel', color: '--color-azur' },
+  { fr: 'le reflet', color: '--color-chair' },
+];
+const TRABALENGUAS = 'Les chaussettes de l’archiduchesse sont-elles sèches ?'.split(' ');
+const EXPRESIONES = ['Ça roule !', 'Poser un lapin', 'Avoir la flemme'];
+const BARRAS = [0.35, 0.6, 0.9, 0.55, 1, 0.7, 0.4, 0.8, 0.5];
+---
+
+<div class={`t t--${tipo}`} aria-hidden="true">
+  {
+    tipo === 'mezcla' && (
+      <div class="t-mezcla">
+        <span class="t-mancha t-mancha--a" />
+        <span class="t-mancha t-mancha--b" />
+        <span class="t-mancha t-mancha--c" />
+        <svg class="t-pincel" viewBox="0 0 120 24">
+          <rect x="0" y="9" width="78" height="6" rx="3" fill="var(--color-nuit)" />
+          <rect x="76" y="7" width="14" height="10" rx="2" fill="var(--color-pierre)" />
+          <path d="M90 7c14 0 26 3 30 5-4 2-16 5-30 5z" fill="var(--color-bleu)" />
+        </svg>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'vocabulario' && (
+      <div class="t-vocab">
+        <span class="t-sol" />
+        <ul class="t-palabras">
+          {PALABRAS_LUZ.map((p, i) => (
+            <li class="t-palabra" style={`--k: ${i}; --punto: var(${p.color})`} lang="fr">
+              {p.fr}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'boceto' && (
+      <div class="t-cuaderno">
+        <span class="t-anillas">
+          {Array.from({ length: 7 }, () => <i />)}
+        </span>
+        <svg class="t-caracol" viewBox="0 0 160 110" fill="none">
+          <path
+            class="t-trazo"
+            pathLength="1"
+            d="M88 56c0-6-5-10-10-9s-8 6-6 11 9 7 14 4 8-10 5-16-11-10-18-8-13 9-12 17 8 16 17 17 19-4 22-13 1-20-7-26-20-7-28-2-13 13-12 23M50 80c20 3 60 3 90-2M128 78c4-10 10-18 12-30M138 50l6-12M136 46l-3-13"
+            stroke="var(--color-encre)"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <svg class="t-lapiz" viewBox="0 0 80 14">
+          <rect x="0" y="2" width="60" height="10" rx="2" fill="var(--color-corail)" />
+          <path d="M60 2l16 5-16 5z" fill="var(--color-papier)" />
+          <path d="M72 5.8l4 1.2-4 1.2z" fill="var(--color-encre)" />
+        </svg>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'lamina' && (
+      <div class="t-lamina">
+        <span class="t-pinza" />
+        <div class="t-papel">
+          <span class="t-ave t-ave--cuerpo" />
+          <span class="t-ave t-ave--ala" />
+          <span class="t-ave t-ave--cabeza" />
+          <span class="t-firma" />
+          <span class="t-brillo" />
+        </div>
+        <span class="t-etiqueta" lang="fr">Pour toi</span>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'voz' && (
+      <div class="t-voz">
+        <span class="t-aliento">
+          <span lang="fr">inspire</span>
+        </span>
+        <span class="t-barras">
+          {BARRAS.map((b, i) => (
+            <i style={`--h: ${b}; --k: ${i}`} />
+          ))}
+        </span>
+      </div>
+    )
+  }
+
+  {
+    tipo === 'trabalenguas' && (
+      <p class="t-globo" lang="fr">
+        {TRABALENGUAS.map((p, i) => (
+          <span class="t-sil" style={`--k: ${i}`}>
+            {p}
+          </span>
+        ))}
+      </p>
+    )
+  }
+
+  {
+    tipo === 'expresiones' && (
+      <div class="t-mazo">
+        {EXPRESIONES.map((e, i) => (
+          <p class="t-ficha" style={`--k: ${i}`} lang="fr">
+            <span class="t-comilla">“</span>
+            {e}
+          </p>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    tipo === 'escena' && (
+      <div class="t-teatro">
+        <span class="t-foco" />
+        <span class="t-gente">
+          <i class="t-p t-p--a" />
+          <i class="t-p t-p--b" />
+          <i class="t-p t-p--c" />
+        </span>
+        <span class="t-tablas" />
+        <span class="t-telon t-telon--izq" />
+        <span class="t-telon t-telon--der" />
+        <span class="t-bambalina" />
+      </div>
+    )
+  }
+
+  {
+    tipo === 'mascara' && (
+      <div class="t-mascaras">
+        <svg class="t-masc t-masc--risa" viewBox="0 0 100 110">
+          <path d="M8 10c28-8 56-8 84 0 4 40-6 78-42 92C14 88 4 50 8 10z" fill="var(--color-grenat)" />
+          <path d="M24 38c5-6 15-6 20 0M56 38c5-6 15-6 20 0" stroke="var(--color-blanc)" stroke-width="5" stroke-linecap="round" fill="none" />
+          <path d="M30 62c10 16 30 16 40 0" stroke="var(--color-blanc)" stroke-width="5" stroke-linecap="round" fill="none" />
+        </svg>
+        <svg class="t-masc t-masc--pena" viewBox="0 0 100 110">
+          <path d="M8 10c28-8 56-8 84 0 4 40-6 78-42 92C14 88 4 50 8 10z" fill="var(--color-nuit)" />
+          <path d="M24 42c5 6 15 6 20 0M56 42c5 6 15 6 20 0" stroke="var(--color-blanc)" stroke-width="5" stroke-linecap="round" fill="none" />
+          <path d="M32 74c10-12 26-12 36 0" stroke="var(--color-blanc)" stroke-width="5" stroke-linecap="round" fill="none" />
+        </svg>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .t {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1.1rem;
+  }
+
+  /* --- Mezcla: tres manchas de acuarela que se cruzan --------------------- */
+
+  .t-mezcla {
+    position: relative;
+    width: 15rem;
+    height: 9rem;
+  }
+
+  .t-mancha {
+    position: absolute;
+    width: 6.5rem;
+    height: 6.5rem;
+    border-radius: 46% 54% 52% 48% / 50% 44% 56% 50%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+  }
+
+  .t-mancha--a {
+    left: 1.5rem;
+    top: 0.4rem;
+    background: radial-gradient(circle at 40% 40%, var(--color-azur), color-mix(in srgb, var(--color-azur) 25%, transparent) 70%);
+  }
+
+  .t-mancha--b {
+    left: 5rem;
+    top: 1.6rem;
+    background: radial-gradient(circle at 55% 45%, var(--color-corail), color-mix(in srgb, var(--color-corail) 20%, transparent) 70%);
+  }
+
+  .t-mancha--c {
+    left: 3rem;
+    top: 2.6rem;
+    width: 5.5rem;
+    height: 5.5rem;
+    background: radial-gradient(circle at 50% 50%, var(--color-chair), color-mix(in srgb, var(--color-chair) 20%, transparent) 70%);
+  }
+
+  .t-pincel {
+    position: absolute;
+    right: -0.5rem;
+    bottom: 0.4rem;
+    width: 8rem;
+    transform: rotate(-24deg);
+    transform-origin: 0% 50%;
+  }
+
+  :global([data-vivo]) .t-mancha--a {
+    animation: t-deriva-a 4.5s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-mancha--b {
+    animation: t-deriva-b 5s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-mancha--c {
+    animation: t-deriva-c 4s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-pincel {
+    animation: t-pincelada 2.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes t-deriva-a {
+    to {
+      transform: translate(1.2rem, 0.6rem) scale(1.08);
+    }
+  }
+
+  @keyframes t-deriva-b {
+    to {
+      transform: translate(-1.4rem, 0.2rem) scale(0.94);
+    }
+  }
+
+  @keyframes t-deriva-c {
+    to {
+      transform: translate(0.6rem, -1rem) scale(1.1);
+    }
+  }
+
+  @keyframes t-pincelada {
+    to {
+      transform: rotate(-14deg) translateX(-0.6rem);
+    }
+  }
+
+  /* --- Vocabulario de la luz: palabras con su color, bajo un sol --------- */
+
+  .t-vocab {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .t-sol {
+    position: absolute;
+    top: 0.2rem;
+    right: 12%;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-corail) 55%, var(--color-blanc)), transparent 70%);
+  }
+
+  .t-palabras {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.55rem;
+    max-width: 17rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .t-palabra {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-encre);
+  }
+
+  .t-palabra::before {
+    content: '';
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background-color: var(--punto);
+  }
+
+  :global([data-vivo]) .t-sol {
+    animation: t-sol 3.5s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-palabra {
+    animation: t-sale 4s var(--ease-fluid) infinite;
+    animation-delay: calc(var(--k) * 0.35s);
+  }
+
+  @keyframes t-sol {
+    to {
+      transform: scale(1.25);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes t-sale {
+    0%,
+    100% {
+      transform: none;
+    }
+    12% {
+      transform: translateY(-5px) scale(1.06);
+    }
+    24% {
+      transform: none;
+    }
+  }
+
+  /* --- Boceto: un caracol que se dibuja solo en el cuaderno ------------- */
+
+  .t-cuaderno {
+    position: relative;
+    width: 13.5rem;
+    height: 9.5rem;
+    border-radius: 10px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    transform: rotate(-3deg);
+  }
+
+  .t-anillas {
+    position: absolute;
+    top: -0.35rem;
+    left: 1rem;
+    right: 1rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .t-anillas i {
+    width: 0.5rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    background-color: var(--color-nuit);
+  }
+
+  .t-caracol {
+    position: absolute;
+    inset: 0.9rem 0.6rem 0.4rem;
+    width: calc(100% - 1.2rem);
+    height: calc(100% - 1.3rem);
+  }
+
+  .t-trazo {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .t-lapiz {
+    position: absolute;
+    right: -1.6rem;
+    bottom: 1.2rem;
+    width: 5rem;
+    transform: rotate(-38deg);
+  }
+
+  :global([data-vivo]) .t-trazo {
+    animation: t-dibuja 4.5s ease-in-out infinite;
+  }
+
+  :global([data-vivo]) .t-lapiz {
+    animation: t-lapiz 1.1s ease-in-out infinite alternate;
+  }
+
+  @keyframes t-dibuja {
+    0% {
+      stroke-dashoffset: 1;
+    }
+    60%,
+    88% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes t-lapiz {
+    to {
+      transform: rotate(-30deg) translate(-0.4rem, 0.3rem);
+    }
+  }
+
+  /* --- Lamina: la acuarela terminada, con su pinza y su etiqueta --------- */
+
+  .t-lamina {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .t-papel {
+    position: relative;
+    overflow: hidden;
+    width: 9.5rem;
+    height: 11rem;
+    border-radius: 6px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    transform: rotate(2.5deg);
+  }
+
+  .t-ave {
+    position: absolute;
+    mix-blend-mode: multiply;
+  }
+
+  .t-ave--cuerpo {
+    left: 2rem;
+    top: 3.4rem;
+    width: 5rem;
+    height: 3.2rem;
+    border-radius: 60% 40% 55% 45% / 60% 50% 50% 40%;
+    background: radial-gradient(circle at 40% 40%, var(--color-azur), color-mix(in srgb, var(--color-bleu) 70%, transparent));
+    transform: rotate(-14deg);
+  }
+
+  .t-ave--ala {
+    left: 3.6rem;
+    top: 2.4rem;
+    width: 3.2rem;
+    height: 2.4rem;
+    border-radius: 80% 20% 70% 30%;
+    background: color-mix(in srgb, var(--color-ciel) 80%, transparent);
+    transform: rotate(-30deg);
+  }
+
+  .t-ave--cabeza {
+    left: 6.2rem;
+    top: 2.9rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--color-bleu);
+  }
+
+  .t-firma {
+    position: absolute;
+    right: 1rem;
+    bottom: 1.1rem;
+    width: 3rem;
+    height: 0.3rem;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--color-encre) 30%, transparent);
+  }
+
+  .t-brillo {
+    position: absolute;
+    inset: -20% auto -20% -60%;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.65), transparent);
+    transform: translateX(0) rotate(12deg);
+    opacity: 0;
+  }
+
+  .t-pinza {
+    position: absolute;
+    z-index: 1;
+    top: -0.6rem;
+    width: 2.2rem;
+    height: 1.1rem;
+    border-radius: 4px;
+    background-color: var(--color-nuit);
+  }
+
+  .t-etiqueta {
+    position: absolute;
+    right: -2.6rem;
+    bottom: 1.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background-color: var(--color-grenat);
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    transform: rotate(-8deg);
+    box-shadow: var(--shadow-flota);
+  }
+
+  :global([data-vivo]) .t-papel {
+    animation: t-levanta 3.2s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-brillo {
+    animation: t-brillo 3.2s ease-in-out infinite;
+  }
+
+  @keyframes t-levanta {
+    to {
+      transform: rotate(-1.5deg) translateY(-6px);
+    }
+  }
+
+  @keyframes t-brillo {
+    0%,
+    40% {
+      opacity: 0;
+      transform: translateX(0) rotate(12deg);
+    }
+    55% {
+      opacity: 1;
+    }
+    85%,
+    100% {
+      opacity: 0;
+      transform: translateX(26rem) rotate(12deg);
+    }
+  }
+
+  /* --- Voz: un circulo que respira y la onda de la voz ------------------ */
+
+  .t-voz {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+
+  .t-aliento {
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-blanc) 55%, color-mix(in srgb, var(--color-blanc) 40%, transparent));
+    box-shadow:
+      0 0 0 0.6rem color-mix(in srgb, var(--color-blanc) 45%, transparent),
+      var(--shadow-flota);
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-grenat);
+  }
+
+  .t-barras {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 5.5rem;
+  }
+
+  .t-barras i {
+    width: 0.5rem;
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--color-nuit);
+    transform: scaleY(var(--h));
+  }
+
+  .t-barras i:nth-child(3n + 2) {
+    background-color: var(--color-grenat);
+  }
+
+  :global([data-vivo]) .t-aliento {
+    animation: t-respira 3s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-barras i {
+    animation: t-onda 0.9s ease-in-out infinite alternate;
+    animation-delay: calc(var(--k) * -0.11s);
+  }
+
+  @keyframes t-respira {
+    from {
+      transform: scale(0.88);
+    }
+    to {
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes t-onda {
+    from {
+      transform: scaleY(calc(var(--h) * 0.35));
+    }
+    to {
+      transform: scaleY(var(--h));
+    }
+  }
+
+  /* --- Trabalenguas: el globo, palabra a palabra ------------------------ */
+
+  .t-globo {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0.35rem;
+    max-width: 17rem;
+    margin: 0;
+    padding: 1rem 1.2rem;
+    border-radius: 22px 22px 22px 6px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-encre);
+  }
+
+  .t-sil:nth-child(3n + 1) {
+    color: var(--color-grenat);
+  }
+
+  :global([data-vivo]) .t-sil {
+    display: inline-block;
+    animation: t-pronuncia 3.6s ease-in-out infinite;
+    animation-delay: calc(var(--k) * 0.22s);
+  }
+
+  @keyframes t-pronuncia {
+    0%,
+    30%,
+    100% {
+      transform: none;
+    }
+    10% {
+      transform: translateY(-4px) rotate(-3deg);
+    }
+    20% {
+      transform: translateY(1px) rotate(2deg);
+    }
+  }
+
+  /* --- Expresiones: un mazo de fichas que se baraja --------------------- */
+
+  .t-mazo {
+    position: relative;
+    width: 14rem;
+    height: 7.5rem;
+  }
+
+  .t-ficha {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0 1.2rem;
+    border-radius: 18px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-encre);
+    transform: translate(calc(var(--k) * 0.6rem), calc(var(--k) * -0.55rem)) rotate(calc(var(--k) * 3deg));
+    z-index: calc(3 - var(--k));
+  }
+
+  .t-ficha:nth-child(2) {
+    background-color: color-mix(in srgb, var(--color-papier) 70%, var(--color-blanc));
+  }
+
+  .t-ficha:nth-child(3) {
+    background-color: color-mix(in srgb, var(--color-ciel) 55%, var(--color-blanc));
+  }
+
+  .t-comilla {
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--color-grenat);
+  }
+
+  :global([data-vivo]) .t-ficha {
+    animation: t-baraja 7.5s ease-in-out infinite;
+    animation-delay: calc(var(--k) * -2.5s);
+  }
+
+  /* Cada ficha pasa por delante, por detras y vuelve: las tres por turnos. */
+  @keyframes t-baraja {
+    0%,
+    28% {
+      transform: none;
+      opacity: 1;
+      z-index: 3;
+    }
+    36% {
+      transform: translate(2.5rem, 1rem) rotate(8deg);
+      opacity: 0;
+      z-index: 3;
+    }
+    40% {
+      transform: translate(1.2rem, -1.1rem) rotate(6deg);
+      opacity: 0.8;
+      z-index: 1;
+    }
+    66% {
+      transform: translate(1.2rem, -1.1rem) rotate(6deg);
+      z-index: 1;
+    }
+    72%,
+    94% {
+      transform: translate(0.6rem, -0.55rem) rotate(3deg);
+      opacity: 1;
+      z-index: 2;
+    }
+    100% {
+      transform: none;
+      z-index: 3;
+    }
+  }
+
+  /* --- Escenario: el telon se abre y tres actores se mueven ------------- */
+
+  .t-teatro {
+    position: relative;
+    overflow: hidden;
+    width: 15rem;
+    height: 9.5rem;
+    border-radius: 14px;
+    background: linear-gradient(to bottom, var(--color-encre), var(--color-nuit));
+  }
+
+  .t-foco {
+    position: absolute;
+    left: 50%;
+    top: -1rem;
+    width: 10rem;
+    height: 10rem;
+    margin-left: -5rem;
+    background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--color-papier) 55%, transparent), transparent 65%);
+  }
+
+  .t-gente {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.6rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.1rem;
+  }
+
+  .t-p {
+    position: relative;
+    width: 1.5rem;
+    height: 2.6rem;
+    border-radius: 0.75rem 0.75rem 0.3rem 0.3rem;
+  }
+
+  .t-p::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -1.25rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-left: -0.55rem;
+    border-radius: 50%;
+    background-color: inherit;
+  }
+
+  .t-p--a {
+    background-color: var(--color-corail);
+  }
+
+  .t-p--b {
+    height: 3rem;
+    background-color: var(--color-ciel);
+  }
+
+  .t-p--c {
+    background-color: var(--color-chair);
+  }
+
+  .t-tablas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.6rem;
+    background: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-lie) 55%, var(--color-papier)) 0 1.4rem,
+      color-mix(in srgb, var(--color-lie) 75%, var(--color-papier)) 1.4rem 1.5rem
+    );
+  }
+
+  .t-telon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 36%;
+    background: repeating-linear-gradient(90deg, var(--color-grenat) 0 0.7rem, var(--color-lie) 0.7rem 1rem);
+  }
+
+  .t-telon--izq {
+    left: 0;
+    transform-origin: 0% 50%;
+    transform: scaleX(0.55);
+  }
+
+  .t-telon--der {
+    right: 0;
+    transform-origin: 100% 50%;
+    transform: scaleX(0.55);
+  }
+
+  .t-bambalina {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1.1rem;
+    background: var(--color-lie);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  }
+
+  :global([data-vivo]) .t-telon {
+    animation: t-telon 5s ease-in-out infinite;
+  }
+
+  :global([data-vivo]) .t-p {
+    animation: t-actua 0.8s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-p--b {
+    animation-delay: -0.4s;
+  }
+
+  :global([data-vivo]) .t-p--c {
+    animation-delay: -0.2s;
+  }
+
+  @keyframes t-telon {
+    0%,
+    100% {
+      transform: scaleX(1.4);
+    }
+    25%,
+    75% {
+      transform: scaleX(0.4);
+    }
+  }
+
+  @keyframes t-actua {
+    to {
+      transform: translateY(-4px);
+    }
+  }
+
+  /* --- Mascaras: risa y pena, balanceandose ----------------------------- */
+
+  .t-mascaras {
+    position: relative;
+    width: 12rem;
+    height: 8.5rem;
+  }
+
+  .t-masc {
+    position: absolute;
+    width: 5.8rem;
+    filter: drop-shadow(0 12px 16px rgb(0 4 58 / 0.18));
+  }
+
+  .t-masc--risa {
+    left: 0.6rem;
+    top: 0;
+    transform: rotate(-12deg);
+    z-index: 1;
+  }
+
+  .t-masc--pena {
+    right: 0.6rem;
+    top: 1.4rem;
+    transform: rotate(12deg);
+  }
+
+  :global([data-vivo]) .t-masc--risa {
+    animation: t-balancea-a 2.8s ease-in-out infinite alternate;
+  }
+
+  :global([data-vivo]) .t-masc--pena {
+    animation: t-balancea-b 2.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes t-balancea-a {
+    to {
+      transform: rotate(-4deg) translateY(-4px);
+    }
+  }
+
+  @keyframes t-balancea-b {
+    to {
+      transform: rotate(20deg) translateY(3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .t * {
+      animation: none !important;
+    }
+  }
+</style>
