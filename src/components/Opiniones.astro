@@ -273,10 +273,17 @@ const iniciales = (nombre: string) =>
     }
   }
 
+  /* En una linea siempre que quepa: partido en dos dejaba un hueco grande
+     al lado. Solo en el movil, donde no cabe, se parte. */
   .opiniones__titulo {
     position: relative;
-    max-width: 12ch;
     color: var(--color-blanc);
+  }
+
+  @media (width >= 40rem) {
+    .opiniones__titulo {
+      white-space: nowrap;
+    }
   }
 
   .opiniones--claro .opiniones__titulo,

@@ -2,13 +2,17 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Picture } from 'astro:assets';
 import retrato from '../assets/aline-retrato-2026.png';
+import fotoMusica from '../assets/sobre-mi/musica.jpg';
+import fotoLectura from '../assets/sobre-mi/lectura.jpg';
+import fotoFotografia from '../assets/sobre-mi/fotografia.jpg';
+import fotoArte from '../assets/sobre-mi/arte.jpg';
+import fotoCocina from '../assets/sobre-mi/cocina.jpg';
 import Cta from '../components/Cta.astro';
 import Bandera from '../components/Bandera.astro';
-import Icon from '../components/Icon.astro';
 import ChatWhatsapp from '../components/ChatWhatsapp.astro';
 import Opiniones from '../components/Opiniones.astro';
 import { breadcrumb, alineId } from '../lib/schema';
-import { CTA, WA, whatsapp } from '../data/site';
+import { WA, whatsapp } from '../data/site';
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -79,16 +83,19 @@ const IDIOMAS = [
  *
  * Antes aqui habia dos aficiones concretas, poesia y fotografia, y con dos
  * se leian como el menu completo: quien no tuviera ninguna de las dos
- * quedaba fuera. Seis se leen como lo que son, ejemplos, y la linea de
+ * quedaba fuera. Varias se leen como lo que son, ejemplos, y la linea de
  * debajo de la rejilla lo dice sin rodeos.
+ *
+ * Cada carta lleva una foto de Aline (las paso Miguel el 2026-10-19,
+ * recortadas en cuadrado y sin metadatos en assets/sobre-mi). Viajes paso a
+ * Arte y Cine se quito. El tinte queda de fondo mientras carga la foto.
  */
 const TEMAS = [
-  { icono: 'musica', nombre: 'Música', tinte: 'chair' },
-  { icono: 'lectura', nombre: 'Lectura', tinte: 'ciel' },
-  { icono: 'foto', nombre: 'Fotografía', tinte: 'azur' },
-  { icono: 'viaje', nombre: 'Viajes', tinte: 'papier' },
-  { icono: 'cine', nombre: 'Cine', tinte: 'corail' },
-  { icono: 'cocina', nombre: 'Cocina', tinte: 'bleu' },
+  { foto: fotoMusica, nombre: 'Música', tinte: 'chair', alt: 'Discos de vinilo y un tocadiscos' },
+  { foto: fotoLectura, nombre: 'Lectura', tinte: 'ciel', alt: 'Una sala de lectura con una gran claraboya oval' },
+  { foto: fotoFotografia, nombre: 'Fotografía', tinte: 'azur', alt: 'Dos cámaras de fotos sobre la hierba' },
+  { foto: fotoArte, nombre: 'Arte', tinte: 'papier', alt: 'La Victoria de Samotracia, en el Louvre' },
+  { foto: fotoCocina, nombre: 'Cocina', tinte: 'bleu', alt: 'Tortitas con chocolate, frutos rojos y un café' },
 ] as const;
 
 /**
@@ -101,10 +108,27 @@ const TEMAS = [
  */
 const CENTRO = (TEMAS.length - 1) / 2;
 
+/**
+ * En el movil no cabe el abanico: las cartas quedan como fotos sueltas sobre
+ * una mesa, cada una con su giro y su altura, y se montan un poco. Miguel
+ * vio la rejilla recta como "cuadros pegados".
+ */
+const SUELTAS = [
+  { giro: -6, baja: 0 },
+  { giro: 5, baja: 22 },
+  { giro: -3, baja: -4 },
+  { giro: 7, baja: 16 },
+  { giro: -4, baja: -6 },
+];
+
 const abanico = TEMAS.map((tema, i) => {
   const d = i - CENTRO;
+  const suelta = SUELTAS[i % SUELTAS.length];
   return {
     ...tema,
+    giroM: suelta.giro,
+    bajaM: suelta.baja,
+    flota: (i * -1.3).toFixed(1),
     giro: (d * 5.8).toFixed(2),
     giroY: (d * -4.5).toFixed(2),
     alto: (d * d * 12).toFixed(0),
@@ -139,7 +163,7 @@ const abanico = TEMAS.map((tema, i) => {
               aria-hidden="true"></i></span>
         </h1>
         <p class="cabecera__entrada" data-reveal>
-          El francés es mi idioma natal, y estudié la pedagogía y los métodos de
+          El francés es mi idioma natal, estudié la pedagogía y los métodos de
           aprendizaje para poder compartir mi pasión, que es aprender idiomas.
           Aprendí a hablar cinco idiomas, lo que me permitió viajar y
           enseñar francés a estudiantes de varias partes del mundo.
@@ -203,7 +227,7 @@ const abanico = TEMAS.map((tema, i) => {
         Hablar francés es más fácil cuando hablas de lo que te gusta
       </h2>
 
-      {/* Seis cartas abiertas en abanico. Entran apiladas en el centro y se
+      {/* Cinco cartas abiertas en abanico. Entran apiladas en el centro y se
           abren hacia los lados; al pasar por encima, la carta se endereza y
           sube al frente, que es el gesto de sacar una de la baraja. */}
       <ul class="abanico" data-reveal data-repite>
@@ -211,10 +235,17 @@ const abanico = TEMAS.map((tema, i) => {
           abanico.map((t) => (
             <li
               class="carta"
-              style={`--giro:${t.giro}deg;--giro-y:${t.giroY}deg;--alto:${t.alto}px;--escala:${t.escala};--capa:${t.capa};--retardo:${t.retardo}ms;--tinte:var(--color-${t.tinte})`}
+              style={`--giro:${t.giro}deg;--giro-y:${t.giroY}deg;--alto:${t.alto}px;--escala:${t.escala};--capa:${t.capa};--retardo:${t.retardo}ms;--giro-m:${t.giroM}deg;--baja-m:${t.bajaM}px;--flota:${t.flota}s;--tinte:var(--color-${t.tinte})`}
             >
               <span class="carta__lamina">
-                <Icon name={t.icono} class="carta__marca" />
+                <Picture
+                  src={t.foto}
+                  alt={t.alt}
+                  widths={[200, 320, 480]}
+                  sizes="(min-width: 48rem) 10rem, 8.75rem"
+                  formats={['avif', 'webp']}
+                  class="carta__foto"
+                />
               </span>
               <span class="carta__nombre">{t.nombre}</span>
             </li>
@@ -281,14 +312,11 @@ const abanico = TEMAS.map((tema, i) => {
           <h2 id="hablemos-titulo" class="hablemos__titulo" data-reveal>
             Si tienes una duda antes de empezar, escríbeme
           </h2>
+          {/* Un solo boton en la seccion, el de la tarjeta: Miguel quito
+              "Conozcámonos en una clase", que competia con el. */}
           <p class="hablemos__apoyo" data-reveal>
-            Te contesto yo, en persona. Y si lo que quieres es empezar ya,
-            sáltate esto y reserva tu hora directamente.
+            Sobre el nivel, las clases o el DELF: pregúntame lo que quieras.
           </p>
-
-          <div class="mt-8" data-reveal>
-            <Cta href={whatsapp(WA.agendar)} variant="lie">{CTA.cierreQuienSoy}</Cta>
-          </div>
         </div>
 
         {/* Antes habia un formulario: el contacto es por WhatsApp. */}
@@ -566,9 +594,47 @@ const abanico = TEMAS.map((tema, i) => {
   }
 
   /**
-   * En movil las cartas van derechas y en rejilla: un abanico de seis piezas
-   * necesita mas ancho del que hay, y girarlas ahi solo las encima.
+   * En movil, fotos sueltas: dos columnas, cada carta con su giro y su altura
+   * (--giro-m, --baja-m), las filas montadas un poco y la ultima centrada.
+   * Flotan despacio con `translate`, que se suma al transform de su sitio
+   * en vez de pisarlo.
    */
+  @media (width < 48rem) {
+    .abanico {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      justify-content: center;
+      column-gap: 0.6rem;
+      row-gap: 0;
+      padding-bottom: 1.5rem;
+    }
+
+    .abanico .carta {
+      width: 9rem;
+      transform: translateY(var(--baja-m, 0)) rotate(var(--giro-m, 0deg));
+      animation: carta-flota 5s ease-in-out infinite alternate;
+      animation-delay: var(--flota, 0s);
+    }
+
+    .abanico .carta:nth-child(n + 3) {
+      margin-top: -0.5rem;
+    }
+
+    .abanico .carta:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
+  }
+
+  @keyframes carta-flota {
+    from {
+      translate: 0 -4px;
+    }
+    to {
+      translate: 0 4px;
+    }
+  }
+
   .carta {
     position: relative;
     z-index: var(--capa, 1);
@@ -630,9 +696,28 @@ const abanico = TEMAS.map((tema, i) => {
     color: color-mix(in srgb, var(--tinte) 34%, var(--color-encre));
   }
 
-  .carta__marca {
-    height: 45%;
-    width: 45%;
+  /* La foto llena la lamina y, al sacar la carta, se acerca un poco. */
+  .carta__lamina {
+    overflow: hidden;
+  }
+
+  .carta__lamina :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .carta__lamina :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--ease-fluid);
+  }
+
+  .carta:hover .carta__lamina :global(img),
+  .carta:focus-within .carta__lamina :global(img) {
+    transform: scale(1.08);
   }
 
   .carta__nombre {
@@ -677,6 +762,14 @@ const abanico = TEMAS.map((tema, i) => {
     }
   }
 
+  /* En el movil, al terminar la entrada cada foto se queda con su giro. Va
+     detras de la regla de revelado, que si no la deja derecha. */
+  @media (width < 48rem) {
+    :global(.js) .abanico[data-reveal].is-revealed .carta {
+      transform: translateY(var(--baja-m, 0)) rotate(var(--giro-m, 0deg));
+    }
+  }
+
   /**
    * Al pasar por encima se endereza, sube y se pone delante: el gesto de
    * sacar una carta de la baraja.
@@ -696,8 +789,13 @@ const abanico = TEMAS.map((tema, i) => {
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .abanico .carta {
+      animation: none;
+    }
+
     .carta,
-    :global(.js) .abanico[data-reveal].is-revealed .carta {
+    :global(.js) .abanico[data-reveal].is-revealed .carta,
+    .carta__lamina :global(img) {
       transition: none;
     }
 

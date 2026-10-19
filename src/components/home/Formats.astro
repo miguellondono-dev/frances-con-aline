@@ -118,7 +118,8 @@ const FORMAS = [
 
     {/* Con un taller abierto, el aviso dice cual y cuando, con su fecha. Al
         pasar el cierre se cambia solo por el texto general
-        (scripts/talleres-estado.ts). */}
+        (scripts/talleres-estado.ts). Solo habla de talleres: los tours no
+        pintan nada en un aviso que lleva a un taller (Miguel, 2026-10-19). */}
     <div
       class="formas-paris"
       data-reveal
@@ -134,8 +135,7 @@ const FORMAS = [
               Próximo taller en París
             </p>
             <p>
-              {abierto.nombre}, el {abierto.tanda.cuando.toLowerCase()}. Y tours
-              a pie por París, en español.
+              {abierto.nombre}, el {abierto.tanda.cuando.toLowerCase()}.
             </p>
             <a href={`/talleres/${abierto.slug}`} class="boton-expandido">
               Ver el taller
@@ -144,10 +144,7 @@ const FORMAS = [
         )
       }
       <div class={abierto?.tanda ? 'si-cerrado' : undefined}>
-        <p>
-          En París también hay talleres de teatro y de acuarela en francés, y
-          tours a pie en español.
-        </p>
+        <p>En París también hago talleres en francés, de teatro y de acuarela.</p>
         <a href="/talleres" class="boton-expandido">Ver los talleres</a>
       </div>
     </div>
