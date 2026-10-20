@@ -32,9 +32,14 @@ interface Props {
   portadaAlt: string;
   /** Un reel vertical para la cabecera. Si lo hay, va en lugar de la foto. */
   reel?: { src: string; poster: ImageMetadata; alt: string };
+  /**
+   * Laminas para la cabecera: van apiladas y se turnan delante. Si las hay,
+   * van en lugar de la foto. Solo las usa acuarela.
+   */
+  laminas?: { src: ImageMetadata; alt: string }[];
 }
 
-const { taller: t, portada, portadaAlt, reel } = Astro.props;
+const { taller: t, portada, portadaAlt, reel, laminas = [] } = Astro.props;
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -145,7 +150,30 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
       </div>
 
       {
-        reel ? (
+        laminas.length > 0 ? (
+          /* Las laminas: apiladas sobre una mancha de acuarela de la marca.
+             Cada pocos segundos la de delante se aparta y pasa al fondo. */
+          <div class="baraja" data-reveal="fade" data-baraja>
+            <span class="baraja__mancha baraja__mancha--a" aria-hidden="true" />
+            <span class="baraja__mancha baraja__mancha--b" aria-hidden="true" />
+            <ul class="baraja__pila">
+              {laminas.map((l, i) => (
+                <li class="baraja__lamina" data-pos={i} data-baraja-lamina>
+                  <Picture
+                    src={l.src}
+                    alt={l.alt}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    widths={[360, 540, 720]}
+                    sizes="(min-width: 64rem) 20rem, 72vw"
+                    class="baraja__img"
+                    loading="eager"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : reel ? (
           /* El reel: vertical, sin sonido y en bucle mientras se ve, sobre una
              carta roja girada que le da fondo. Con pausa y sonido a mano. */
           <div class="reel" data-reveal="fade" data-reel>
@@ -371,6 +399,138 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
+  }
+
+  /* --- Las laminas de acuarela --- */
+
+  .baraja {
+    position: relative;
+    justify-self: center;
+    width: min(100%, 21rem);
+    margin: 2rem 0;
+  }
+
+  /* El fondo: dos manchas de acuarela de la marca que respiran despacio. */
+  .baraja__mancha {
+    position: absolute;
+    border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
+    filter: blur(2px);
+    pointer-events: none;
+  }
+
+  .baraja__mancha--a {
+    inset: -8% -14% 18% -10%;
+    background: radial-gradient(
+      circle at 40% 40%,
+      color-mix(in srgb, var(--color-chair) 70%, var(--color-blanc)),
+      color-mix(in srgb, var(--color-papier) 40%, transparent) 70%
+    );
+    animation: baraja-mancha 9s ease-in-out infinite alternate;
+  }
+
+  .baraja__mancha--b {
+    inset: 30% -18% -10% 22%;
+    background: radial-gradient(
+      circle at 60% 55%,
+      color-mix(in srgb, var(--color-ciel) 75%, var(--color-blanc)),
+      color-mix(in srgb, var(--color-ciel) 25%, transparent) 70%
+    );
+    animation: baraja-mancha 11s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes baraja-mancha {
+    to {
+      border-radius: 56% 44% 44% 56% / 42% 58% 42% 58%;
+      transform: rotate(8deg) scale(1.04);
+    }
+  }
+
+  .baraja__pila {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Cada lamina con un paspartu blanco, como una lamina montada. La
+     posicion (delante, segunda, tercera) la pone data-pos. */
+  .baraja__lamina {
+    position: absolute;
+    inset: 0;
+    padding: 0.6rem;
+    border-radius: 20px;
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-alta);
+    transition:
+      transform 900ms var(--ease-fluid),
+      opacity 600ms var(--ease-smooth);
+  }
+
+  .baraja__lamina[data-pos='0'] {
+    z-index: 3;
+    transform: rotate(-3deg);
+  }
+
+  .baraja__lamina[data-pos='1'] {
+    z-index: 2;
+    transform: translate(9%, 3%) rotate(5deg) scale(0.95);
+  }
+
+  .baraja__lamina[data-pos='2'] {
+    z-index: 1;
+    transform: translate(-8%, 5%) rotate(-9deg) scale(0.9);
+  }
+
+  /* La que se va: sale hacia la izquierda y entra por detras. */
+  .baraja__lamina[data-sale] {
+    animation: baraja-sale 900ms var(--ease-fluid);
+  }
+
+  @keyframes baraja-sale {
+    0% {
+      z-index: 3;
+      transform: rotate(-3deg);
+    }
+    45% {
+      z-index: 3;
+      transform: translate(-62%, -4%) rotate(-16deg);
+    }
+    55% {
+      z-index: 0;
+      transform: translate(-62%, -4%) rotate(-16deg);
+    }
+    100% {
+      z-index: 1;
+      transform: translate(-8%, 5%) rotate(-9deg) scale(0.9);
+    }
+  }
+
+  .baraja__lamina :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .baraja__lamina :global(.baraja__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    object-fit: cover;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .baraja__mancha {
+      animation: none;
+    }
+
+    .baraja__lamina {
+      transition: none;
+    }
+
+    .baraja__lamina[data-sale] {
+      animation: none;
+    }
   }
 
   /* --- El reel --- */
@@ -788,6 +948,35 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
 
 <script>
   import '../scripts/talleres-estado';
+
+  /* Las laminas se turnan: la de delante sale y pasa al fondo cada 3,8 s.
+     Solo mientras se ven, nunca con movimiento reducido, y se paran al pasar
+     el raton para poder mirarlas. */
+  document.querySelectorAll<HTMLElement>('[data-baraja]').forEach((baraja) => {
+    const laminas = Array.from(baraja.querySelectorAll<HTMLElement>('[data-baraja-lamina]'));
+    if (laminas.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let visible = false;
+    let encima = false;
+    const turno = () => {
+      if (!visible || encima) return;
+      laminas.forEach((l) => {
+        const pos = Number(l.dataset.pos);
+        if (pos === 0) {
+          l.setAttribute('data-sale', '');
+          l.addEventListener('animationend', () => l.removeAttribute('data-sale'), { once: true });
+          l.dataset.pos = String(laminas.length - 1);
+        } else {
+          l.dataset.pos = String(pos - 1);
+        }
+      });
+    };
+
+    new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.4 }).observe(baraja);
+    baraja.addEventListener('pointerenter', () => (encima = true));
+    baraja.addEventListener('pointerleave', () => (encima = false));
+    window.setInterval(turno, 3800);
+  });
 
   /* Las escenas de "Qué hacemos" solo se mueven mientras su tarjeta se ve:
      [data-vivo] al entrar, fuera al salir, y nunca con movimiento reducido. */

@@ -5,6 +5,9 @@ import { breadcrumb, taller } from '../../lib/schema';
 import { porSlug } from '../../data/talleres';
 
 import lamina from '../../assets/talleres/acuarela-lamina.jpg';
+import laminaLimon from '../../assets/talleres/acuarela-limon.jpg';
+import laminaCerezas from '../../assets/talleres/acuarela-cerezas.jpg';
+import laminaDonut from '../../assets/talleres/acuarela-donut.jpg';
 
 const t = porSlug('acuarela');
 
@@ -51,6 +54,11 @@ const descripcion = t.tanda
   <TallerLanding
     taller={t}
     portada={lamina}
+    laminas={[
+      { src: laminaCerezas, alt: 'Lámina de acuarela de un pastel rosa con cerezas, sostenida en la mano' },
+      { src: laminaLimon, alt: 'Lámina de acuarela de una porción de tarta de limón con merengue' },
+      { src: laminaDonut, alt: 'Lámina de acuarela de un dónut con glaseado rosa, sostenida en la mano' },
+    ]}
     portadaAlt="Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo"
   />
 </BaseLayout>
