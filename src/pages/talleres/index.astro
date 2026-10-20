@@ -23,7 +23,7 @@ import teatroGrupo from '../../assets/talleres/teatro-grupo.jpg';
 import teatroEscena from '../../assets/talleres/teatro-escena-ancha.jpg';
 import acuarelaLamina from '../../assets/talleres/acuarela-lamina.jpg';
 import acuarelaMesa from '../../assets/talleres/acuarela-mesa.jpg';
-import acuarelaPaleta from '../../assets/talleres/acuarela-paleta.jpg';
+import acuarelaCerezas from '../../assets/talleres/acuarela-cerezas.jpg';
 
 /**
  * TALLERES.
@@ -273,9 +273,11 @@ const partes = (titular: string, acento: string) => {
           decorativo. */}
       <div class="collage" data-t-collage aria-hidden="true">
         <div class="collage__capa collage__capa--a" data-profundidad="0.5">
+          {/* La lamina del pastel de cerezas y no la mesa con la paleta: esa era
+              casi igual a la del pajaro de delante. */}
           <figure class="collage__foto collage__foto--a">
             <Picture
-              src={acuarelaPaleta}
+              src={acuarelaCerezas}
               alt=""
               formats={['avif', 'webp']}
               fallbackFormat="webp"
