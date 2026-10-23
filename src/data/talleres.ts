@@ -26,6 +26,17 @@ export type Tanda = {
   cierre: string;
   /** Para el schema y para el cierre automatico, en ISO con hora de Paris. */
   iso: { inicia: string; termina: string; cierre: string };
+  /** El sitio de esta tanda, si no basta con la ciudad: "Galerie The Muisca, Le Marais". */
+  lugar?: string;
+  /**
+   * El link de pago (Stripe u otro). Con el, "Inscribirme" lleva a pagar y
+   * WhatsApp queda para las preguntas. Sin el, la plaza se cierra por WhatsApp.
+   */
+  pago?: string;
+  /** Cuantas plazas hay. Se dice solo si esta el dato. */
+  plazas?: number;
+  /** La politica de cancelacion, en una frase. Tiene que verse antes de pagar. */
+  cancelacion?: string;
 };
 
 export type Taller = {
@@ -47,6 +58,10 @@ export type Taller = {
   diaSemana: 'Saturday' | 'Sunday';
   donde: string;
   ciudad: string;
+  /** El nivel de francés que hace falta: "Desde A2". */
+  nivel?: string;
+  /** Lo que va incluido en el precio: "Materiales de pintura, té y café". */
+  incluye?: string;
   /** Sin tanda, el taller esta "Próximamente". */
   tanda?: Tanda;
 };
@@ -58,15 +73,16 @@ export const TALLERES: Taller[] = [
     titular: 'Un domingo pintando, con las manos ocupadas y el francés suelto',
     acento: 'francés',
     resumen:
-      'Una sesión, una lámina terminada y el vocabulario del color y de la luz.',
+      'Una mañana en una galería del Marais, una lámina terminada y el vocabulario del arte en francés.',
     parrafos: [
-      'Se pinta con acuarela y se habla en francés mientras se pinta. Las manos ocupadas quitan la presión: cuando estás mezclando un color, dejas de vigilar cada palabra que dices y el idioma empieza a salir solo.',
-      'Trabajamos el vocabulario del color, de la luz y del gesto, que es el que no aparece en ninguna clase normal. Te vas con una lámina terminada y con un puñado de palabras que ya no se te olvidan, porque las usaste para hacer algo.',
+      'Primero una clase de francés para hablar de arte y después pintamos en acuarela, con una artista invitada, en la Galerie The Muisca. Las manos ocupadas quitan la presión: cuando estás mezclando un color, dejas de vigilar cada palabra que dices y el idioma empieza a salir solo.',
+      'Descubres la cultura de la acuarela en Francia y el vocabulario del arte y de la pintura, que es el que no aparece en ninguna clase normal. El tema de esta primera edición es la pastelería francesa. Te vas con tu lámina terminada y con un puñado de palabras que ya no se te olvidan, porque las usaste para hacer algo.',
     ],
+    // En el orden de las escenas de TallerLanding: mezcla, vocabulario, boceto, lamina.
     practica: [
-      'Mezcla de color y aguadas',
-      'El vocabulario del color y de la luz',
-      'Bocetos rápidos del natural',
+      'Técnicas de acuarela para principiantes',
+      'El vocabulario del arte y de la pintura',
+      'La pastelería francesa como modelo',
       'Una lámina terminada para llevarte',
     ],
     sesiones: 1,
@@ -74,16 +90,20 @@ export const TALLERES: Taller[] = [
     diaSemana: 'Sunday',
     donde: 'Presencial, en París',
     ciudad: 'París',
+    nivel: 'Desde A2',
+    incluye: 'Materiales de pintura, té y café',
+    // Horario y sitio de la presentacion del taller (taller-acuarela-aline.netlify.app).
     tanda: {
       cuando: 'Domingo 1 de noviembre',
-      hora: '11:00 a 13:30',
+      hora: '10:30 a 13:00',
       precio: 45,
       cierre: '30 de octubre',
       iso: {
-        inicia: '2026-11-01T11:00:00+01:00',
-        termina: '2026-11-01T13:30:00+01:00',
+        inicia: '2026-11-01T10:30:00+01:00',
+        termina: '2026-11-01T13:00:00+01:00',
         cierre: '2026-10-30T23:59:00+01:00',
       },
+      lugar: 'Galerie The Muisca, Le Marais',
     },
   },
   {
@@ -136,6 +156,12 @@ export const mensajeInscripcion = (t: Taller) =>
     ? `Hola, me gustaría inscribirme en el taller de ${t.slug} del ${t.tanda.cuando.toLowerCase()}.`
     : mensajeAviso(t);
 
+/** Lo que dice el WhatsApp de las dudas, cuando la plaza se paga con el link de pago. */
+export const mensajePregunta = (t: Taller) =>
+  t.tanda
+    ? `Hola, tengo una pregunta sobre el taller de ${t.slug} del ${t.tanda.cuando.toLowerCase()}.`
+    : `Hola, tengo una pregunta sobre el taller de ${t.slug}.`;
+
 /** Lo que dice el WhatsApp de "Avísame": sin fechas, o con las plazas cerradas. */
 export const mensajeAviso = (t: Taller) =>
   t.tanda
@@ -161,7 +187,7 @@ export const hechos = (t: Taller) =>
         { clave: 'Cuándo', valor: t.tanda.cuando },
         { clave: 'Hora', valor: t.tanda.hora },
         { clave: 'Precio', valor: `${t.tanda.precio} €` },
-        { clave: 'Dónde', valor: t.ciudad },
+        { clave: 'Dónde', valor: t.tanda.lugar ?? t.ciudad },
       ]
     : [
         { clave: 'Cuándo', valor: 'Próximamente' },

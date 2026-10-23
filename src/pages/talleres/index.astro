@@ -129,7 +129,7 @@ const billete = (t: Taller) =>
           extra: `Plazas hasta el ${t.tanda.cierre}`,
           cifra: false,
         },
-        { icono: 'reloj' as const, clave: 'Hora', valor: t.tanda.hora, extra: t.ciudad, cifra: false },
+        { icono: 'reloj' as const, clave: 'Hora', valor: t.tanda.hora, extra: t.tanda.lugar ?? t.ciudad, cifra: false },
         {
           icono: 'entrada' as const,
           clave: 'Precio',
@@ -226,7 +226,7 @@ const partes = (titular: string, acento: string) => {
                 </p>
                 <div class="entrada__acciones">
                   <div class="si-abierto">
-                    <Cta href={whatsapp(mensajeInscripcion(abierto))}>Reservar</Cta>
+                    <Cta href={abierto.tanda.pago ?? whatsapp(mensajeInscripcion(abierto))}>Reservar</Cta>
                   </div>
                   <div class="si-cerrado">
                     <Cta href={whatsapp(mensajeAviso(abierto))}>Avísame del próximo</Cta>

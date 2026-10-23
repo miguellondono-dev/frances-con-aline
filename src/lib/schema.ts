@@ -162,6 +162,7 @@ export function taller({
   precio,
   moneda,
   ciudad,
+  lugar,
   pais,
   cierreInscripcion,
 }: {
@@ -187,6 +188,8 @@ export function taller({
   precio?: number;
   moneda: string;
   ciudad: string;
+  /** El nombre del sitio, si lo hay: "Galerie The Muisca, Le Marais". */
+  lugar?: string;
   pais: string;
   /** ISO 8601. Hasta cuando se puede reservar plaza. */
   cierreInscripcion?: string;
@@ -237,7 +240,7 @@ export function taller({
       inLanguage: 'fr',
       location: {
         '@type': 'Place',
-        name: ciudad,
+        name: lugar ?? ciudad,
         address: {
           '@type': 'PostalAddress',
           addressLocality: ciudad,

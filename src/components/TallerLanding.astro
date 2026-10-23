@@ -10,6 +10,7 @@ import {
   hechos,
   mensajeAviso,
   mensajeInscripcion,
+  mensajePregunta,
   type Taller,
 } from '../data/talleres';
 
@@ -50,6 +51,20 @@ const migas = [
 const idForma = `plaza-${t.slug}`;
 
 const tanda = t.tanda;
+
+/**
+ * Con link de pago, "Inscribirme" lleva a pagar y WhatsApp queda para las
+ * dudas. Sin el, la plaza se cierra por WhatsApp como siempre.
+ */
+const pago = tanda?.pago;
+const inscribirme = pago ?? whatsapp(mensajeInscripcion(t));
+
+/** Lo que hay que saber antes de pagar, pegado al precio. Solo lo que este. */
+const condiciones = [
+  t.incluye && `Incluye ${t.incluye.charAt(0).toLowerCase()}${t.incluye.slice(1)}`,
+  t.nivel && `Nivel de francés: ${t.nivel.charAt(0).toLowerCase()}${t.nivel.slice(1)}`,
+  tanda?.plazas && `${tanda.plazas} plazas`,
+].filter(Boolean) as string[];
 
 /**
  * La escena de cada cosa que se practica, en el orden de talleres.ts. Si un
@@ -121,8 +136,8 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
             tanda ? (
               <>
                 <div class="si-abierto">
-                  <Cta href={whatsapp(mensajeInscripcion(t))} variant="grenat">
-                    Inscribirme
+                  <Cta href={inscribirme} variant="grenat">
+                    {pago ? 'Reservar mi plaza' : 'Inscribirme'}
                   </Cta>
                   <p class="aviso-estado">
                     <span class="aviso-estado__punto" aria-hidden="true" />
@@ -269,7 +284,7 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
   </div>
 </section>
 
-<!-- Reserva. No se cobra aqui: se cierra por WhatsApp. -->
+<!-- Reserva. Con link de pago se paga en su pagina; sin el, se cierra por WhatsApp. -->
 <section
   class="reserva"
   id={idForma}
@@ -287,8 +302,11 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
                 Inscríbete
               </h2>
               <p class="measure mt-5 text-body text-nuit" data-reveal>
-                Escríbeme por WhatsApp y te confirmo la plaza, con la dirección
-                exacta y la forma de pago.
+                {
+                  pago
+                    ? 'Pagas en línea con tarjeta, Apple Pay o Google Pay, y te llega la confirmación con la dirección exacta.'
+                    : 'Escríbeme por WhatsApp y te confirmo la plaza, con la dirección exacta y la forma de pago.'
+                }
               </p>
 
               <p class="reserva__resumen" data-reveal>
@@ -299,13 +317,36 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
               </p>
               <p class="reserva__fecha" data-reveal>
                 {tanda.cuando} · {tanda.hora}
+                {tanda.lugar && <span class="reserva__lugar">{tanda.lugar}</span>}
               </p>
+
+              {
+                condiciones.length > 0 && (
+                  <ul class="reserva__condiciones" data-reveal>
+                    {condiciones.map((c) => (
+                      <li>{c}</li>
+                    ))}
+                  </ul>
+                )
+              }
+
+              {tanda.cancelacion && <p class="reserva__letra" data-reveal>{tanda.cancelacion}</p>}
+
+              {
+                pago && (
+                  <div class="reserva__pagar" data-reveal>
+                    <Cta href={pago} variant="grenat">
+                      Reservar mi plaza · {tanda.precio} €
+                    </Cta>
+                  </div>
+                )
+              }
             </div>
 
             <ChatWhatsapp
-              mensaje={mensajeInscripcion(t)}
-              boton="Inscribirme"
-              asunto={`Quiero una plaza en el taller de ${t.slug}`}
+              mensaje={pago ? mensajePregunta(t) : mensajeInscripcion(t)}
+              boton={pago ? 'Preguntar' : 'Inscribirme'}
+              asunto={pago ? `Una pregunta sobre el taller de ${t.slug}` : `Quiero una plaza en el taller de ${t.slug}`}
             />
           </div>
         </div>
@@ -943,6 +984,52 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
   .reserva__detalle {
     font-size: var(--text-body-s);
     color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  /* El sitio va en su propia linea: "Galerie The Muisca, Le Marais" no cabe
+     detras de la fecha y la hora sin partirse por cualquier parte. */
+  .reserva__lugar {
+    display: block;
+    margin-top: 0.2rem;
+    font-weight: 500;
+    color: var(--color-nuit);
+  }
+
+  /* Lo que hay que saber antes de pagar: lo incluido, el nivel, las plazas. */
+  .reserva__condiciones {
+    display: grid;
+    gap: 0.45rem;
+    margin: 1.4rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-body-s);
+    color: var(--color-nuit);
+  }
+
+  .reserva__condiciones li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  .reserva__condiciones li::before {
+    content: '';
+    flex: none;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background-color: var(--color-grenat);
+    transform: translateY(-0.1rem);
+  }
+
+  .reserva__letra {
+    margin-top: 1rem;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
+  }
+
+  .reserva__pagar {
+    margin-top: 1.75rem;
   }
 </style>
 

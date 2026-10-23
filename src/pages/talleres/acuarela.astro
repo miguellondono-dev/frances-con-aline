@@ -23,7 +23,7 @@ const schema = [
   taller({
     name: 'Taller de acuarela en francés',
     description:
-      'Un domingo pintando en acuarela mientras se habla en francés: mezcla de color, bocetos del natural y el vocabulario del color y de la luz. Te vas con una lámina terminada. Presencial en París.',
+      'Un domingo en la Galerie The Muisca, en el Marais: una clase de francés para hablar de arte y una sesión de acuarela con una artista invitada. Desde nivel A2, con materiales, té y café incluidos. Te vas con una lámina terminada.',
     path: '/talleres/acuarela',
     site: Astro.site,
     inicia: t.tanda?.iso.inicia,
@@ -35,13 +35,14 @@ const schema = [
     precio: t.tanda?.precio,
     moneda: 'EUR',
     ciudad: t.ciudad,
+    lugar: t.tanda?.lugar,
     pais: 'FR',
     cierreInscripcion: t.tanda?.iso.cierre,
   }),
 ];
 
 const descripcion = t.tanda
-  ? `Un domingo pintando en acuarela y hablando en francés, en París. ${t.tanda.cuando}, de ${t.tanda.hora}. ${t.tanda.precio} €, con tu lámina terminada.`
+  ? `Un domingo pintando en acuarela y hablando en francés, en la Galerie The Muisca (París). ${t.tanda.cuando}, de ${t.tanda.hora}. ${t.tanda.precio} €, con materiales y tu lámina terminada.`
   : 'Un domingo pintando en acuarela y hablando en francés, en París, con tu lámina terminada. Las próximas fechas, muy pronto.';
 ---
 
