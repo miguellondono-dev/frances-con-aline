@@ -8,6 +8,10 @@ import lamina from '../../assets/talleres/acuarela-lamina.jpg';
 import laminaLimon from '../../assets/talleres/acuarela-limon.jpg';
 import laminaCerezas from '../../assets/talleres/acuarela-cerezas.jpg';
 import laminaDonut from '../../assets/talleres/acuarela-donut.jpg';
+import fotoAline from '../../assets/talleres/equipo-aline.webp';
+import fotoSarah from '../../assets/talleres/equipo-sarah.webp';
+import firmaMissS from '../../assets/talleres/miss-s-firma.png';
+import logoMuisca from '../../assets/talleres/the-muisca-logo.png';
 
 const t = porSlug('acuarela');
 
@@ -61,5 +65,35 @@ const descripcion = t.tanda
       { src: laminaDonut, alt: 'Lámina de acuarela de un dónut con glaseado rosa, sostenida en la mano' },
     ]}
     portadaAlt="Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo"
+    equipo={[
+      {
+        rol: 'Organizo y doy la clase',
+        nombre: 'Aline Bart',
+        texto:
+          'Soy tutora de francés y mediadora cultural. En mis talleres uno el francés y la acuarela para que practicar el idioma sea una forma de expresarte, en un ambiente de confianza.',
+        foto: fotoAline,
+        alt: 'Retrato de Aline Bart',
+        enlace: { href: '/sobre-mi', texto: 'Más sobre mí' },
+      },
+      {
+        rol: 'Artista invitada',
+        nombre: 'Sarah, Miss S',
+        texto:
+          'Dibuja y pinta desde hace años, y le encanta probar materiales y técnicas nuevas. Guía la acuarela a tu ritmo, sin presión por la perfección.',
+        foto: fotoSarah,
+        firma: firmaMissS,
+        alt: 'Retrato de Sarah, Miss S',
+        enlace: { href: 'https://www.tiktok.com/@ittle.s', texto: '@ittle.s en TikTok' },
+      },
+      {
+        rol: 'Galería aliada',
+        nombre: 'Galerie The Muisca',
+        texto:
+          'Galería de arte contemporáneo que conecta artistas de Europa, América Latina y otras regiones. Es donde pintamos, en el Marais.',
+        logo: logoMuisca,
+        alt: 'Logo de The Muisca Gallery',
+        enlace: { href: 'https://www.themuisca.com/', texto: 'themuisca.com' },
+      },
+    ]}
   />
 </BaseLayout>

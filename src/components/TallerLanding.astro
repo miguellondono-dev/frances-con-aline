@@ -1,6 +1,6 @@
 ---
 import ChatWhatsapp from './ChatWhatsapp.astro';
-import { Picture } from 'astro:assets';
+import { Image, Picture } from 'astro:assets';
 import Cta from './Cta.astro';
 import EscenaTaller from './graficos/EscenaTaller.astro';
 import type { TipoEscenaTaller } from './graficos/escenas';
@@ -38,9 +38,27 @@ interface Props {
    * van en lugar de la foto. Solo las usa acuarela.
    */
   laminas?: { src: ImageMetadata; alt: string }[];
+  /**
+   * Quien hace el taller y donde: personas con su retrato (y su firma, si la
+   * tiene) o un sitio con su logo. Solo lo usa acuarela, que tiene artista
+   * invitada y galeria.
+   */
+  equipo?: {
+    rol: string;
+    nombre: string;
+    texto: string;
+    /** Retrato recortado, con el fondo transparente. */
+    foto?: ImageMetadata;
+    /** En lugar del retrato: el logo del sitio. */
+    logo?: ImageMetadata;
+    /** La firma, encima del retrato, como en una lamina firmada. */
+    firma?: ImageMetadata;
+    alt: string;
+    enlace?: { href: string; texto: string };
+  }[];
 }
 
-const { taller: t, portada, portadaAlt, reel, laminas = [] } = Astro.props;
+const { taller: t, portada, portadaAlt, reel, laminas = [], equipo = [] } = Astro.props;
 
 const migas = [
   { name: 'Inicio', path: '/' },
@@ -283,6 +301,100 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
     </ol>
   </div>
 </section>
+
+<!-- Programa. La mañana hora a hora: quien reserva quiere saber a que hora
+     llega, que hace y a que hora se va. -->
+{
+  tanda?.programa && (
+    <section class="programa" aria-labelledby="programa">
+      <div class="shell py-section">
+        <div class="practica__cabecera">
+          <h2 id="programa" class="titulo-seccion text-encre" data-palabras data-repite>
+            Cómo es la <em class="destacado">mañana</em>
+          </h2>
+          <p class="practica__frase" data-reveal>
+            {tanda.cuando}, de {tanda.hora}, en la {tanda.lugar ?? t.ciudad}.
+          </p>
+        </div>
+
+        <ol class="horario">
+          {tanda.programa.map((p, i) => (
+            <li class="horario__paso logro" data-reveal style={`--i: ${i}`}>
+              <span class="horario__hora numerals">{p.hora}</span>
+              <span class="horario__punto" aria-hidden="true" />
+              <span class="horario__titulo">{p.titulo}</span>
+              <span class="horario__detalle">{p.detalle}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+<!-- Equipo. Las mismas tarjetas del mosaico, con un retrato o un logo donde
+     van las escenas. La firma de la artista va encima, como en una lamina. -->
+{
+  equipo.length > 0 && (
+    <section class="equipo" aria-labelledby="equipo">
+      <div class="shell py-section">
+        <div class="practica__cabecera">
+          <h2 id="equipo" class="titulo-seccion text-encre" data-palabras data-repite>
+            Con quién y dónde <em class="destacado">pintas</em>
+          </h2>
+        </div>
+
+        <ul class="equipo__rejilla">
+          {equipo.map((p, i) => (
+            <li class="logro" data-reveal style={`--i: ${i}`}>
+              <article class="logro__tarjeta">
+                <div
+                  class:list={[
+                    'logro__escena',
+                    'equipo__escena',
+                    i % 2 === 0 ? 'logro__escena--calida' : 'logro__escena--fria',
+                  ]}
+                >
+                  {p.foto && (
+                    <Picture
+                      src={p.foto}
+                      alt={p.alt}
+                      formats={['avif', 'webp']}
+                      fallbackFormat="webp"
+                      widths={[320, 480, 640]}
+                      sizes="(min-width: 64rem) 22rem, 90vw"
+                      class="equipo__foto"
+                    />
+                  )}
+                  {p.logo && <Image src={p.logo} alt={p.alt} widths={[320, 640]} sizes="16rem" class="equipo__logo" />}
+                  {p.firma && <Image src={p.firma} alt="" widths={[240, 480]} sizes="11rem" class="equipo__firma" />}
+                </div>
+                <div class="logro__cuerpo">
+                  <span class="logro__num">{p.rol}</span>
+                  <h3 class="logro__titulo">{p.nombre}</h3>
+                  <p class="equipo__texto">{p.texto}</p>
+                  {p.enlace && (
+                    <a
+                      class="equipo__enlace"
+                      href={p.enlace.href}
+                      target={p.enlace.href.startsWith('http') ? '_blank' : undefined}
+                      rel={p.enlace.href.startsWith('http') ? 'noopener' : undefined}
+                    >
+                      {p.enlace.texto}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
 
 <!-- Reserva. Con link de pago se paga en su pagina; sin el, se cierra por WhatsApp. -->
 <section
@@ -943,7 +1055,235 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
     }
   }
 
-  /* --- Galeria --- */
+  /* --- Programa: la mañana hora a hora ---
+     En movil, de arriba abajo con la hora a la izquierda. En escritorio, de
+     izquierda a derecha, con la raya que une los puntos de un paso al otro. */
+
+  .programa {
+    background-color: color-mix(in srgb, var(--color-papier) 22%, var(--color-blanc));
+  }
+
+  .horario {
+    display: grid;
+    max-width: 36rem;
+    margin: 3rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .horario__paso {
+    display: grid;
+    grid-template-columns: 3.4rem 1.25rem minmax(0, 1fr);
+    grid-template-areas:
+      'hora punto titulo'
+      '.    punto detalle';
+    column-gap: 0.85rem;
+  }
+
+  .horario__hora {
+    grid-area: hora;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-grenat);
+  }
+
+  .horario__punto {
+    position: relative;
+    grid-area: punto;
+  }
+
+  .horario__punto::before {
+    content: '';
+    position: absolute;
+    top: 0.4rem;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-left: -0.4rem;
+    border-radius: 50%;
+    background-color: var(--color-blanc);
+    box-shadow: inset 0 0 0 2px var(--color-grenat);
+  }
+
+  .horario__paso:first-child .horario__punto::before {
+    background-color: var(--color-grenat);
+  }
+
+  .horario__punto::after {
+    content: '';
+    position: absolute;
+    top: 1.45rem;
+    bottom: 0.25rem;
+    left: 50%;
+    width: 1px;
+    background-color: color-mix(in srgb, var(--color-encre) 18%, transparent);
+  }
+
+  .horario__paso:last-child .horario__punto::after {
+    display: none;
+  }
+
+  .horario__titulo {
+    grid-area: titulo;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--color-encre);
+  }
+
+  .horario__detalle {
+    grid-area: detalle;
+    padding: 0.2rem 0 1.75rem;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: var(--color-nuit);
+  }
+
+  .horario__paso:last-child .horario__detalle {
+    padding-bottom: 0;
+  }
+
+  @media (width >= 64rem) {
+    .horario {
+      grid-auto-columns: minmax(0, 1fr);
+      grid-auto-flow: column;
+      max-width: 70rem;
+      margin-top: 3.5rem;
+    }
+
+    .horario__paso {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'hora' 'punto' 'titulo' 'detalle';
+      row-gap: 0.4rem;
+      padding-right: 1.5rem;
+    }
+
+    .horario__punto {
+      height: 1.6rem;
+    }
+
+    .horario__punto::before {
+      top: 0.4rem;
+      left: 0;
+      margin-left: 0;
+    }
+
+    /* La raya sale del punto y llega hasta el siguiente, por encima del hueco. */
+    .horario__punto::after {
+      top: 0.8rem;
+      bottom: auto;
+      left: 1.3rem;
+      right: -1.2rem;
+      width: auto;
+      height: 1px;
+    }
+
+    .horario__detalle {
+      padding: 0;
+    }
+  }
+
+  /* --- Equipo: quien da el taller y donde --- */
+
+  .equipo {
+    background-color: var(--color-blanc);
+  }
+
+  .equipo__rejilla {
+    display: grid;
+    gap: 1rem;
+    max-width: 70rem;
+    margin: 2.75rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .equipo__rejilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .equipo__rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .equipo__escena {
+    display: grid;
+    place-items: end center;
+    height: 16rem;
+  }
+
+  /* Los retratos vienen recortados y se funden por abajo: se apoyan en el
+     borde inferior de la escena, como si asomaran. */
+  .equipo__escena :global(picture),
+  .equipo__foto {
+    display: block;
+    height: 100%;
+  }
+
+  .equipo__foto {
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: bottom;
+  }
+
+  .equipo__logo {
+    align-self: center;
+    width: min(78%, 17rem);
+    height: auto;
+  }
+
+  .equipo__firma {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.9rem;
+    width: min(58%, 11rem);
+    height: auto;
+    transform: rotate(-7deg);
+    filter: drop-shadow(0 1px 0 var(--color-blanc));
+  }
+
+  .equipo__texto {
+    font-size: var(--text-body-s);
+    line-height: 1.55;
+    color: var(--color-nuit);
+  }
+
+  .equipo__enlace {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-grenat);
+    text-decoration: none;
+  }
+
+  .equipo__enlace svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 220ms var(--ease-fluid);
+  }
+
+  .equipo__enlace:hover svg {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .equipo__enlace svg {
+      transition: none;
+    }
+  }
 
   /* --- Reserva --- */
 

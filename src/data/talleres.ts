@@ -37,6 +37,8 @@ export type Tanda = {
   plazas?: number;
   /** La politica de cancelacion, en una frase. Tiene que verse antes de pagar. */
   cancelacion?: string;
+  /** Lo que pasa en la sesion, hora a hora. En la ficha sale como linea de tiempo. */
+  programa?: { hora: string; titulo: string; detalle: string }[];
 };
 
 export type Taller = {
@@ -104,6 +106,13 @@ export const TALLERES: Taller[] = [
         cierre: '2026-10-30T23:59:00+01:00',
       },
       lugar: 'Galerie The Muisca, Le Marais',
+      programa: [
+        { hora: '10:30', titulo: 'Llegada', detalle: 'Llegada y preparación del espacio' },
+        { hora: '10:35', titulo: 'Clase de francés', detalle: 'Hablar de arte en francés y comprenderlo' },
+        { hora: '11:35', titulo: 'Técnica', detalle: 'Técnicas de acuarela para principiantes' },
+        { hora: '12:35', titulo: 'Acabado', detalle: 'Terminas tu lámina' },
+        { hora: '13:00', titulo: 'Cierre', detalle: 'Fin del taller' },
+      ],
     },
   },
   {
