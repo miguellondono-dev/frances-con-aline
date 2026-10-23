@@ -54,7 +54,8 @@ interface Props {
     /** La firma, encima del retrato, como en una lamina firmada. */
     firma?: ImageMetadata;
     alt: string;
-    enlace?: { href: string; texto: string };
+    /** Su web y sus redes. Los de fuera se abren aparte. */
+    enlaces?: { href: string; texto: string }[];
   }[];
 }
 
@@ -373,18 +374,22 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
                   <span class="logro__num">{p.rol}</span>
                   <h3 class="logro__titulo">{p.nombre}</h3>
                   <p class="equipo__texto">{p.texto}</p>
-                  {p.enlace && (
-                    <a
-                      class="equipo__enlace"
-                      href={p.enlace.href}
-                      target={p.enlace.href.startsWith('http') ? '_blank' : undefined}
-                      rel={p.enlace.href.startsWith('http') ? 'noopener' : undefined}
-                    >
-                      {p.enlace.texto}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </a>
+                  {p.enlaces && p.enlaces.length > 0 && (
+                    <p class="equipo__enlaces">
+                      {p.enlaces.map((e) => (
+                        <a
+                          class="equipo__enlace"
+                          href={e.href}
+                          target={e.href.startsWith('http') ? '_blank' : undefined}
+                          rel={e.href.startsWith('http') ? 'noopener' : undefined}
+                        >
+                          {e.texto}
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </a>
+                      ))}
+                    </p>
                   )}
                 </div>
               </article>
@@ -1257,11 +1262,17 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
     color: var(--color-nuit);
   }
 
+  .equipo__enlaces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.25rem;
+    margin-top: 0.35rem;
+  }
+
   .equipo__enlace {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    margin-top: 0.35rem;
     font-family: var(--font-display);
     font-size: 0.9375rem;
     font-weight: 600;
