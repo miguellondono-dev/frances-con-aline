@@ -26,14 +26,18 @@ export type Tanda = {
   cierre: string;
   /** Para el schema y para el cierre automatico, en ISO con hora de Paris. */
   iso: { inicia: string; termina: string; cierre: string };
-  /** El sitio de esta tanda, si no basta con la ciudad: "Galerie The Muisca, Le Marais". */
+  /** El sitio de esta tanda, si no basta con la ciudad: "The Muisca Gallery". */
   lugar?: string;
   /**
    * El link de pago (Stripe u otro). Con el, "Inscribirme" lleva a pagar y
    * WhatsApp queda para las preguntas. Sin el, la plaza se cierra por WhatsApp.
    */
   pago?: string;
-  /** Cuantas plazas hay. Se dice solo si esta el dato. */
+  /**
+   * Cuantas plazas hay en total. Se dice solo si esta el dato. Ojo: el limite
+   * de pagos de Stripe cuenta compras, no plazas, y una compra puede llevar
+   * varias. Las plazas vendidas se miran en el panel de Stripe.
+   */
   plazas?: number;
   /** La politica de cancelacion, en una frase. Tiene que verse antes de pagar. */
   cancelacion?: string;
@@ -72,19 +76,19 @@ export const TALLERES: Taller[] = [
   {
     slug: 'acuarela',
     nombre: 'Acuarela en francés',
-    titular: 'Un domingo pintando, con las manos ocupadas y el francés suelto',
+    titular: 'Aprende a hablar de arte en francés, con un pincel en la mano',
     acento: 'francés',
     resumen:
-      'Una mañana en una galería del Marais, una lámina terminada y el vocabulario del arte en francés.',
+      'Una hora de francés para hablar de arte y una sesión de acuarela, con la pastelería francesa como tema.',
     parrafos: [
-      'Primero una clase de francés para hablar de arte y después pintamos en acuarela, con una artista invitada, en la Galerie The Muisca. Las manos ocupadas quitan la presión: cuando estás mezclando un color, dejas de vigilar cada palabra que dices y el idioma empieza a salir solo.',
-      'Descubres la cultura de la acuarela en Francia y el vocabulario del arte y de la pintura, que es el que no aparece en ninguna clase normal. El tema de esta primera edición es la pastelería francesa. Te vas con tu lámina terminada y con un puñado de palabras que ya no se te olvidan, porque las usaste para hacer algo.',
+      'Es la primera edición de mi taller de francés y acuarela, y lo hago junto a la artista Miss S. Es para quien quiere aprender francés haciendo algo creativo: una hora de clase sobre arte y, después, pintamos en acuarela con la pastelería francesa como tema.',
+      'Al salir de la clase sabrás describir una obra, dar tu opinión sobre ella y seguir cualquier taller de arte en francés, porque tendrás el vocabulario. En la segunda parte aprendes las técnicas de la acuarela y exploras tu creatividad. Te vas con tu lámina terminada y con palabras que ya no se te olvidan, porque las usaste para crear algo.',
     ],
     // En el orden de las escenas de TallerLanding: mezcla, vocabulario, boceto, lamina.
     practica: [
       'Técnicas de acuarela para principiantes',
-      'El vocabulario del arte y de la pintura',
-      'La pastelería francesa como modelo',
+      'Describir una obra y dar tu opinión',
+      'La pastelería francesa como tema',
       'Una lámina terminada para llevarte',
     ],
     sesiones: 1,
@@ -105,10 +109,10 @@ export const TALLERES: Taller[] = [
         termina: '2026-11-01T13:00:00+01:00',
         cierre: '2026-10-30T23:59:00+01:00',
       },
-      lugar: 'Galerie The Muisca, Le Marais',
+      lugar: 'The Muisca Gallery',
       programa: [
         { hora: '10:30', titulo: 'Llegada', detalle: 'Llegada y preparación del espacio' },
-        { hora: '10:35', titulo: 'Clase de francés', detalle: 'Hablar de arte en francés y comprenderlo' },
+        { hora: '10:35', titulo: 'Clase de francés', detalle: 'Describir obras de arte y dar tu opinión, en francés' },
         { hora: '11:35', titulo: 'Técnica', detalle: 'Técnicas de acuarela para principiantes' },
         { hora: '12:35', titulo: 'Acabado', detalle: 'Terminas tu lámina' },
         { hora: '13:00', titulo: 'Cierre', detalle: 'Fin del taller' },
@@ -183,6 +187,19 @@ export const formato = (t: Taller) => {
   const m = t.minutosPorSesion % 60;
   const duracion = m ? `${h} h ${m}` : `${h} h`;
   return t.sesiones > 1 ? `${t.sesiones} sesiones de ${duracion}` : `Una sesión de ${duracion}`;
+};
+
+/** El dia de una tanda, partido para el talon de una entrada: "dom", "1", "nov". */
+export const fechaTalon = (iso: string) => {
+  const fecha = new Date(iso);
+  const parte = (opciones: Intl.DateTimeFormatOptions) =>
+    fecha.toLocaleDateString('es-ES', { timeZone: 'Europe/Paris', ...opciones }).replace('.', '');
+  return {
+    semana: parte({ weekday: 'short' }),
+    dia: parte({ day: 'numeric' }),
+    mes: parte({ month: 'short' }),
+    largo: parte({ day: 'numeric', month: 'long' }),
+  };
 };
 
 /**

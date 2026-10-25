@@ -211,8 +211,22 @@ function setupWordReveal() {
         return;
       }
 
-      // Cualquier etiqueta viaja entera, sin tocarle nada por dentro.
-      destino.appendChild(envolver(nodo, i));
+      // Cualquier etiqueta viaja entera, sin tocarle nada por dentro. Si el
+      // texto que sigue va pegado a ella ("francés,"), lo pegado viaja en la
+      // misma mascara: si no, sale "francés ," o la coma salta sola de linea.
+      // El vecino se lee antes de mover la etiqueta al fragmento: despues ya
+      // no tiene.
+      const siguiente = nodo.nextSibling;
+      const pieza = document.createDocumentFragment();
+      pieza.appendChild(nodo);
+      if (siguiente?.nodeType === Node.TEXT_NODE) {
+        const pegado = (siguiente.textContent ?? '').match(/^\S+/)?.[0];
+        if (pegado) {
+          pieza.appendChild(document.createTextNode(pegado));
+          siguiente.textContent = (siguiente.textContent ?? '').slice(pegado.length);
+        }
+      }
+      destino.appendChild(envolver(pieza, i));
       destino.appendChild(document.createTextNode(' '));
       i += 1;
     });

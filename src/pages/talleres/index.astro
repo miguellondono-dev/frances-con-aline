@@ -9,6 +9,7 @@ import { breadcrumb } from '../../lib/schema';
 import {
   enOrden,
   estadoDe,
+  fechaTalon,
   formato,
   mensajeAviso,
   mensajeInscripcion,
@@ -93,18 +94,6 @@ const VOCABULARIO_TALLERES = [
 const TALLERES_EN_ORDEN = enOrden();
 const abierto = tallerAbierto();
 
-/** El dia del proximo taller, partido para el talon de la entrada. */
-const fechaTalon = (iso: string) => {
-  const fecha = new Date(iso);
-  const parte = (opciones: Intl.DateTimeFormatOptions) =>
-    fecha.toLocaleDateString('es-ES', { timeZone: 'Europe/Paris', ...opciones }).replace('.', '');
-  return {
-    semana: parte({ weekday: 'short' }),
-    dia: parte({ day: 'numeric' }),
-    mes: parte({ month: 'short' }),
-    largo: parte({ day: 'numeric', month: 'long' }),
-  };
-};
 const talon = abierto?.tanda ? fechaTalon(abierto.tanda.iso.inicia) : null;
 
 /** El texto que gira en el sello: el proximo taller, o lo general. */
@@ -134,7 +123,7 @@ const billete = (t: Taller) =>
           icono: 'entrada' as const,
           clave: 'Precio',
           valor: `${t.tanda.precio} €`,
-          extra: t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'la sesión',
+          extra: t.sesiones > 1 ? `las ${t.sesiones} sesiones` : 'por persona',
           cifra: true,
         },
       ]

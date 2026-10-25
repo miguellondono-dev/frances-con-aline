@@ -4,9 +4,11 @@ import { Image, Picture } from 'astro:assets';
 import Cta from './Cta.astro';
 import EscenaTaller from './graficos/EscenaTaller.astro';
 import type { TipoEscenaTaller } from './graficos/escenas';
-import { whatsapp } from '../data/site';
+import { CORREO_CONTACTO, whatsapp } from '../data/site';
+import { icono, type NombreIcono } from '../data/iconos';
 import {
   estadoDe,
+  fechaTalon,
   hechos,
   mensajeAviso,
   mensajeInscripcion,
@@ -78,12 +80,32 @@ const tanda = t.tanda;
 const pago = tanda?.pago;
 const inscribirme = pago ?? whatsapp(mensajeInscripcion(t));
 
-/** Lo que hay que saber antes de pagar, pegado al precio. Solo lo que este. */
-const condiciones = [
-  t.incluye && `Incluye ${t.incluye.charAt(0).toLowerCase()}${t.incluye.slice(1)}`,
-  t.nivel && `Nivel de francés: ${t.nivel.charAt(0).toLowerCase()}${t.nivel.slice(1)}`,
-  tanda?.plazas && `${tanda.plazas} plazas`,
-].filter(Boolean) as string[];
+/** El dia de la tanda para el talon de la entrada. */
+const talon = tanda ? fechaTalon(tanda.iso.inicia) : null;
+
+/** Lo que dice la entrada, cada cosa con su icono. Solo lo que este. */
+const datosEntrada = tanda
+  ? ([
+      { icono: 'reloj', texto: tanda.hora },
+      { icono: 'objetivo', texto: tanda.lugar ? `${tanda.lugar}, ${t.ciudad}` : t.ciudad },
+      t.incluye && { icono: 'check', texto: t.incluye },
+      t.nivel && { icono: 'nivel', texto: `${t.nivel} de francés` },
+      tanda.plazas && { icono: 'entrada', texto: `${tanda.plazas} plazas` },
+    ].filter(Boolean) as { icono: NombreIcono; texto: string }[])
+  : [];
+
+/** Como se reserva, en tres pasos. Cambia segun se pague en linea o por WhatsApp. */
+const pasos = pago
+  ? [
+      { titulo: 'Eliges cuántas plazas', texto: 'Para ti o para quien venga contigo.' },
+      { titulo: 'Pagas en línea', texto: 'Con tarjeta, Apple Pay o Google Pay, en una página segura.' },
+      { titulo: 'Te llega la confirmación', texto: 'Al correo, con la dirección exacta y la hora de llegada.' },
+    ]
+  : [
+      { titulo: 'Me escribes por WhatsApp', texto: 'Y me dices para cuántas personas es.' },
+      { titulo: 'Te confirmo la plaza', texto: 'Y te cuento cómo pagar.' },
+      { titulo: 'Te mando los detalles', texto: 'La dirección exacta y la hora de llegada.' },
+    ];
 
 /**
  * La escena de cada cosa que se practica, en el orden de talleres.ts. Si un
@@ -117,8 +139,8 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
             t.acento && t.titular.includes(t.acento) ? (
               <>
                 {t.titular.slice(0, t.titular.indexOf(t.acento))}
-                <em class="destacado">{t.acento}</em>
-                {t.titular.slice(t.titular.indexOf(t.acento) + t.acento.length)}
+                {/* Pegado a la em: si el titular sigue con una coma, un salto de linea aqui la separaria. */}
+                <em class="destacado">{t.acento}</em>{t.titular.slice(t.titular.indexOf(t.acento) + t.acento.length)}
               </>
             ) : (
               t.titular
@@ -156,7 +178,7 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
               <>
                 <div class="si-abierto">
                   <Cta href={inscribirme} variant="grenat">
-                    {pago ? 'Reservar mi plaza' : 'Inscribirme'}
+                    {pago ? 'Reservar plaza' : 'Inscribirme'}
                   </Cta>
                   <p class="aviso-estado">
                     <span class="aviso-estado__punto" aria-hidden="true" />
@@ -314,7 +336,7 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
             Cómo es la <em class="destacado">mañana</em>
           </h2>
           <p class="practica__frase" data-reveal>
-            {tanda.cuando}, de {tanda.hora}, en la {tanda.lugar ?? t.ciudad}.
+            {tanda.cuando}, de {tanda.hora}, en {tanda.lugar ?? t.ciudad}.
           </p>
         </div>
 
@@ -401,9 +423,12 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
   )
 }
 
-<!-- Reserva. Con link de pago se paga en su pagina; sin el, se cierra por WhatsApp. -->
+<!-- Reserva. La entrada del taller, como la de la portada de talleres: el
+     talon con el dia y, al otro lado del corte, los datos, el precio y el
+     boton. Debajo, como se reserva en tres pasos y las dudas. Con link de
+     pago se paga en su pagina; sin el, se cierra por WhatsApp. -->
 <section
-  class="reserva"
+  class:list={['reserva', { 'reserva--entrada': tanda }]}
   id={idForma}
   aria-labelledby={`${idForma}-titulo`}
   data-taller-cierre={tanda?.iso.cierre}
@@ -411,60 +436,86 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
 >
   <div class="shell py-section">
     {
-      tanda && (
+      tanda && talon && (
         <div class="si-abierto">
-          <div class="reserva__caja">
-            <div>
-              <h2 id={`${idForma}-titulo`} class="text-display-m text-encre" data-reveal>
-                Inscríbete
-              </h2>
-              <p class="measure mt-5 text-body text-nuit" data-reveal>
-                {
-                  pago
-                    ? 'Pagas en línea con tarjeta, Apple Pay o Google Pay, y te llega la confirmación con la dirección exacta.'
-                    : 'Escríbeme por WhatsApp y te confirmo la plaza, con la dirección exacta y la forma de pago.'
-                }
-              </p>
-
-              <p class="reserva__resumen" data-reveal>
-                <span class="reserva__precio numerals">{tanda.precio} €</span>
-                <span class="reserva__detalle">
-                  {t.sesiones > 1 ? `las ${t.sesiones} sesiones, no cada una` : 'la sesión'}
-                </span>
-              </p>
-              <p class="reserva__fecha" data-reveal>
-                {tanda.cuando} · {tanda.hora}
-                {tanda.lugar && <span class="reserva__lugar">{tanda.lugar}</span>}
-              </p>
-
+          <div class="practica__cabecera">
+            <h2 id={`${idForma}-titulo`} class="titulo-seccion text-encre" data-palabras data-repite>
+              Reserva tu <em class="destacado">plaza</em>
+            </h2>
+            <p class="practica__frase" data-reveal>
               {
-                condiciones.length > 0 && (
-                  <ul class="reserva__condiciones" data-reveal>
-                    {condiciones.map((c) => (
-                      <li>{c}</li>
-                    ))}
-                  </ul>
-                )
+                pago
+                  ? 'Para ti o para quien venga contigo: eliges cuántas plazas al pagar.'
+                  : 'Para ti o para quien venga contigo: me dices cuántas plazas y te las guardo.'
               }
+            </p>
+          </div>
 
-              {tanda.cancelacion && <p class="reserva__letra" data-reveal>{tanda.cancelacion}</p>}
-
-              {
-                pago && (
-                  <div class="reserva__pagar" data-reveal>
-                    <Cta href={pago} variant="grenat">
-                      Reservar mi plaza · {tanda.precio} €
-                    </Cta>
-                  </div>
-                )
-              }
+          <div class="pase" data-reveal>
+            <div class="pase__talon" aria-hidden="true">
+              <span class="pase__semana">{talon.semana}</span>
+              <span class="pase__dia numerals">{talon.dia}</span>
+              <span class="pase__mes">{talon.mes}</span>
             </div>
+            <span class="pase__corte" aria-hidden="true" />
+            <div class="pase__cuerpo">
+              <p class="pase__rotulo">
+                <span class="aviso-estado__punto" aria-hidden="true" />
+                Plazas hasta el {tanda.cierre}
+              </p>
+              <p class="pase__nombre">{t.nombre}</p>
+              <p class="sr-only">{tanda.cuando}</p>
+              <ul class="pase__datos">
+                {datosEntrada.map((d) => (
+                  <li>
+                    <span class="pase__icono" set:html={icono(d.icono)} />
+                    {d.texto}
+                  </li>
+                ))}
+              </ul>
+              <div class="pase__pie">
+                <p class="pase__precio">
+                  <span class="pase__cifra numerals">{tanda.precio} €</span>
+                  <span class="pase__detalle">
+                    {t.sesiones > 1 ? `las ${t.sesiones} sesiones, no cada una` : 'por persona'}
+                  </span>
+                </p>
+                <Cta href={inscribirme} variant="grenat">
+                  {pago ? 'Reservar plaza' : 'Inscribirme'}
+                </Cta>
+              </div>
+            </div>
+          </div>
 
-            <ChatWhatsapp
-              mensaje={pago ? mensajePregunta(t) : mensajeInscripcion(t)}
-              boton={pago ? 'Preguntar' : 'Inscribirme'}
-              asunto={pago ? `Una pregunta sobre el taller de ${t.slug}` : `Quiero una plaza en el taller de ${t.slug}`}
-            />
+          <ol class="pasos">
+            {pasos.map((p, i) => (
+              <li class="pasos__paso logro" data-reveal style={`--i: ${i}`}>
+                <span class="pasos__num numerals" aria-hidden="true">{i + 1}</span>
+                <div>
+                  <p class="pasos__titulo">{p.titulo}</p>
+                  <p class="pasos__texto">{p.texto}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div class="reserva__notas" data-reveal>
+            {tanda.cancelacion && <p class="reserva__letra">{tanda.cancelacion}</p>}
+            <p class="reserva__dudas">
+              {pago ? (
+                <>
+                  ¿Dudas antes de reservar?{' '}
+                  <a href={whatsapp(mensajePregunta(t))} target="_blank" rel="noopener">
+                    Escríbeme por WhatsApp
+                  </a>{' '}
+                  o a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>.
+                </>
+              ) : (
+                <>
+                  ¿Prefieres correo? Escríbeme a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>.
+                </>
+              )}
+            </p>
           </div>
         </div>
       )
@@ -855,14 +906,6 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
       opacity: 0;
       transform: scale(2.8);
     }
-  }
-
-  .reserva__fecha {
-    margin-top: 0.6rem;
-    font-family: var(--font-display);
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-encre);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1315,72 +1358,259 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
     }
   }
 
-  /* El precio sale una sola vez en toda la pagina, y sale aqui: pegado al
-     boton, que es donde se decide. En la cabecera va como dato, no repetido. */
-  .reserva__resumen {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.75rem;
-    margin: 2rem 0 0;
+  /* Con tanda, la seccion va en un tono calido para que la entrada, blanca,
+     salte a la vista. La caja de "te aviso" pasa a blanco para no perderse. */
+  .reserva--entrada {
+    background-color: color-mix(in srgb, var(--color-papier) 30%, var(--color-blanc));
   }
 
-  .reserva__precio {
-    font-size: var(--text-display-m);
-    font-weight: 600;
-    line-height: 1;
+  .reserva--entrada .reserva__caja {
+    background-color: var(--color-blanc);
+    box-shadow: var(--shadow-flota);
+  }
+
+  /* --- La entrada ---
+     El mismo billete que la portada de talleres, en grande: el talon granate
+     con el dia, un corte de puntos y el cuerpo con los datos. El precio sale
+     una sola vez en la pagina y sale aqui, pegado al boton. */
+  .pase {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    max-width: 48rem;
+    margin: 2.75rem auto 0;
+    border-radius: 26px;
+    background-color: var(--color-blanc);
+    box-shadow:
+      var(--shadow-alta),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-encre) 6%, transparent);
+  }
+
+  .pase__talon {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    min-width: 7.5rem;
+    padding: 1.5rem 1rem;
+    border-radius: 26px 0 0 26px;
+    background-image: linear-gradient(160deg, var(--color-grenat), var(--color-lie));
+    color: var(--color-blanc);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+  }
+
+  .pase__semana,
+  .pase__mes {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  .pase__semana {
+    opacity: 0.8;
+  }
+
+  .pase__dia {
+    font-size: 4.25rem;
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .pase__corte {
+    width: 0;
+    margin-block: 1.1rem;
+    border-left: 2px dashed color-mix(in srgb, var(--color-encre) 14%, transparent);
+  }
+
+  .pase__cuerpo {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.6rem 1.9rem 1.7rem;
+  }
+
+  .pase__rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-grenat);
+  }
+
+  .pase__nombre {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     color: var(--color-encre);
   }
 
-  .reserva__detalle {
-    font-size: var(--text-body-s);
-    color: color-mix(in srgb, var(--color-encre) 66%, transparent);
-  }
-
-  /* El sitio va en su propia linea: "Galerie The Muisca, Le Marais" no cabe
-     detras de la fecha y la hora sin partirse por cualquier parte. */
-  .reserva__lugar {
-    display: block;
-    margin-top: 0.2rem;
-    font-weight: 500;
-    color: var(--color-nuit);
-  }
-
-  /* Lo que hay que saber antes de pagar: lo incluido, el nivel, las plazas. */
-  .reserva__condiciones {
+  .pase__datos {
     display: grid;
-    gap: 0.45rem;
-    margin: 1.4rem 0 0;
+    gap: 0.6rem 1.5rem;
+    margin: 0.9rem 0 0;
     padding: 0;
     list-style: none;
     font-size: var(--text-body-s);
     color: var(--color-nuit);
   }
 
-  .reserva__condiciones li {
+  @media (width >= 48rem) {
+    .pase__datos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .pase__datos li {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .pase__icono {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--color-papier) 55%, var(--color-blanc));
+    color: var(--color-grenat);
+  }
+
+  .pase__icono :global(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  /* El pie: el precio y el boton, al otro lado de un corte horizontal. */
+  .pase__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    margin-top: 1.4rem;
+    padding-top: 1.3rem;
+    border-top: 2px dashed color-mix(in srgb, var(--color-encre) 12%, transparent);
+  }
+
+  .pase__precio {
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
   }
 
-  .reserva__condiciones li::before {
-    content: '';
-    flex: none;
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background-color: var(--color-grenat);
-    transform: translateY(-0.1rem);
+  .pase__cifra {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-encre);
   }
 
-  .reserva__letra {
-    margin-top: 1rem;
+  .pase__detalle {
     font-size: var(--text-body-s);
     color: color-mix(in srgb, var(--color-encre) 66%, transparent);
   }
 
-  .reserva__pagar {
-    margin-top: 1.75rem;
+  @media (width < 36rem) {
+    .pase__talon {
+      min-width: 4.75rem;
+      padding-inline: 0.6rem;
+    }
+
+    .pase__dia {
+      font-size: 2.8rem;
+    }
+
+    .pase__cuerpo {
+      padding: 1.15rem 1.1rem 1.25rem;
+    }
+
+    .pase__pie :global(a) {
+      width: 100%;
+    }
+  }
+
+  /* --- Como se reserva: tres pasos con su numero en un circulo --- */
+  .pasos {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 48rem;
+    margin: 2.5rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .pasos {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.75rem;
+    }
+  }
+
+  .pasos__paso {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .pasos__num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px var(--color-grenat);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-grenat);
+  }
+
+  .pasos__titulo {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-encre);
+  }
+
+  .pasos__texto {
+    margin-top: 0.15rem;
+    font-size: var(--text-body-s);
+    line-height: 1.5;
+    color: var(--color-nuit);
+  }
+
+  /* La letra pequeña y las dudas: centradas y en segundo plano. */
+  .reserva__notas {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 44rem;
+    margin: 2.25rem auto 0;
+    text-align: center;
+    font-size: var(--text-body-s);
+    color: color-mix(in srgb, var(--color-encre) 70%, transparent);
+  }
+
+  .reserva__notas a {
+    font-weight: 600;
+    color: var(--color-grenat);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .reserva__notas a:hover {
+    color: var(--color-lie);
   }
 </style>
 

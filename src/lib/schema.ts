@@ -188,7 +188,7 @@ export function taller({
   precio?: number;
   moneda: string;
   ciudad: string;
-  /** El nombre del sitio, si lo hay: "Galerie The Muisca, Le Marais". */
+  /** El nombre del sitio, si lo hay: "The Muisca Gallery". */
   lugar?: string;
   pais: string;
   /** ISO 8601. Hasta cuando se puede reservar plaza. */
