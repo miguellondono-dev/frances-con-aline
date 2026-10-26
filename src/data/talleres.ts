@@ -81,7 +81,7 @@ export const TALLERES: Taller[] = [
     resumen:
       'Una hora de francés para hablar de arte y una sesión de acuarela, con la pastelería francesa como tema.',
     parrafos: [
-      'Es la primera edición de mi taller de francés y acuarela, y lo hago junto a la artista Miss S. Es para quien quiere aprender francés haciendo algo creativo: una hora de clase sobre arte y, después, pintamos en acuarela con la pastelería francesa como tema.',
+      'Es la primera edición de mi taller de francés y acuarela, para quien quiere aprender francés haciendo algo creativo: una hora de clase sobre arte y, después, pintamos en acuarela con la pastelería francesa como tema.',
       'Al salir de la clase sabrás describir una obra, dar tu opinión sobre ella y seguir cualquier taller de arte en francés, porque tendrás el vocabulario. En la segunda parte aprendes las técnicas de la acuarela y exploras tu creatividad. Te vas con tu lámina terminada y con palabras que ya no se te olvidan, porque las usaste para crear algo.',
     ],
     // En el orden de las escenas de TallerLanding: mezcla, vocabulario, boceto, lamina.
@@ -102,7 +102,7 @@ export const TALLERES: Taller[] = [
     tanda: {
       cuando: 'Domingo 1 de noviembre',
       hora: '10:30 a 13:00',
-      precio: 45,
+      precio: 25,
       cierre: '30 de octubre',
       iso: {
         inicia: '2026-11-01T10:30:00+01:00',

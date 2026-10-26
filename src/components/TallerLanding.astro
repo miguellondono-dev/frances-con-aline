@@ -42,8 +42,8 @@ interface Props {
   laminas?: { src: ImageMetadata; alt: string }[];
   /**
    * Quien hace el taller y donde: personas con su retrato (y su firma, si la
-   * tiene) o un sitio con su logo. Solo lo usa acuarela, que tiene artista
-   * invitada y galeria.
+   * tiene) o un sitio con su logo. Solo lo usa acuarela, que se hace en una
+   * galeria.
    */
   equipo?: {
     rol: string;
@@ -356,7 +356,7 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
 }
 
 <!-- Equipo. Las mismas tarjetas del mosaico, con un retrato o un logo donde
-     van las escenas. La firma de la artista va encima, como en una lamina. -->
+     van las escenas. Si alguien tiene firma, va encima, como en una lamina. -->
 {
   equipo.length > 0 && (
     <section class="equipo" aria-labelledby="equipo">
@@ -367,7 +367,7 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
           </h2>
         </div>
 
-        <ul class="equipo__rejilla">
+        <ul class:list={['equipo__rejilla', { 'equipo__rejilla--dos': equipo.length === 2 }]}>
           {equipo.map((p, i) => (
             <li class="logro" data-reveal style={`--i: ${i}`}>
               <article class="logro__tarjeta">
@@ -1259,6 +1259,17 @@ const cerradoYa = estadoDe(t) === 'cerrado' ? '' : undefined;
   @media (width >= 64rem) {
     .equipo__rejilla {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Con dos tarjetas no se deja un hueco a la derecha: van dos, centradas. */
+  .equipo__rejilla--dos {
+    max-width: 48rem;
+  }
+
+  @media (width >= 64rem) {
+    .equipo__rejilla--dos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

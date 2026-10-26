@@ -9,8 +9,6 @@ import laminaLimon from '../../assets/talleres/acuarela-limon.jpg';
 import laminaCerezas from '../../assets/talleres/acuarela-cerezas.jpg';
 import laminaDonut from '../../assets/talleres/acuarela-donut.jpg';
 import fotoAline from '../../assets/talleres/equipo-aline.webp';
-import fotoSarah from '../../assets/talleres/equipo-sarah.webp';
-import firmaMissS from '../../assets/talleres/miss-s-firma.png';
 import logoMuisca from '../../assets/talleres/the-muisca-logo.png';
 
 const t = porSlug('acuarela');
@@ -27,7 +25,7 @@ const schema = [
   taller({
     name: 'Taller de acuarela en francés',
     description:
-      'Primera edición del taller de francés y acuarela con la artista Miss S, en The Muisca Gallery (París): una hora de clase de francés sobre arte y una sesión de acuarela, con la pastelería francesa como tema. Desde nivel A2, con materiales, té y café incluidos.',
+      'Primera edición del taller de francés y acuarela en The Muisca Gallery (París): una hora de clase de francés sobre arte y una sesión de acuarela, con la pastelería francesa como tema. Desde nivel A2, con materiales, té y café incluidos.',
     path: '/talleres/acuarela',
     site: Astro.site,
     inicia: t.tanda?.iso.inicia,
@@ -46,7 +44,7 @@ const schema = [
 ];
 
 const descripcion = t.tanda
-  ? `Una hora de francés para hablar de arte y una sesión de acuarela con la artista Miss S, en The Muisca Gallery (París). ${t.tanda.cuando}, de ${t.tanda.hora}. ${t.tanda.precio} €, materiales incluidos.`
+  ? `Una hora de francés para hablar de arte y una sesión de acuarela en The Muisca Gallery (París). ${t.tanda.cuando}, de ${t.tanda.hora}. ${t.tanda.precio} €, materiales incluidos.`
   : 'Un domingo pintando en acuarela y hablando en francés, en París, con tu lámina terminada. Las próximas fechas, muy pronto.';
 ---
 
@@ -67,7 +65,7 @@ const descripcion = t.tanda
     portadaAlt="Una mano sostiene una lámina de acuarela recién terminada sobre la mesa de trabajo"
     equipo={[
       {
-        rol: 'Organizo y doy la clase',
+        rol: 'Organizo y doy el taller',
         nombre: 'Aline Bart',
         texto:
           'Soy tutora de francés y mediadora cultural. En mis talleres uno el francés y la acuarela para que practicar el idioma sea una forma de expresarte, en un ambiente de confianza.',
@@ -77,16 +75,6 @@ const descripcion = t.tanda
           { href: '/sobre-mi', texto: 'Más sobre mí' },
           { href: 'https://www.instagram.com/francesconaline/', texto: '@francesconaline en Instagram' },
         ],
-      },
-      {
-        rol: 'Artista invitada',
-        nombre: 'Sarah, Miss S',
-        texto:
-          'Artista apasionada por la pintura y por crear espacios donde todos puedan aprender. Te guía en la acuarela a tu ritmo, sin presión por la perfección.',
-        foto: fotoSarah,
-        firma: firmaMissS,
-        alt: 'Retrato de Sarah, Miss S',
-        enlaces: [{ href: 'https://www.tiktok.com/@ittle.s', texto: '@ittle.s en TikTok' }],
       },
       {
         rol: 'Galería aliada',
